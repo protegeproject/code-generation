@@ -2,6 +2,10 @@ package org.protege.editor.owl.codegeneration;
 
 import java.io.File;
 
+/**
+ * @author z.khan
+ *
+ */
 public class EditableJavaCodeGeneratorOptionsImpl implements EditableJavaCodeGeneratorOptions {
 
     private boolean abstractMode;

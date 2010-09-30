@@ -611,6 +611,7 @@ public class JavaCodeGenerator {
         
         for (Iterator iterator = owlDataProperties.iterator(); iterator.hasNext();) {
             OWLDataProperty owlDataProperty = (OWLDataProperty) iterator.next();
+            printImplementationDataPropertyCode(owlDataProperty, printWriter);
         }
         
         printWriter.println("    public void delete(){");
@@ -620,6 +621,8 @@ public class JavaCodeGenerator {
         printWriter.println("}");
 
     }
+
+    
 
     /**
      * @param printWriter
@@ -795,6 +798,11 @@ public class JavaCodeGenerator {
         printWriter.println("}");
 
     }
+    
+    private void printImplementationDataPropertyCode(OWLDataProperty owlDataProperty, PrintWriter printWriter) {
+        
+    }
+    
 
     private boolean hasMultipleSuperclasses(OWLClass owlClass) {
         boolean superclassFound = false;

@@ -1,19 +1,26 @@
 package org.protege.editor.owl.codegeneration;
 
-//import edu.stanford.smi.protege.resource.Icons;
-//import edu.stanford.smi.protege.util.LabeledComponent;
-
-import javax.print.attribute.standard.JobHoldUntil;
-import javax.swing.*;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 
+import javax.swing.AbstractAction;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
 /**
- * @author Holger Knublauch <holger@knublauch.com>
+ * @author z.khan
+ *
  */
 public class JavaCodeGeneratorPanel extends JPanel {
 
@@ -134,7 +141,6 @@ public class JavaCodeGeneratorPanel extends JPanel {
                 options.setPrefixMode(prefixCheckBox.isSelected());
 
                 generateCodeWithOptions.okClicked();
-//                
 
             }
         });

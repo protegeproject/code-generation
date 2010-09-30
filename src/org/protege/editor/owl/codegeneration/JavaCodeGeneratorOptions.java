@@ -3,7 +3,8 @@ package org.protege.editor.owl.codegeneration;
 import java.io.File;
 
 /**
- * @author Holger Knublauch  <holger@knublauch.com>
+ * @author z.khan
+ *
  */
 public interface JavaCodeGeneratorOptions {
 
