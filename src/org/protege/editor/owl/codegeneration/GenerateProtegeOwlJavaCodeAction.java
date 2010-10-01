@@ -51,7 +51,7 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
         options = new EditableJavaCodeGeneratorOptionsImpl();
         JavaCodeGeneratorPanel javaCodeGeneratorPanel = new JavaCodeGeneratorPanel(options, this);
         codeGenOptionFrame = new JFrame("Generate Protege-OWL Java Code");
-        codeGenOptionFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        codeGenOptionFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         codeGenOptionFrame.add(javaCodeGeneratorPanel);
         codeGenOptionFrame.setSize(300, 350);
         codeGenOptionFrame.setVisible(true);
