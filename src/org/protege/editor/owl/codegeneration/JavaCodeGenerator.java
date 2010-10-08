@@ -1,12 +1,14 @@
 package org.protege.editor.owl.codegeneration;
 
 import java.io.File;
+
 import org.protege.editor.owl.codegeneration.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -17,8 +19,11 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataPropertyAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLDataRange;
 import org.semanticweb.owlapi.model.OWLDatatype;
+import org.semanticweb.owlapi.model.OWLLiteral;
+import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.reasoner.Node;
@@ -50,7 +55,7 @@ public class JavaCodeGenerator {
     private DefaultPrefixManager prefixManager;
 
     public JavaCodeGenerator(OWLOntology owlOntology, JavaCodeGeneratorOptions options) {
-        
+
         this.owlOntology = owlOntology;
         this.options = options;
         File folder = options.getOutputFolder();
@@ -231,7 +236,9 @@ public class JavaCodeGenerator {
             if (oClassExpressions.size() > 1) { // Contains More than 1 range hence disable use of extends
                 useExtends = false;
             }
-            String genericsString = objPropertyRange.equals(PropertyConstants.JAVA_LANG_OBJECT) ? "<?>"
+//            String genericsString = objPropertyRange.equals(PropertyConstants.JAVA_LANG_OBJECT) ? "<?>"
+//                    : useExtends ? "<? extends " + objPropertyRange + ">" : "<" + objPropertyRange + ">";
+            String genericsString = objPropertyRange.equals(PropertyConstants.JAVA_LANG_OBJECT) ? ""
                     : useExtends ? "<? extends " + objPropertyRange + ">" : "<" + objPropertyRange + ">";
             objPropertyRange = options.getSetMode() ? "Set" + genericsString : "Collection" + genericsString;
             return objPropertyRange;
@@ -304,8 +311,10 @@ public class JavaCodeGenerator {
             //                useExtends = false;
             //                
             //            }
-            String genericsString = dataPropertyRange.equals(PropertyConstants.JAVA_LANG_OBJECT) ? "<?>" : "<"
-                    + dataPropertyRange + ">";
+//            String genericsString = dataPropertyRange.equals(PropertyConstants.JAVA_LANG_OBJECT) ? "<?>" : "<"
+//                    + dataPropertyRange + ">";
+            String genericsString = dataPropertyRange.equals(PropertyConstants.JAVA_LANG_OBJECT) ? "" : "<"
+                + dataPropertyRange + ">";
             dataPropertyRange = options.getSetMode() ? "Set" + genericsString : "Collection" + genericsString;
             return dataPropertyRange;
         }
@@ -336,8 +345,8 @@ public class JavaCodeGenerator {
         for (OWLDataRange owlDataRange : owlDataRanges) {
             OWLDatatype owlDatatype = owlDataRange.asOWLDatatype();
             DataRangeType s = owlDatatype.getDataRangeType();
-            IRI e = owlDatatype.getIRI();
-            String dataTypeFragment = e.getFragment();
+            IRI dataTypeIRI = owlDatatype.getIRI();
+            String dataTypeFragment = dataTypeIRI.getFragment();
 
             if (owlDatatype.isBoolean()) {
                 dataPropertyRange = PropertyConstants.BOOLEAN;
@@ -345,19 +354,21 @@ public class JavaCodeGenerator {
                 dataPropertyRange = PropertyConstants.DOUBLE;
             } else if (owlDatatype.isFloat()) {
                 dataPropertyRange = PropertyConstants.FLOAT;
-            } else if (owlDatatype.isInteger()) {
+            } else if (owlDatatype.isInteger() || dataTypeFragment.trim().equals(PropertyConstants.INT)) {
                 dataPropertyRange = PropertyConstants.INTEGER;
             } else if (owlDatatype.isString()) {
                 dataPropertyRange = PropertyConstants.STRING;
-            } else if (dataTypeFragment.trim().equals(PropertyConstants.INT)) {
-                dataPropertyRange = PropertyConstants.INT;
-            } else if (dataTypeFragment.trim().equals(PropertyConstants.BYTE)) {
-                dataPropertyRange = PropertyConstants.BYTE;
-            } else if (dataTypeFragment.trim().equals(PropertyConstants.LONG)) {
-                dataPropertyRange = PropertyConstants.LONG;
-            } else if (dataTypeFragment.trim().equals(PropertyConstants.SHORT)) {
-                dataPropertyRange = PropertyConstants.SHORT;
-            } else {
+            }
+            //            else if (dataTypeFragment.trim().equals(PropertyConstants.INT)) {
+            //                dataPropertyRange = PropertyConstants.INT;
+            //            } else if (dataTypeFragment.trim().equals(PropertyConstants.BYTE)) {
+            //                dataPropertyRange = PropertyConstants.BYTE;
+            //            } else if (dataTypeFragment.trim().equals(PropertyConstants.LONG)) {
+            //                dataPropertyRange = PropertyConstants.LONG;
+            //            } else if (dataTypeFragment.trim().equals(PropertyConstants.SHORT)) {
+            //                dataPropertyRange = PropertyConstants.SHORT;
+            //            } 
+            else {
                 dataPropertyRange = PropertyConstants.JAVA_LANG_OBJECT;
             }
             break;
@@ -401,7 +412,7 @@ public class JavaCodeGenerator {
                 if (owlClass.getIRI().toString().trim().equals(owlCls.getIRI().toString().trim())) {
                     owlObjectProperties.add(owlObjectProperty);
                     break;
-                } 
+                }
             }
         }
         Set<OWLClassExpression> sc = owlClass.getSuperClasses(owlOntology);
@@ -575,7 +586,6 @@ public class JavaCodeGenerator {
         printWriter.println();
         List<OWLObjectProperty> owlObjectProperties = getClassObjectProperties(owlClass);
         List<OWLDataProperty> owlDataProperties = getClassDataProperties(owlClass);
-        //        addImportJavaUtilCode(printWriter, owlDataProperties, owlObjectProperties);
         String pack = options.getPackage();
         if (pack != null) {
             printWriter.println("import " + pack + "." + getInterfaceNamePossiblyAbstract(owlClass) + ";");
@@ -585,9 +595,8 @@ public class JavaCodeGenerator {
 
         printWriter.println("import java.util.*;");
         printWriter.println();
-        printWriter.println("import org.protege.editor.owl.codegeration.AbstractCodeGeneratorIndividual;");
+        printWriter.println("import org.protege.editor.owl.codegeneration.AbstractCodeGeneratorIndividual;");
         printWriter.println("import org.semanticweb.owlapi.model.*;");
-        printWriter.println("import org.semanticweb.owlapi.util.OWLEntityRemover;");
 
         printWriter.println();
         printWriter.println("/**");
@@ -608,12 +617,12 @@ public class JavaCodeGenerator {
             printImplementationObjectPropertyCode(owlObjectProperty, printWriter);
             printWriter.println();
         }
-        
+
         for (Iterator iterator = owlDataProperties.iterator(); iterator.hasNext();) {
             OWLDataProperty owlDataProperty = (OWLDataProperty) iterator.next();
             printImplementationDataPropertyCode(owlDataProperty, printWriter);
         }
-        
+
         printWriter.println("    public void delete(){");
         printWriter.println("        deleteIndividual();");
         printWriter.println("    }");
@@ -621,8 +630,6 @@ public class JavaCodeGenerator {
         printWriter.println("}");
 
     }
-
-    
 
     /**
      * @param printWriter
@@ -684,11 +691,11 @@ public class JavaCodeGenerator {
             printWriter.println("            return null;");
             printWriter.println("        }");
             printWriter.println("        for (OWLIndividual owlIndividual : values) {");
-            if(objectPropertyType.equals(PropertyConstants.JAVA_LANG_OBJECT)){
+            if (objectPropertyType.equals(PropertyConstants.JAVA_LANG_OBJECT)) {
                 printWriter.println("  propertyValues.add(owlIndividual);");
-            }else {
-            printWriter.println("            propertyValues.add(new Default" + objectPropertyType
-                    + "(getOWLDataFactory(), owlIndividual.asOWLNamedIndividual().getIRI(), getOwlOntology()));");
+            } else {
+                printWriter.println("            propertyValues.add(new Default" + objectPropertyType
+                        + "(getOWLDataFactory(), owlIndividual.asOWLNamedIndividual().getIRI(), getOwlOntology()));");
             }
             printWriter.println("        }");
             printWriter.println("        return propertyValues;");
@@ -740,13 +747,19 @@ public class JavaCodeGenerator {
             printWriter.println();
             printWriter.println("    public void remove" + propertyNameUpperCase + "(" + objPropertyJavaName + " old"
                     + propertyNameUpperCase + ") {");
-            printWriter.println("    removePropertyValue( (OWLNamedIndividual) old" + propertyNameUpperCase + ", "
+            printWriter.println("    removeObjectPropertyValue( (OWLNamedIndividual) old" + propertyNameUpperCase + ", "
                     + getPropertyFunctionName + ");");
             printWriter.println("    }");
 
             printWriter.println();
-            printWriter.println("    public void set" + propertyNameUpperCase + "("
-                    + getObjectPropertyRange(owlObjectProperty, false) + " new" + propertyNameUpperCase + "List ) {");
+            printWriter.println("    public void set" + propertyNameUpperCase + "( "
+                    + objectPropertyRange + " new" + propertyNameUpperCase + "List ) {");
+            printWriter.println("        OWLObjectProperty property = "+getPropertyFunctionName+";");
+            printWriter.println("        "+objectPropertyRange+" prevValues = get" + propertyNameUpperCase + "();");
+            printWriter.println("        for ("+objPropertyJavaName+" value : prevValues) {");
+            printWriter.println("            removeObjectPropertyValue( (OWLNamedIndividual) value, property);");
+            printWriter.println("        }");
+            
             printWriter.println("        for (" + objPropertyJavaName + " element : " + " new" + propertyNameUpperCase
                     + "List" + ") {");
             printWriter
@@ -761,7 +774,10 @@ public class JavaCodeGenerator {
 
             printWriter.println();
             printWriter.println("    public void set" + propertyNameUpperCase + "("
-                    + getObjectPropertyRange(owlObjectProperty, false) + " new" + propertyNameUpperCase + ") {");
+                    + objectPropertyRange + " new" + propertyNameUpperCase + ") {");
+            printWriter.println("        OWLObjectProperty property = "+getPropertyFunctionName+";");
+            printWriter.println("        "+objectPropertyRange+" prevValue = get" + propertyNameUpperCase + "();");
+            printWriter.println("        removeObjectPropertyValue( (OWLNamedIndividual) prevValue, property);");
             printWriter
                     .println("        OWLObjectPropertyAssertionAxiom axiom = getOWLDataFactory().getOWLObjectPropertyAssertionAxiom( "
                             + getPropertyFunctionName + ", this, " + "new" + propertyNameUpperCase + ");");
@@ -798,11 +814,175 @@ public class JavaCodeGenerator {
         printWriter.println("}");
 
     }
-    
+
+    //TODO: Refactor this function , make modular
     private void printImplementationDataPropertyCode(OWLDataProperty owlDataProperty, PrintWriter printWriter) {
+
+        String propertyName = getDataPropertyName(owlDataProperty);
+        String propertyNameUpperCase = getInitialLetterAsUpperCase(propertyName);
+        String getPropertyFunctionName = "get" + propertyNameUpperCase + "Property()";
+
+        Set<OWLDataRange> owlDataRanges = owlDataProperty.getRanges(owlOntology);
+        String dataPropertyJavaName = getDataPropertyJavaName(owlDataRanges);
         
+        boolean isDataTypeBasic = isDataTypeBasic(owlDataProperty);
+
+        boolean isFunctional = owlDataProperty.isFunctional(owlOntology);
+        printWriter.println();
+        printWriter.println();
+        printWriter.println("    // Property " + owlDataProperty.getIRI());
+        printWriter.println();
+        printWriter.println("    public " + "OWLDataProperty " + getPropertyFunctionName + " {");
+        printWriter.println("        final String iriString = \"" + owlDataProperty.getIRI() + "\";");
+        printWriter.println("        final IRI iri = IRI.create(iriString);");
+        printWriter.println("        return getOWLDataFactory().getOWLDataProperty(iri);");
+        printWriter.println("    }");
+        printWriter.println();
+        printWriter.println("    public " + getDataPropertyRange(owlDataProperty) + " get" + propertyNameUpperCase
+                + "() {");
+
+        if (isFunctional) {
+
+            printWriter.println("        Set<OWLLiteral> propertyValues = getDataPropertyValues( "
+                    + getPropertyFunctionName + ", getOwlOntology());");
+            printWriter.println("        for (OWLLiteral owlLiteral : propertyValues) {");
+            if (dataPropertyJavaName.equalsIgnoreCase(PropertyConstants.JAVA_LANG_OBJECT)) {
+                printWriter.println("            return (" + dataPropertyJavaName + ") owlLiteral.getLiteral();");
+            } else {
+                printWriter.println("            return new " + dataPropertyJavaName + "( owlLiteral.getLiteral());");
+            }
+            printWriter.println("        }");
+            printWriter.println("        return null;");
+        } else {
+            printWriter.println("        Set<OWLLiteral> propertyValues = getDataPropertyValues( "
+                    + getPropertyFunctionName + ", getOwlOntology());");
+            printWriter.println("        Set<" + dataPropertyJavaName + "> values = new HashSet<" + dataPropertyJavaName
+                    + ">();");
+            printWriter.println("        for (OWLLiteral owlLiteral : propertyValues) {");
+            if (dataPropertyJavaName.equalsIgnoreCase(PropertyConstants.JAVA_LANG_OBJECT)) {
+                printWriter.println("            values.add( (" + dataPropertyJavaName + ")owlLiteral.getLiteral());");
+            } else {
+                printWriter.println("            values.add( new " + dataPropertyJavaName + "( owlLiteral.getLiteral()));");
+            }
+            printWriter.println("        }");
+            printWriter.println("        return values;");
+        }
+        printWriter.println("    }");
+        printWriter.println();
+
+        printWriter.println("    public boolean has" + propertyNameUpperCase + "(){");
+        printWriter.println("        "+getDataPropertyRange(owlDataProperty)+" value = get" + propertyNameUpperCase+"();");
+        if(isFunctional){
+            printWriter.println("        return ( value == null )? false : true;");
+        }else {
+            printWriter.println("        return ( value == null || value.isEmpty() )? false : true;");
+        }
+        printWriter.println("    }");
+
+        if (!owlDataProperty.isFunctional(owlOntology)) {
+            printWriter.println();
+            printWriter.println("    public " + PropertyConstants.JAVA_UTIL_ITERATOR + " list" + propertyNameUpperCase
+                    + "() {");
+            printWriter.println("        return get" + propertyNameUpperCase+"().iterator();");
+            printWriter.println("    }");
+            printWriter.println();
+            printWriter.println("    public void add" + propertyNameUpperCase + "("
+                    + getDataPropertyJavaName(owlDataRanges) + " new" + propertyNameUpperCase + "){");
+            if(isDataTypeBasic) {
+                printWriter.println("        OWLLiteral literal = getOWLDataFactory().getOWLLiteral( new"+propertyNameUpperCase+");");
+            }else {
+                printWriter.println("        OWLLiteral literal = getOWLDataFactory().getOWLLiteral( new"+propertyNameUpperCase+".toString(), \"\");");
+            }
+            printWriter.println("        if (!doesPropertyContainsLiteral("+getPropertyFunctionName+", literal)) {");
+            printWriter.println("            OWLDataPropertyAssertionAxiom axiom = getOWLDataFactory().getOWLDataPropertyAssertionAxiom(");
+            printWriter.println("                "+getPropertyFunctionName+", this, literal);");
+            printWriter.println("            getOwlOntology().getOWLOntologyManager().addAxiom(getOwlOntology(), axiom);");
+            printWriter.println("        }");
+            printWriter.println("    }");
+            printWriter.println();
+            printWriter.println("    public void remove" + propertyNameUpperCase + "("
+                    + getDataPropertyJavaName(owlDataRanges) + " old" + propertyNameUpperCase + "){");
+            if(isDataTypeBasic) {
+                printWriter.println("        OWLLiteral literal = getOWLDataFactory().getOWLLiteral( old" + propertyNameUpperCase + ");");
+            }else {
+                printWriter.println("        OWLLiteral literal = getOWLDataFactory().getOWLLiteral( old" + propertyNameUpperCase + ".toString(),\"\");");
+            }
+            printWriter.println("        removeDataPropertyValue(literal, "+getPropertyFunctionName+");");
+            printWriter.println("    }");
+
+        }
+        printWriter.println();
+        
+        
+        
+        //Generate Setter function
+        if (isFunctional) {
+            printWriter.println("    public void set" + propertyNameUpperCase + "(" + getDataPropertyRange(owlDataProperty)
+                    + " new" + propertyNameUpperCase + "){");
+            printWriter.println("        "+getDataPropertyRange(owlDataProperty)+" prevValue = get" + propertyNameUpperCase + "()"+";");
+            printWriter.println("        //Remove previous value/values");
+            printWriter.println("        if (prevValue != null) {");
+            if(isDataTypeBasic) {
+                printWriter.println("            OWLLiteral literalToRemove = getOWLDataFactory().getOWLLiteral(prevValue);");
+                printWriter.println("            removeDataPropertyValue(literalToRemove, "+getPropertyFunctionName+");");
+                printWriter.println("        }");
+                printWriter.println("    OWLLiteral literal = getOWLDataFactory().getOWLLiteral(("+" new" + propertyNameUpperCase+" == null) ? null : "+" new" + propertyNameUpperCase+");");
+                
+            }else {
+                printWriter.println("            OWLLiteral literalToRemove = getOWLDataFactory().getOWLLiteral(prevValue.toString(), \"\");");
+                printWriter.println("            removeDataPropertyValue(literalToRemove, "+getPropertyFunctionName+");");
+                printWriter.println("        }");
+                printWriter.println("    OWLLiteral literal = getOWLDataFactory().getOWLLiteral(("+" new" + propertyNameUpperCase+" == null) ? null : "+" new" + propertyNameUpperCase+".toString(), \"\");");
+                
+                
+                
+            }
+            printWriter.println("    setDataProperty("+getPropertyFunctionName+", literal);");
+            
+        } else {
+            printWriter.println("    public void set" + propertyNameUpperCase + "(" + getDataPropertyRange(owlDataProperty)
+                    + " new" + propertyNameUpperCase + "List ){");
+            printWriter.println("        "+getDataPropertyRange(owlDataProperty)+" prevValueList = get" + propertyNameUpperCase + "();");
+            printWriter.println("        if (prevValueList != null) {");
+            printWriter.println("            for ("+dataPropertyJavaName+" prevValue : prevValueList) {");
+            if(isDataTypeBasic) {
+                printWriter.println("                OWLLiteral literalToRemove = getOWLDataFactory().getOWLLiteral(prevValue);");
+            }else {
+                printWriter.println("                OWLLiteral literalToRemove = getOWLDataFactory().getOWLLiteral(prevValue.toString(), \"\");");
+            }
+            
+            printWriter.println("                removeDataPropertyValue(literalToRemove, "+getPropertyFunctionName+");");
+            printWriter.println("            }");
+            printWriter.println("        }");
+            printWriter.println("        for ("+dataPropertyJavaName+" value : new" + propertyNameUpperCase + "List ) {");
+            if(isDataTypeBasic) {
+                printWriter.println("            OWLLiteral literal = getOWLDataFactory().getOWLLiteral(value);");
+            }else {
+                printWriter.println("            OWLLiteral literal = getOWLDataFactory().getOWLLiteral(value.toString(), \"\");");
+            }
+            printWriter.println("            setDataProperty("+getPropertyFunctionName+", literal);");
+            printWriter.println("        }");
+            
+            
+        }
+        printWriter.println("    }");
+
     }
-    
+
+    private boolean isDataTypeBasic(OWLDataProperty owlDataProperty) {
+        Set<OWLDataRange> ranges = owlDataProperty.asOWLDataProperty().getRanges(owlOntology);
+        if (ranges == null || ranges.isEmpty() || ranges.size() > 1) {
+            return false;
+        }
+        for (OWLDataRange owlDataRange : ranges) {
+            OWLDatatype owlDatatype = owlDataRange.asOWLDatatype();
+            if (owlDatatype.isBoolean() || owlDatatype.isDouble() || owlDatatype.isFloat() || owlDatatype.isInteger()
+                    || owlDatatype.isString()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private boolean hasMultipleSuperclasses(OWLClass owlClass) {
         boolean superclassFound = false;
@@ -878,7 +1058,7 @@ public class JavaCodeGenerator {
     public void setOwlDataFactory(OWLDataFactory owlDataFactory) {
         this.owlDataFactory = owlDataFactory;
     }
- 
+
     public String getInitialLetterAsUpperCase(String name) {
         if (name.length() > 1) {
             return Character.toUpperCase(name.charAt(0)) + name.substring(1);
