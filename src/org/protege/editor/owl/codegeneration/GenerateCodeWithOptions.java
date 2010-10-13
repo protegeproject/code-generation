@@ -10,4 +10,6 @@ package org.protege.editor.owl.codegeneration;
 public interface GenerateCodeWithOptions {
 
     void okClicked();
+    
+    void cancelClicked();
 }

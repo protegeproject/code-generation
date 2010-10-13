@@ -44,7 +44,7 @@ public class EditableJavaCodeGeneratorOptionsImpl implements EditableJavaCodeGen
     }
 
     public void setFactoryClassName(String value) {
-        if (value != null || value.trim().length() > 0) {
+        if (value != null && value.trim().length() > 0) {
             factoryClassName = value;
         } else {
             factoryClassName = FACTORY_CLASS_NAME_DEFAULT;

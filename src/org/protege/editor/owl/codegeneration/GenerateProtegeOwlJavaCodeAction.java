@@ -5,8 +5,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Set;
 
 import javax.swing.JFrame;
 
@@ -14,14 +12,10 @@ import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
 import org.semanticweb.HermiT.Reasoner;
 import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLClassExpression;
-import org.semanticweb.owlapi.model.OWLDataFactory;
-import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
-import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 /**
  * @author z.khan
@@ -71,8 +65,6 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
         c.setLocation(new Point(xPos, yPos));
     }
 
-    private static DefaultPrefixManager pm = new DefaultPrefixManager("http://owl.man.ac.uk/2005/07/sssw/people#");
-
     public void okClicked() {
         codeGenOptionFrame.setVisible(false);
         OWLModelManager owlModelManager = getOWLModelManager();
@@ -81,30 +73,19 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
         OWLReasoner reasoner = reasonerFactory.createReasoner(owlOntology);
         JavaCodeGenerator javaCodeGenerator = new JavaCodeGenerator(owlOntology,options);
         OWLOntologyID owlOntologyID = owlOntology.getOntologyID();
-        OWLDataFactory fac = owlModelManager.getOWLDataFactory();
-        javaCodeGenerator.setOwlDataFactory(fac);
+//        OWLDataFactory fac = owlModelManager.getOWLDataFactory();
+//        javaCodeGenerator.setOwlDataFactory(fac);
         IRI iri = owlOntologyID.getOntologyIRI();
         javaCodeGenerator.setIRI(iri);
-
-        testProperty(owlOntology);
 
         try {
             javaCodeGenerator.createAll(reasoner);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    void testProperty(OWLOntology owlOntology) {
-        Set<OWLObjectProperty> objProp = owlOntology.getObjectPropertiesInSignature();
-        for (Iterator iterator = objProp.iterator(); iterator.hasNext();) {
-            OWLObjectProperty owlObjectProperty = (OWLObjectProperty) iterator.next();
-            Set<OWLClassExpression> d = owlObjectProperty.getDomains(owlOntology);
-            for (Iterator iterator2 = d.iterator(); iterator2.hasNext();) {
-                OWLClassExpression owlClassExpression = (OWLClassExpression) iterator2.next();
-            }
-        }
+    public void cancelClicked() {
+        codeGenOptionFrame.setVisible(false);
     }
-
 }

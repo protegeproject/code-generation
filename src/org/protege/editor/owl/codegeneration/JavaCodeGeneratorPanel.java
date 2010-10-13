@@ -3,26 +3,34 @@ package org.protege.editor.owl.codegeneration;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.net.URL;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 
 /**
  * @author z.khan
- *
+ * 
  */
 public class JavaCodeGeneratorPanel extends JPanel {
+
+    private static final long serialVersionUID = 4160225251535243881L;
 
     private GenerateCodeWithOptions generateCodeWithOptions;
 
@@ -44,11 +52,16 @@ public class JavaCodeGeneratorPanel extends JPanel {
 
     private JButton okButton;
 
+    private JButton cancelButton;
+
     public JavaCodeGeneratorPanel(EditableJavaCodeGeneratorOptions options,
             GenerateCodeWithOptions generateCodeWithOptions) {
 
         this.options = options;
         this.generateCodeWithOptions = generateCodeWithOptions;
+
+        Border border = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        setBorder(border);
 
         packageTextField = new JTextField();
         if (options.getPackage() != null) {
@@ -78,40 +91,58 @@ public class JavaCodeGeneratorPanel extends JPanel {
         prefixCheckBox.setSelected(options.getPrefixMode());
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        //        LabeledComponent lc = new LabeledComponent("Root output folder", rootFolderTextField);
+
         JButton selectFolder = new JButton("Select folder...");
         selectFolder.setAction(new AbstractAction() {
+
+            private static final long serialVersionUID = 3783359547867594508L;
 
             public void actionPerformed(ActionEvent e) {
                 selectFolder();
 
             }
         });
+        URL url = JavaCodeGeneratorPanel.class.getResource("select_folder.gif");
+        selectFolder.setIcon(new ImageIcon(url));
 
         okButton = new JButton("Ok");
 
-        JPanel rootOutPutFolderPanel = new JPanel();
-        rootOutPutFolderPanel.setLayout(new BoxLayout(rootOutPutFolderPanel, BoxLayout.LINE_AXIS));
-        rootOutPutFolderPanel.add(new JLabel("Root output folder"));
-        rootOutPutFolderPanel.add(selectFolder);
-        add(rootOutPutFolderPanel);
-        add(rootFolderTextField);
+        cancelButton = new JButton("Cancel");
+
+        JPanel rootOutPutFolderPanel = new JPanel(new BorderLayout(5, 5));
+        rootOutPutFolderPanel.add(new JLabel("Root output folder"), BorderLayout.WEST);
+        rootOutPutFolderPanel.add(selectFolder, BorderLayout.EAST);
+        rootOutPutFolderPanel.add(rootFolderTextField, BorderLayout.SOUTH);
+        add(getComponentWithNonStrechingVertically(rootOutPutFolderPanel));
         add(Box.createVerticalStrut(8));
-        add(new JLabel("Java package"));
-        add(packageTextField);
+
+        JPanel packageNameJPanel = new JPanel(new BorderLayout());
+        packageNameJPanel.add(new JLabel("Java package"), BorderLayout.WEST);
+        add(packageNameJPanel);
+        add(getComponentWithNonStrechingVertically(packageTextField));
         add(Box.createVerticalStrut(8));
-        add(new JLabel("Factory class name"));
-        add(factoryClassNameTextField);
+
+        JPanel factoryClassNameJPanel = new JPanel(new BorderLayout());
+        factoryClassNameJPanel.add(new JLabel("Factory class name"), BorderLayout.WEST);
+        add(factoryClassNameJPanel);
+        add(getComponentWithNonStrechingVertically(factoryClassNameTextField));
         add(Box.createVerticalStrut(8));
+
         add(createCheckBoxPanel(abstractCheckBox));
         add(Box.createVerticalStrut(8));
+
         add(createCheckBoxPanel(setCheckBox));
         add(Box.createVerticalStrut(8));
+
         add(createCheckBoxPanel(prefixCheckBox));
         add(Box.createVerticalStrut(8));
-        add(okButton);
-        setVisible(true);
 
+        JPanel buttonJPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonJPanel.add(okButton);
+        buttonJPanel.add(cancelButton);
+        add(buttonJPanel);
+
+        setVisible(true);
         setButtonListeners();
 
     }
@@ -143,6 +174,19 @@ public class JavaCodeGeneratorPanel extends JPanel {
                 generateCodeWithOptions.okClicked();
 
             }
+        });
+
+        cancelButton.addMouseListener(new MouseAdapter() {
+
+            /* (non-Javadoc)
+             * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
+             */
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                generateCodeWithOptions.cancelClicked();
+            }
+
         });
     }
 
@@ -176,5 +220,15 @@ public class JavaCodeGeneratorPanel extends JPanel {
             File file = fileChooser.getSelectedFile();
             rootFolderTextField.setText(file.toString());
         }
+    }
+
+    private JPanel getComponentWithNonStrechingVertically(JComponent component) {
+        JPanel componentPanel = new JPanel(new BorderLayout());
+        componentPanel.add(component, BorderLayout.NORTH);
+
+        JPanel flowJPanel = new JPanel(new FlowLayout());
+        componentPanel.add(flowJPanel, BorderLayout.WEST);
+        return componentPanel;
+
     }
 }
