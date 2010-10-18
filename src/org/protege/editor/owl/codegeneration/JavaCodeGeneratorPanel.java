@@ -20,6 +20,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
@@ -144,6 +145,8 @@ public class JavaCodeGeneratorPanel extends JPanel {
 
         setVisible(true);
         setButtonListeners();
+        
+        packageTextField.requestFocus();
 
     }
 
@@ -152,8 +155,7 @@ public class JavaCodeGeneratorPanel extends JPanel {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                setVisible(false);
-                System.out.println("ok button clicked");
+
                 File newFile = null;
                 String rootFolder = rootFolderTextField.getText().trim();
                 if (rootFolder.length() > 0) {
@@ -165,13 +167,17 @@ public class JavaCodeGeneratorPanel extends JPanel {
                 options
                         .setFactoryClassName(factoryClassNameTextField.getText().trim().length() > 0 ? factoryClassNameTextField
                                 .getText().trim()
-                                : null);
+                                : JavaCodeGeneratorConstants.FACTORY_CLASS_NAME);
 
                 options.setAbstractMode(abstractCheckBox.isSelected());
                 options.setSetMode(setCheckBox.isSelected());
                 options.setPrefixMode(prefixCheckBox.isSelected());
+                if (options.getPackage() == null) {
+                    JOptionPane.showMessageDialog(null, "Enter package name.", "Error", JOptionPane.ERROR_MESSAGE);
 
-                generateCodeWithOptions.okClicked();
+                } else {
+                    generateCodeWithOptions.okClicked();
+                }
 
             }
         });

@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
@@ -19,12 +20,12 @@ import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 
 /**
  * @author z.khan
- *
+ * 
  */
 public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implements GenerateCodeWithOptions {
 
     private static final long serialVersionUID = 1L;
-    
+
     EditableJavaCodeGeneratorOptionsImpl options;
 
     private JFrame codeGenOptionFrame;
@@ -66,20 +67,21 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
     }
 
     public void okClicked() {
+        
         codeGenOptionFrame.setVisible(false);
         OWLModelManager owlModelManager = getOWLModelManager();
         OWLOntology owlOntology = owlModelManager.getActiveOntology();
         OWLReasonerFactory reasonerFactory = new Reasoner.ReasonerFactory();
         OWLReasoner reasoner = reasonerFactory.createReasoner(owlOntology);
-        JavaCodeGenerator javaCodeGenerator = new JavaCodeGenerator(owlOntology,options);
+        JavaCodeGenerator javaCodeGenerator = new JavaCodeGenerator(owlOntology, options);
         OWLOntologyID owlOntologyID = owlOntology.getOntologyID();
-//        OWLDataFactory fac = owlModelManager.getOWLDataFactory();
-//        javaCodeGenerator.setOwlDataFactory(fac);
         IRI iri = owlOntologyID.getOntologyIRI();
         javaCodeGenerator.setIRI(iri);
 
         try {
             javaCodeGenerator.createAll(reasoner);
+            JOptionPane.showMessageDialog(null, "Java code successfully generated.", "Information",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
             e.printStackTrace();
         }
