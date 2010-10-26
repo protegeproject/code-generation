@@ -30,7 +30,7 @@ Import-Package: org.osgi.framework,
  org.xml.sax.helpers,
  javax.xml.parsers
 Bundle-ClassPath: .,
- lib/HermiT.jar
+ lib/org.semanticweb.HermiT.jar
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.protege.editor.core.plugin.DefaultPluginActivator 
 Require-Bundle: org.eclipse.equinox.registry,

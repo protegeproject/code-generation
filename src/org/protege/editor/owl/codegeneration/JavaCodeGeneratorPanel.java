@@ -135,8 +135,8 @@ public class JavaCodeGeneratorPanel extends JPanel {
         add(createCheckBoxPanel(setCheckBox));
         add(Box.createVerticalStrut(8));
 
-//        add(createCheckBoxPanel(prefixCheckBox));
-//        add(Box.createVerticalStrut(8));
+        add(createCheckBoxPanel(prefixCheckBox));
+        add(Box.createVerticalStrut(8));
 
         JPanel buttonJPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonJPanel.add(okButton);

@@ -48,7 +48,7 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
         codeGenOptionFrame = new JFrame("Generate Protege-OWL Java Code");
         codeGenOptionFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         codeGenOptionFrame.add(javaCodeGeneratorPanel);
-        codeGenOptionFrame.setSize(300, 350);
+        codeGenOptionFrame.setSize(300, 370);
         codeGenOptionFrame.setVisible(true);
         center(codeGenOptionFrame);
     }
@@ -71,18 +71,21 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
         codeGenOptionFrame.setVisible(false);
         OWLModelManager owlModelManager = getOWLModelManager();
         OWLOntology owlOntology = owlModelManager.getActiveOntology();
+        System.out.println("get act ont");
         OWLReasonerFactory reasonerFactory = new Reasoner.ReasonerFactory();
+        System.out.println("got reaser fac");
         OWLReasoner reasoner = reasonerFactory.createReasoner(owlOntology);
+        System.out.println("got reasoner");
         JavaCodeGenerator javaCodeGenerator = new JavaCodeGenerator(owlOntology, options);
         OWLOntologyID owlOntologyID = owlOntology.getOntologyID();
         IRI iri = owlOntologyID.getOntologyIRI();
-        javaCodeGenerator.setIRI(iri);
 
         try {
             javaCodeGenerator.createAll(reasoner);
             JOptionPane.showMessageDialog(null, "Java code successfully generated.", "Information",
                     JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
+            System.out.println("Exception ::"+e.getMessage());
             e.printStackTrace();
         }
     }

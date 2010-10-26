@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.semanticweb.owlapi.model.DataRangeType;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
@@ -19,6 +21,7 @@ import org.semanticweb.owlapi.model.OWLDataRange;
 import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyFormat;
 import org.semanticweb.owlapi.reasoner.Node;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
@@ -35,13 +38,15 @@ public class JavaCodeGenerator {
 
     List<Node<OWLClass>> classesNodeList;
     private OWLReasoner reasoner;
-    private IRI iri;
     private OWLOntology owlOntology;
-    private Set<OWLObjectProperty> objectProperties;
-    private Set<OWLDataProperty> dataProperties;
+    private Set<OWLObjectProperty> objectProperties = new HashSet<OWLObjectProperty>();;
+    private Set<OWLDataProperty> dataProperties = new HashSet<OWLDataProperty>();;
     private DefaultPrefixManager prefixManager;
     private PrintWriter vocabularyPrintWriter;
     private FileWriter vocabularyfileWriter;
+    private Set<OWLOntology> importedOntologies;
+    private Map<String, String> prefixMap = new HashMap<String, String>();
+    private Set<OWLOntology> allOwlOntologies = new HashSet<OWLOntology>();
 
     public JavaCodeGenerator(OWLOntology owlOntology, JavaCodeGeneratorOptions options) {
 
@@ -67,10 +72,11 @@ public class JavaCodeGenerator {
     public void createAll(OWLReasoner reasoner) throws IOException {
 
         this.reasoner = reasoner;
+        getImportedOntologies();
         getOntologyObjectProperties();
         getOntologyDataProperties();
+        setOntologyPrefixMap();
         Node<OWLClass> topNode = this.reasoner.getTopClassNode();
-
         List<OWLClass> owlClassList = getClassesList(topNode);
         printVocabularyCode(owlClassList);
         printFactoryClassCode(owlClassList);
@@ -78,9 +84,36 @@ public class JavaCodeGenerator {
             OWLClass owlClass = (OWLClass) iterator.next();
             createInterface(owlClass);
             createImplementation(owlClass);
-
         }
+    }
 
+    protected void setOntologyPrefixMap() {
+        for (OWLOntology importedOntology : importedOntologies) {
+            OWLOntologyFormat format = importedOntology.getOWLOntologyManager().getOntologyFormat(importedOntology);
+            if (format.isPrefixOWLOntologyFormat()) {
+                System.out.println("in if format is prefixowl");
+                Map<String, String> map = format.asPrefixOWLOntologyFormat().getPrefixName2PrefixMap();
+                for (Iterator iterator = map.entrySet().iterator(); iterator.hasNext();) {
+                    Map.Entry m = (Map.Entry) iterator.next();
+                    if (m.getValue().toString().equals(
+                            importedOntology.getOntologyID().getOntologyIRI().toString() + "#")) {
+                        String prefixFormatted = m.getKey().toString().replace(":", "").trim();
+                        if (prefixFormatted.length() > 0) {
+                            prefixMap
+                                    .put(importedOntology.getOntologyID().getOntologyIRI().toString(), prefixFormatted);
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    private void getImportedOntologies() {
+
+        importedOntologies = owlOntology.getImports();
+        allOwlOntologies.add(owlOntology);
+        allOwlOntologies.addAll(importedOntologies);
     }
 
     /**
@@ -88,12 +121,43 @@ public class JavaCodeGenerator {
      * @return
      */
     protected String getInterfaceName(OWLClass owlClass) {
-        if (prefixManager == null) {
-            prefixManager = new DefaultPrefixManager(iri.toString() + "#");
+        OWLOntology classOntology = getParentOntology(owlClass.getIRI());
+        String classOntologyIRI;
+        if (classOntology != null) {
+            classOntologyIRI = classOntology.getOntologyID().getOntologyIRI().toString();
+        } else {
+            classOntologyIRI = owlOntology.getOntologyID().getOntologyIRI().toString();
         }
+        String namePrefix = prefixMap.get(classOntologyIRI);
+        if (prefixManager == null || !prefixManager.getDefaultPrefix().startsWith(classOntologyIRI)) {
+            prefixManager = new DefaultPrefixManager(classOntologyIRI + "#");
+        }
+
         String interfaceName = prefixManager.getShortForm(owlClass);
         interfaceName = interfaceName.replace(":", "");
+
+        if (options.getPrefixMode() && namePrefix != null) {
+            namePrefix = getInitialLetterAsUpperCase(namePrefix);
+            interfaceName = getInitialLetterAsUpperCase(interfaceName);
+            interfaceName = namePrefix + "_" + interfaceName;
+        }
         return interfaceName;
+    }
+
+    /**
+     * Retrives the OWLOntology to which the owlClass belongs to.
+     * 
+     * @param owlClass
+     * @return The iri of the ontology to which the OWLClass belongs
+     */
+    private OWLOntology getParentOntology(IRI iri) {
+
+        for (OWLOntology ontology : allOwlOntologies) {
+            if (iri.toString().startsWith(ontology.getOntologyID().getOntologyIRI().toString())) {
+                return ontology;
+            }
+        }
+        return null;
     }
 
     protected String getInterfaceNamePossiblyAbstract(OWLClass owlClass) {
@@ -105,12 +169,25 @@ public class JavaCodeGenerator {
     }
 
     protected String getObjectPropertyName(OWLObjectProperty owlObjectProperty) {
-        if (prefixManager == null) {
-            prefixManager = new DefaultPrefixManager(iri.toString() + "#");
-        }
 
-        String propertyName = prefixManager.getShortForm(owlObjectProperty);
-        propertyName = propertyName.replace(":", "");
+        String propertyName = owlObjectProperty.getIRI().getFragment();
+        if (options.getPrefixMode() && propertyName != null) {
+            propertyName = getInitialLetterAsUpperCase(propertyName);
+
+            OWLOntology classOntology = getParentOntology(owlObjectProperty.getIRI());
+            String classOntologyIRI;
+            if (classOntology != null) {
+                classOntologyIRI = classOntology.getOntologyID().getOntologyIRI().toString();
+            } else {
+                classOntologyIRI = owlOntology.getOntologyID().getOntologyIRI().toString();
+            }
+            String namePrefix = prefixMap.get(classOntologyIRI);
+            if (namePrefix != null) {
+                namePrefix = getInitialLetterAsUpperCase(namePrefix);
+                propertyName = getInitialLetterAsUpperCase(propertyName);
+                propertyName = namePrefix + "_" + propertyName;
+            }
+        }
         return propertyName;
     }
 
@@ -118,22 +195,24 @@ public class JavaCodeGenerator {
      * Gets all the Object Properties of the Ontology
      */
     private void getOntologyObjectProperties() {
-        objectProperties = owlOntology.getObjectPropertiesInSignature();
-
+        for (OWLOntology ontology : allOwlOntologies) {
+            objectProperties.addAll(ontology.getObjectPropertiesInSignature());
+        }
     }
 
     /**
      * Gets all the Data Properties of the Ontology
      */
     private void getOntologyDataProperties() {
-        dataProperties = owlOntology.getDataPropertiesInSignature();
+        for (OWLOntology ontology : allOwlOntologies) {
+            dataProperties.addAll(ontology.getDataPropertiesInSignature());
+        }
     }
 
     /**
      * Generates Interfaces
      * 
      * @param owlClass
-     * @param prefixManager
      * @throws IOException
      */
     private void createInterface(OWLClass owlClass) throws IOException {
@@ -199,8 +278,8 @@ public class JavaCodeGenerator {
         printWriter.println();
         printWriter.println("    boolean has" + propertyNameUpperCase + "();");
 
-        if (!owlObjectProperty.isFunctional(owlOntology)) {
-            Set<OWLClassExpression> oClassExpressions = owlObjectProperty.getRanges(owlOntology);
+        if (!owlObjectProperty.isFunctional(allOwlOntologies)) {
+            Set<OWLClassExpression> oClassExpressions = owlObjectProperty.getRanges(allOwlOntologies);
             String objPropertyJavaName = getObjectPropertyJavaName(oClassExpressions);
             printWriter.println();
             printWriter
@@ -219,13 +298,16 @@ public class JavaCodeGenerator {
     }
 
     private String getObjectPropertyRange(OWLObjectProperty owlObjectProperty, boolean useExtends) {
-        Set<OWLClassExpression> oClassExpressions = owlObjectProperty.getRanges(owlOntology);
+        Set<OWLClassExpression> oClassExpressions = owlObjectProperty.getRanges(allOwlOntologies);
         String objPropertyRange = getObjectPropertyJavaName(oClassExpressions);
-        if (owlObjectProperty.isFunctional(owlOntology)) {// property can contain only single value
+        if (owlObjectProperty.isFunctional(allOwlOntologies)) {// property can
+            // contain only
+            // single value
             return objPropertyRange;
-        } else {//Property contains multiple values
+        } else {// Property contains multiple values
 
-            if (oClassExpressions.size() > 1) { // Contains More than 1 range hence disable use of extends
+            if (oClassExpressions.size() > 1) { // Contains More than 1 range
+                // hence disable use of extends
                 useExtends = false;
             }
             String genericsString = objPropertyRange.equals(PropertyConstants.JAVA_LANG_OBJECT) ? ""
@@ -242,7 +324,10 @@ public class JavaCodeGenerator {
      */
     private String getObjectPropertyJavaName(Set<OWLClassExpression> oClassExpressions) {
         String objPropertyRange = null;
-        if (oClassExpressions == null || oClassExpressions.isEmpty() || oClassExpressions.size() > 1) {// If count of range is other then One (zero of more than 1 ) then return range as java.lang.Object
+        if (oClassExpressions == null || oClassExpressions.isEmpty() || oClassExpressions.size() > 1) {// If count of range is other
+            // then One (zero of more
+            // than 1 ) then return
+            // range as java.lang.Object
             objPropertyRange = PropertyConstants.JAVA_LANG_OBJECT;
         } else {
             for (OWLClassExpression owlClassExpression : oClassExpressions) {
@@ -270,8 +355,8 @@ public class JavaCodeGenerator {
         printWriter.println("    " + "OWLDataProperty get" + propertyNameUpperCase + "Property();");
         printWriter.println();
         printWriter.println("    boolean has" + propertyNameUpperCase + "();");
-        if (!owlDataProperty.isFunctional(owlOntology)) {
-            Set<OWLDataRange> owlDataRanges = owlDataProperty.getRanges(owlOntology);
+        if (!owlDataProperty.isFunctional(allOwlOntologies)) {
+            Set<OWLDataRange> owlDataRanges = owlDataProperty.getRanges(allOwlOntologies);
             printWriter.println();
             printWriter
                     .println("    " + PropertyConstants.JAVA_UTIL_ITERATOR + " list" + propertyNameUpperCase + "();");
@@ -290,10 +375,12 @@ public class JavaCodeGenerator {
     }
 
     private String getDataPropertyRange(OWLDataProperty owlDataProperty) {
-        Set<OWLDataRange> owlDataRanges = owlDataProperty.getRanges(owlOntology);
+        Set<OWLDataRange> owlDataRanges = owlDataProperty.getRanges(allOwlOntologies);
         String dataPropertyRange = getDataPropertyJavaName(owlDataRanges);
 
-        if (owlDataProperty.isFunctional(owlOntology)) {// property can contain only single value
+        if (owlDataProperty.isFunctional(allOwlOntologies)) {// property can
+            // contain only
+            // single value
             return dataPropertyRange;
         } else {
             String genericsString = dataPropertyRange.equals(PropertyConstants.JAVA_LANG_OBJECT) ? "" : "<"
@@ -349,12 +436,26 @@ public class JavaCodeGenerator {
     }
 
     protected String getDataPropertyName(OWLDataProperty owlDataProperty) {
-        if (prefixManager == null) {
-            prefixManager = new DefaultPrefixManager(iri.toString() + "#");
-        }
 
-        String propertyName = prefixManager.getShortForm(owlDataProperty);
-        propertyName = propertyName.replace(":", "");
+        String propertyName = owlDataProperty.getIRI().getFragment();
+
+        if (options.getPrefixMode() && propertyName != null) {
+            propertyName = getInitialLetterAsUpperCase(propertyName);
+
+            OWLOntology classOntology = getParentOntology(owlDataProperty.getIRI());
+            String classOntologyIRI;
+            if (classOntology != null) {
+                classOntologyIRI = classOntology.getOntologyID().getOntologyIRI().toString();
+            } else {
+                classOntologyIRI = owlOntology.getOntologyID().getOntologyIRI().toString();
+            }
+            String namePrefix = prefixMap.get(classOntologyIRI);
+            if (namePrefix != null) {
+                namePrefix = getInitialLetterAsUpperCase(namePrefix);
+                propertyName = getInitialLetterAsUpperCase(propertyName);
+                propertyName = namePrefix + "_" + propertyName;
+            }
+        }
         return propertyName;
     }
 
@@ -371,14 +472,15 @@ public class JavaCodeGenerator {
     }
 
     private List<OWLObjectProperty> getClassObjectProperties(OWLClass owlClass) {
-
         List<OWLObjectProperty> owlObjectProperties = new ArrayList<OWLObjectProperty>();
 
         for (Iterator iterator = objectProperties.iterator(); iterator.hasNext();) {
+
             OWLObjectProperty owlObjectProperty = (OWLObjectProperty) iterator.next();
-            Set<OWLClassExpression> owlClassExpressions = owlObjectProperty.getDomains(owlOntology);
+            Set<OWLClassExpression> owlClassExpressions = owlObjectProperty.getDomains(allOwlOntologies);
 
             for (Iterator iterator2 = owlClassExpressions.iterator(); iterator2.hasNext();) {
+
                 OWLClassExpression owlClassExpression = (OWLClassExpression) iterator2.next();
                 OWLClass owlCls = owlClassExpression.asOWLClass();
                 if (owlClass.getIRI().toString().trim().equals(owlCls.getIRI().toString().trim())) {
@@ -387,7 +489,7 @@ public class JavaCodeGenerator {
                 }
             }
         }
-        Set<OWLClassExpression> sc = owlClass.getSuperClasses(owlOntology);
+        Set<OWLClassExpression> sc = owlClass.getSuperClasses(allOwlOntologies);
         for (OWLClassExpression owlClassExpression : sc) {
             if (owlClassExpression.isAnonymous()) {
                 Set<OWLObjectProperty> s = owlClassExpression.getObjectPropertiesInSignature();
@@ -406,7 +508,7 @@ public class JavaCodeGenerator {
 
         for (Iterator iterator = dataProperties.iterator(); iterator.hasNext();) {
             OWLDataProperty owlDataProperty = (OWLDataProperty) iterator.next();
-            Set<OWLClassExpression> owlClassExpressions = owlDataProperty.getDomains(owlOntology);
+            Set<OWLClassExpression> owlClassExpressions = owlDataProperty.getDomains(allOwlOntologies);
 
             for (Iterator iterator2 = owlClassExpressions.iterator(); iterator2.hasNext();) {
                 OWLClassExpression owlClassExpression = (OWLClassExpression) iterator2.next();
@@ -426,7 +528,7 @@ public class JavaCodeGenerator {
             List<OWLObjectProperty> owlObjectProperties) {
         for (Iterator iterator = owlDataProperties.iterator(); iterator.hasNext();) {
             OWLDataProperty owlDataProperty = (OWLDataProperty) iterator.next();
-            if (!owlDataProperty.isFunctional(owlOntology)) {
+            if (!owlDataProperty.isFunctional(allOwlOntologies)) {
                 printWriter.println("import java.util.*;");
                 printWriter.println();
                 return;
@@ -434,7 +536,7 @@ public class JavaCodeGenerator {
         }
         for (Iterator iterator = owlObjectProperties.iterator(); iterator.hasNext();) {
             OWLObjectProperty owlObjectProperty = (OWLObjectProperty) iterator.next();
-            if (!owlObjectProperty.isFunctional(owlOntology)) {
+            if (!owlObjectProperty.isFunctional(allOwlOntologies)) {
                 printWriter.println("import java.util.*;");
                 printWriter.println();
                 return;
@@ -450,7 +552,6 @@ public class JavaCodeGenerator {
             pack = "";
         }
         return new File(options.getOutputFolder(), pack + name + ".java");
-
     }
 
     private List<OWLClass> getClassesList(Node<OWLClass> topNode) {
@@ -638,7 +739,7 @@ public class JavaCodeGenerator {
         String propertyNameUpperCase = getInitialLetterAsUpperCase(propertyName);
         String getPropertyFunctionName = "get" + propertyNameUpperCase + "Property()";
         String objectPropertyRange = getObjectPropertyRange(owlObjectProperty, false);
-        boolean isFunctional = owlObjectProperty.isFunctional(owlOntology);
+        boolean isFunctional = owlObjectProperty.isFunctional(allOwlOntologies);
 
         printWriter.println();
         printWriter.println("    // Property " + owlObjectProperty.getIRI());
@@ -650,41 +751,9 @@ public class JavaCodeGenerator {
         printWriter.println("    }");
 
         printWriter.println();
-        printWriter.println("    public " + objectPropertyRange + " get" + propertyNameUpperCase + "() {");
-        if (!isFunctional) {
-            Set<OWLClassExpression> oClassExpressions = owlObjectProperty.getRanges(owlOntology);
-            String objectPropertyType = getObjectPropertyJavaName(oClassExpressions);
 
-            printWriter.println("        Set<" + objectPropertyType + "> propertyValues = new HashSet<"
-                    + objectPropertyType + ">();");
-            printWriter.println("        Set<OWLIndividual> values = getObjectPropertyValues("
-                    + getPropertyFunctionName + ", getOwlOntology());");
-            printWriter.println("        if(values ==null || values.isEmpty()){");
-            printWriter.println("            return null;");
-            printWriter.println("        }");
-            printWriter.println("        for (OWLIndividual owlIndividual : values) {");
-            if (objectPropertyType.equals(PropertyConstants.JAVA_LANG_OBJECT)) {
-                printWriter.println("  propertyValues.add(owlIndividual);");
-            } else {
-                printWriter.println("            propertyValues.add(new Default" + objectPropertyType
-                        + "(getOWLDataFactory(), owlIndividual.asOWLNamedIndividual().getIRI(), getOwlOntology()));");
-            }
-            printWriter.println("        }");
-            printWriter.println("        return propertyValues;");
-
-        } else {
-            printWriter.println("        Set<OWLIndividual> values = getObjectPropertyValues("
-                    + getPropertyFunctionName + ", getOwlOntology());");
-            printWriter.println("        if (values == null || values.isEmpty()) {");
-            printWriter.println("            return null;");
-            printWriter.println("        }");
-            printWriter.println("        for (OWLIndividual owlIndividual : values) {");
-            printWriter.println("            return new Default" + objectPropertyRange
-                    + "(getOWLDataFactory(), owlIndividual.asOWLNamedIndividual().getIRI(), getOwlOntology());");
-            printWriter.println("        }");
-            printWriter.println("        return null;");
-        }
-        printWriter.println("    }");
+        printImplPopertyGetMethod(owlObjectProperty, printWriter, propertyNameUpperCase, getPropertyFunctionName,
+                objectPropertyRange, isFunctional);
 
         printWriter.println();
         printWriter.println();
@@ -695,7 +764,7 @@ public class JavaCodeGenerator {
         printWriter.println("    }");
 
         if (!isFunctional) {
-            Set<OWLClassExpression> oClassExpressions = owlObjectProperty.getRanges(owlOntology);
+            Set<OWLClassExpression> oClassExpressions = owlObjectProperty.getRanges(allOwlOntologies);
             String objPropertyJavaName = getObjectPropertyJavaName(oClassExpressions);
 
             printWriter.println();
@@ -759,6 +828,46 @@ public class JavaCodeGenerator {
         }
     }
 
+    private void printImplPopertyGetMethod(OWLObjectProperty owlObjectProperty, PrintWriter printWriter,
+            String propertyNameUpperCase, String getPropertyFunctionName, String objectPropertyRange,
+            boolean isFunctional) {
+        printWriter.println("    public " + objectPropertyRange + " get" + propertyNameUpperCase + "() {");
+        if (!isFunctional) {
+            Set<OWLClassExpression> oClassExpressions = owlObjectProperty.getRanges(allOwlOntologies);
+            String objectPropertyType = getObjectPropertyJavaName(oClassExpressions);
+
+            printWriter.println("        Set<" + objectPropertyType + "> propertyValues = new HashSet<"
+                    + objectPropertyType + ">();");
+            printWriter.println("        Set<OWLIndividual> values = getObjectPropertyValues("
+                    + getPropertyFunctionName + ", getOwlOntology());");
+            printWriter.println("        if(values ==null || values.isEmpty()){");
+            printWriter.println("            return null;");
+            printWriter.println("        }");
+            printWriter.println("        for (OWLIndividual owlIndividual : values) {");
+            if (objectPropertyType.equals(PropertyConstants.JAVA_LANG_OBJECT)) {
+                printWriter.println("  propertyValues.add(owlIndividual);");
+            } else {
+                printWriter.println("            propertyValues.add(new Default" + objectPropertyType
+                        + "(getOWLDataFactory(), owlIndividual.asOWLNamedIndividual().getIRI(), getOwlOntology()));");
+            }
+            printWriter.println("        }");
+            printWriter.println("        return propertyValues;");
+
+        } else {
+            printWriter.println("        Set<OWLIndividual> values = getObjectPropertyValues("
+                    + getPropertyFunctionName + ", getOwlOntology());");
+            printWriter.println("        if (values == null || values.isEmpty()) {");
+            printWriter.println("            return null;");
+            printWriter.println("        }");
+            printWriter.println("        for (OWLIndividual owlIndividual : values) {");
+            printWriter.println("            return new Default" + objectPropertyRange
+                    + "(getOWLDataFactory(), owlIndividual.asOWLNamedIndividual().getIRI(), getOwlOntology());");
+            printWriter.println("        }");
+            printWriter.println("        return null;");
+        }
+        printWriter.println("    }");
+    }
+
     private void createUserImplementation(OWLClass owlClass) throws IOException {
         String implName = getImplementationName(owlClass);
         File file = getImplementationFile(implName);
@@ -793,12 +902,12 @@ public class JavaCodeGenerator {
         String propertyNameUpperCase = getInitialLetterAsUpperCase(propertyName);
         String getPropertyFunctionName = "get" + propertyNameUpperCase + "Property()";
 
-        Set<OWLDataRange> owlDataRanges = owlDataProperty.getRanges(owlOntology);
+        Set<OWLDataRange> owlDataRanges = owlDataProperty.getRanges(allOwlOntologies);
         String dataPropertyJavaName = getDataPropertyJavaName(owlDataRanges);
 
         boolean isDataTypeBasic = isDataTypeBasic(owlDataProperty);
 
-        boolean isFunctional = owlDataProperty.isFunctional(owlOntology);
+        boolean isFunctional = owlDataProperty.isFunctional(allOwlOntologies);
         printWriter.println();
         printWriter.println();
         printWriter.println("    // Property " + owlDataProperty.getIRI());
@@ -823,7 +932,7 @@ public class JavaCodeGenerator {
         }
         printWriter.println("    }");
 
-        if (!owlDataProperty.isFunctional(owlOntology)) {
+        if (!owlDataProperty.isFunctional(allOwlOntologies)) {
             printWriter.println();
             printWriter.println("    public " + PropertyConstants.JAVA_UTIL_ITERATOR + " list" + propertyNameUpperCase
                     + "() {");
@@ -990,7 +1099,7 @@ public class JavaCodeGenerator {
     }
 
     private boolean isDataTypeBasic(OWLDataProperty owlDataProperty) {
-        Set<OWLDataRange> ranges = owlDataProperty.asOWLDataProperty().getRanges(owlOntology);
+        Set<OWLDataRange> ranges = owlDataProperty.asOWLDataProperty().getRanges(allOwlOntologies);
         if (ranges == null || ranges.isEmpty() || ranges.size() > 1) {
             return false;
         }
@@ -1006,6 +1115,7 @@ public class JavaCodeGenerator {
 
     private void printVocabularyCode(List<OWLClass> owlClassList) throws IOException {
         createVocabularyClassFile();
+        printVocabularyInitialCode();
 
         vocabularyPrintWriter
                 .println("    private static final OWLDataFactory factory = OWLManager.createOWLOntologyManager().getOWLDataFactory();");
@@ -1033,14 +1143,13 @@ public class JavaCodeGenerator {
         }
 
         printVocabularyEndCode();
-
     }
 
     private void createVocabularyClassFile() throws IOException {
         File vocabularyFile = getInterfaceFile(JavaCodeGeneratorConstants.VOCABULARY_CLASS_NAME);
         vocabularyfileWriter = new FileWriter(vocabularyFile);
         vocabularyPrintWriter = new PrintWriter(vocabularyfileWriter);
-        printVocabularyInitialCode();
+
     }
 
     private void printVocabularyInitialCode() {
@@ -1056,7 +1165,6 @@ public class JavaCodeGenerator {
         vocabularyPrintWriter.println(" */");
         vocabularyPrintWriter.println();
         vocabularyPrintWriter.println("public class " + JavaCodeGeneratorConstants.VOCABULARY_CLASS_NAME + " {");
-
     }
 
     private void printClassVocabularyCode(OWLClass owlClass) {
@@ -1102,6 +1210,7 @@ public class JavaCodeGenerator {
             factoryPrintWriter.println("import impl.*;");
         }
 
+        factoryPrintWriter.println();
         factoryPrintWriter.println("/**");
         factoryPrintWriter.println(" * Generated by Protege (http://protege.stanford.edu).");
         factoryPrintWriter.println(" * Source Class: Factory");
@@ -1110,7 +1219,9 @@ public class JavaCodeGenerator {
         factoryPrintWriter.println(" */");
         factoryPrintWriter.println();
         factoryPrintWriter.println("public class " + options.getFactoryClassName().trim() + " {");
+        factoryPrintWriter.println();
         factoryPrintWriter.println("    private OWLOntology owlOntology;");
+        factoryPrintWriter.println();
         factoryPrintWriter
                 .println("    public " + options.getFactoryClassName().trim() + "(OWLOntology owlOntology) {");
         factoryPrintWriter.println("        this.owlOntology = owlOntology;");
@@ -1124,7 +1235,7 @@ public class JavaCodeGenerator {
 
         factoryPrintWriter.println("    public " + className + " create" + className + "(String name) {");
         factoryPrintWriter
-                .println("        IRI iri = IRI.create(owlOntology.getOntologyID().getOntologyIRI().toString()+\"#\"+name);");
+                .println("        IRI iri = IRI.create(owlOntology.getOntologyID().getOntologyIRI().toString() + \"#\" + name);");
         factoryPrintWriter.println("        " + implName + " entity = new " + implName
                 + "(owlOntology.getOWLOntologyManager().getOWLDataFactory(), iri, owlOntology);");
         factoryPrintWriter
@@ -1179,7 +1290,7 @@ public class JavaCodeGenerator {
 
     private String getBaseImplementation(OWLClass owlClass) {
         String baseImplementationString = "";
-        for (OWLClassExpression owlClassExpression : owlClass.getSuperClasses(owlOntology)) {
+        for (OWLClassExpression owlClassExpression : owlClass.getSuperClasses(allOwlOntologies)) {
             if (owlClassExpression.isAnonymous()) {
                 continue;
             }
@@ -1191,7 +1302,6 @@ public class JavaCodeGenerator {
                     return null;
                 }
             }
-
         }
         if (baseImplementationString.equals("")) {
             return null;
@@ -1202,7 +1312,7 @@ public class JavaCodeGenerator {
 
     private String getBaseInterface(OWLClass owlClass) {
         String baseInterfaceString = "";
-        for (OWLClassExpression owlClassExpression : owlClass.getSuperClasses(owlOntology)) {
+        for (OWLClassExpression owlClassExpression : owlClass.getSuperClasses(allOwlOntologies)) {
             if (owlClassExpression.isAnonymous()) {
                 continue;
             }
@@ -1210,7 +1320,6 @@ public class JavaCodeGenerator {
             if (superClass != null && !superClass.isTopEntity() && !superClass.isBuiltIn()) {
                 baseInterfaceString += (baseInterfaceString.equals("") ? "" : ", ") + getInterfaceName(superClass);
             }
-
         }
         if (baseInterfaceString.equals("")) {
             return null;
@@ -1219,11 +1328,10 @@ public class JavaCodeGenerator {
         }
     }
 
-    public void setIRI(IRI iri) {
-        this.iri = iri;
-    }
-
     public String getInitialLetterAsUpperCase(String name) {
+        if (name == null) {
+            return null;
+        }
         if (name.length() > 1) {
             return Character.toUpperCase(name.charAt(0)) + name.substring(1);
         } else {
