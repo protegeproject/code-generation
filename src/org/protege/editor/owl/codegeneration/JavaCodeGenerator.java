@@ -492,14 +492,27 @@ public class JavaCodeGenerator {
         Set<OWLClassExpression> sc = owlClass.getSuperClasses(allOwlOntologies);
         for (OWLClassExpression owlClassExpression : sc) {
             if (owlClassExpression.isAnonymous()) {
-                Set<OWLObjectProperty> s = owlClassExpression.getObjectPropertiesInSignature();
-                for (OWLObjectProperty owlObjectProperty : s) {
+                Set<OWLObjectProperty> property = owlClassExpression.getObjectPropertiesInSignature();
+                for (OWLObjectProperty owlObjectProperty : property) {
                     if (!owlObjectProperties.contains(owlObjectProperty)) {
                         owlObjectProperties.add(owlObjectProperty);
                     }
                 }
             }
         }
+        
+       Set<OWLClassExpression> eqClasses =  owlClass.getEquivalentClasses(allOwlOntologies);
+        for (OWLClassExpression owlClassExpression : eqClasses) {
+            if (owlClassExpression.isAnonymous()) {
+                Set<OWLObjectProperty> property = owlClassExpression.getObjectPropertiesInSignature();
+                for (OWLObjectProperty owlObjectProperty : property) {
+                    if (!owlObjectProperties.contains(owlObjectProperty)) {
+                        owlObjectProperties.add(owlObjectProperty);
+                    }
+                }
+            }
+        }
+        
         return owlObjectProperties;
     }
 
