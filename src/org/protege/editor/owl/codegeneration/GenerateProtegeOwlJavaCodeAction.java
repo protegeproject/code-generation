@@ -12,9 +12,7 @@ import javax.swing.JOptionPane;
 import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
 import org.semanticweb.HermiT.Reasoner;
-import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 
@@ -71,22 +69,20 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
         codeGenOptionFrame.setVisible(false);
         OWLModelManager owlModelManager = getOWLModelManager();
         OWLOntology owlOntology = owlModelManager.getActiveOntology();
-        System.out.println("get act ont");
         OWLReasonerFactory reasonerFactory = new Reasoner.ReasonerFactory();
-        System.out.println("got reaser fac");
         OWLReasoner reasoner = reasonerFactory.createReasoner(owlOntology);
-        System.out.println("got reasoner");
         JavaCodeGenerator javaCodeGenerator = new JavaCodeGenerator(owlOntology, options);
-        OWLOntologyID owlOntologyID = owlOntology.getOntologyID();
-        IRI iri = owlOntologyID.getOntologyIRI();
 
         try {
             javaCodeGenerator.createAll(reasoner);
             JOptionPane.showMessageDialog(null, "Java code successfully generated.", "Information",
                     JOptionPane.INFORMATION_MESSAGE);
+            System.out.println("Java code successfully generated.");
         } catch (IOException e) {
-            System.out.println("Exception ::"+e.getMessage());
             e.printStackTrace();
+            System.out.println("Error in generating Java code.");
+            JOptionPane.showMessageDialog(null, "Error in generating Java code.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
