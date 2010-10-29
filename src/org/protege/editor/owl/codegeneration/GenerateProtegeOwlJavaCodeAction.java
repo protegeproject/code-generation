@@ -9,18 +9,20 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import org.apache.log4j.Logger;
+import org.protege.editor.core.ProtegeApplication;
 import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
-import org.semanticweb.HermiT.Reasoner;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
-import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 
 /**
  * @author z.khan
  * 
  */
 public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implements GenerateCodeWithOptions {
+	public static final Logger LOGGER = Logger.getLogger(GenerateProtegeOwlJavaCodeAction.class);
+
 
     private static final long serialVersionUID = 1L;
 
@@ -69,20 +71,16 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
         codeGenOptionFrame.setVisible(false);
         OWLModelManager owlModelManager = getOWLModelManager();
         OWLOntology owlOntology = owlModelManager.getActiveOntology();
-        OWLReasonerFactory reasonerFactory = new Reasoner.ReasonerFactory();
-        OWLReasoner reasoner = reasonerFactory.createReasoner(owlOntology);
+        OWLReasoner reasoner = owlModelManager.getOWLReasonerManager().getCurrentReasoner();
         JavaCodeGenerator javaCodeGenerator = new JavaCodeGenerator(owlOntology, options);
 
         try {
             javaCodeGenerator.createAll(reasoner);
             JOptionPane.showMessageDialog(null, "Java code successfully generated.", "Information",
                     JOptionPane.INFORMATION_MESSAGE);
-            System.out.println("Java code successfully generated.");
+            LOGGER.info("Java code successfully generated.");
         } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Error in generating Java code.");
-            JOptionPane.showMessageDialog(null, "Error in generating Java code.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
+        	ProtegeApplication.getErrorLog().logError(e);
         }
     }
 

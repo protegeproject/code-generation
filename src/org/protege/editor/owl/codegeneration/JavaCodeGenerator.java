@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
@@ -33,6 +34,7 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
  * 
  */
 public class JavaCodeGenerator {
+	public static final Logger LOGGER = Logger.getLogger(JavaCodeGenerator.class);
 
     private JavaCodeGeneratorOptions options;
 
@@ -91,10 +93,9 @@ public class JavaCodeGenerator {
         for (OWLOntology importedOntology : importedOntologies) {
             OWLOntologyFormat format = importedOntology.getOWLOntologyManager().getOntologyFormat(importedOntology);
             if (format.isPrefixOWLOntologyFormat()) {
-                System.out.println("in if format is prefixowl");
+                LOGGER.info("in if format is prefixowl");
                 Map<String, String> map = format.asPrefixOWLOntologyFormat().getPrefixName2PrefixMap();
-                for (Iterator iterator = map.entrySet().iterator(); iterator.hasNext();) {
-                    Map.Entry m = (Map.Entry) iterator.next();
+                for (Map.Entry<String, String> m : map.entrySet()) {
                     if (m.getValue().toString().equals(
                             importedOntology.getOntologyID().getOntologyIRI().toString() + "#")) {
                         String prefixFormatted = m.getKey().toString().replace(":", "").trim();
@@ -474,19 +475,17 @@ public class JavaCodeGenerator {
     private List<OWLObjectProperty> getClassObjectProperties(OWLClass owlClass) {
         List<OWLObjectProperty> owlObjectProperties = new ArrayList<OWLObjectProperty>();
 
-        for (Iterator iterator = objectProperties.iterator(); iterator.hasNext();) {
-
-            OWLObjectProperty owlObjectProperty = (OWLObjectProperty) iterator.next();
+        for (OWLObjectProperty owlObjectProperty : objectProperties) {
             Set<OWLClassExpression> owlClassExpressions = owlObjectProperty.getDomains(allOwlOntologies);
 
-            for (Iterator iterator2 = owlClassExpressions.iterator(); iterator2.hasNext();) {
-
-                OWLClassExpression owlClassExpression = (OWLClassExpression) iterator2.next();
-                OWLClass owlCls = owlClassExpression.asOWLClass();
-                if (owlClass.getIRI().toString().trim().equals(owlCls.getIRI().toString().trim())) {
-                    owlObjectProperties.add(owlObjectProperty);
-                    break;
-                }
+            for (OWLClassExpression owlClassExpression : owlClassExpressions) {
+            	if (!owlClassExpression.isAnonymous()) {
+            		OWLClass owlCls = owlClassExpression.asOWLClass();
+            		if (owlClass.getIRI().toString().trim().equals(owlCls.getIRI().toString().trim())) {
+            			owlObjectProperties.add(owlObjectProperty);
+            			break;
+            		}
+            	}
             }
         }
         Set<OWLClassExpression> sc = owlClass.getSuperClasses(allOwlOntologies);
@@ -519,19 +518,17 @@ public class JavaCodeGenerator {
     private List<OWLDataProperty> getClassDataProperties(OWLClass owlClass) {
         List<OWLDataProperty> owlDataProperties = new ArrayList<OWLDataProperty>();
 
-        for (Iterator iterator = dataProperties.iterator(); iterator.hasNext();) {
-            OWLDataProperty owlDataProperty = (OWLDataProperty) iterator.next();
+        for (OWLDataProperty owlDataProperty : dataProperties) {
             Set<OWLClassExpression> owlClassExpressions = owlDataProperty.getDomains(allOwlOntologies);
 
-            for (Iterator iterator2 = owlClassExpressions.iterator(); iterator2.hasNext();) {
-                OWLClassExpression owlClassExpression = (OWLClassExpression) iterator2.next();
-                OWLClass owlClassToCompare = owlClassExpression.asOWLClass();
-                if (owlClass.getIRI().toString().trim().equals(owlClassToCompare.getIRI().toString().trim())) {
-                    owlDataProperties.add(owlDataProperty);
-
-                    break;
-                } else {
-                }
+            for (OWLClassExpression owlClassExpression : owlClassExpressions) {
+            	if (!owlClassExpression.isAnonymous()) {
+            		OWLClass owlClassToCompare = owlClassExpression.asOWLClass();
+            		if (owlClass.getIRI().toString().trim().equals(owlClassToCompare.getIRI().toString().trim())) {
+            			owlDataProperties.add(owlDataProperty);
+            			break;
+            		}
+            	}
             }
         }
         return owlDataProperties;
