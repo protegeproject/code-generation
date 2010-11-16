@@ -2,7 +2,7 @@ package org.protege.editor.owl.codegeneration;
 
 import java.io.File;
 
-/**
+/**This class stores the data required for owl code generator.
  * @author z.khan
  *
  */

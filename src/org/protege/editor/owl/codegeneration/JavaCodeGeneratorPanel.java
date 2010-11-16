@@ -26,6 +26,7 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 
 /**
+ * This class creates a panel, which contains options for code generations.
  * @author z.khan
  * 
  */
@@ -55,6 +56,10 @@ public class JavaCodeGeneratorPanel extends JPanel {
 
     private JButton cancelButton;
 
+    /**Constructor
+     * @param options the EditableJavaCodeGeneratorOptions object in which to save the option values. 
+     * @param generateCodeWithOptions
+     */
     public JavaCodeGeneratorPanel(EditableJavaCodeGeneratorOptions options,
             GenerateCodeWithOptions generateCodeWithOptions) {
 
@@ -114,19 +119,19 @@ public class JavaCodeGeneratorPanel extends JPanel {
         rootOutPutFolderPanel.add(new JLabel("Root output folder"), BorderLayout.WEST);
         rootOutPutFolderPanel.add(selectFolder, BorderLayout.EAST);
         rootOutPutFolderPanel.add(rootFolderTextField, BorderLayout.SOUTH);
-        add(getComponentWithNonStrechingVertically(rootOutPutFolderPanel));
+        add(getComponentWithNonStretchingVertically(rootOutPutFolderPanel));
         add(Box.createVerticalStrut(8));
 
         JPanel packageNameJPanel = new JPanel(new BorderLayout());
         packageNameJPanel.add(new JLabel("Java package"), BorderLayout.WEST);
         add(packageNameJPanel);
-        add(getComponentWithNonStrechingVertically(packageTextField));
+        add(getComponentWithNonStretchingVertically(packageTextField));
         add(Box.createVerticalStrut(8));
 
         JPanel factoryClassNameJPanel = new JPanel(new BorderLayout());
         factoryClassNameJPanel.add(new JLabel("Factory class name"), BorderLayout.WEST);
         add(factoryClassNameJPanel);
-        add(getComponentWithNonStrechingVertically(factoryClassNameTextField));
+        add(getComponentWithNonStretchingVertically(factoryClassNameTextField));
         add(Box.createVerticalStrut(8));
 
         add(createCheckBoxPanel(abstractCheckBox));
@@ -150,9 +155,15 @@ public class JavaCodeGeneratorPanel extends JPanel {
 
     }
 
+    /**
+     * Adds listeners
+     */
     private void setButtonListeners() {
         okButton.addMouseListener(new MouseAdapter() {
 
+            /* (non-Javadoc)
+             * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
 
@@ -196,6 +207,10 @@ public class JavaCodeGeneratorPanel extends JPanel {
         });
     }
 
+    /** Create check box panel
+     * @param comp
+     * @return
+     */
     private JPanel createCheckBoxPanel(Component comp) {
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(BorderLayout.WEST, comp);
@@ -221,6 +236,9 @@ public class JavaCodeGeneratorPanel extends JPanel {
         options.setPackage(pack.length() > 0 ? pack : null);
     }
 
+    /**
+     * Retrieves the folder selected and sets the path to TextField
+     */
     private void selectFolder() {
         if (fileChooser.showDialog(this, "Select") == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
@@ -228,7 +246,11 @@ public class JavaCodeGeneratorPanel extends JPanel {
         }
     }
 
-    private JPanel getComponentWithNonStrechingVertically(JComponent component) {
+    /**Returns a panel with component so that the panel is not stretchable vertically
+     * @param component The JComponent to add to the panel
+     * @return
+     */
+    private JPanel getComponentWithNonStretchingVertically(JComponent component) {
         JPanel componentPanel = new JPanel(new BorderLayout());
         componentPanel.add(component, BorderLayout.NORTH);
 

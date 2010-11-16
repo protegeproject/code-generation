@@ -5,6 +5,7 @@ package org.protege.editor.owl.codegeneration;
 
 
 /**
+ * Contains constants for owl properties
  * @author z.khan
  * 
  */

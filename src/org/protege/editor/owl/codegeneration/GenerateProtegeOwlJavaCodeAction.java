@@ -30,18 +30,30 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
 
     private JFrame codeGenOptionFrame;
 
+    /* (non-Javadoc)
+     * @see org.protege.editor.core.plugin.ProtegePluginInstance#initialise()
+     */
     public void initialise() throws Exception {
 
     }
 
+    /* (non-Javadoc)
+     * @see org.protege.editor.core.Disposable#dispose()
+     */
     public void dispose() throws Exception {
 
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent e) {
         showGeneratorPanel();
     }
 
+    /**
+     * Displays the panel with options required for code generation
+     */
     private void showGeneratorPanel() {
         options = new EditableJavaCodeGeneratorOptionsImpl();
         JavaCodeGeneratorPanel javaCodeGeneratorPanel = new JavaCodeGeneratorPanel(options, this);
@@ -53,19 +65,26 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
         center(codeGenOptionFrame);
     }
 
-    public static void center(Component c) {
-        Dimension screenSize = c.getToolkit().getScreenSize();
+    /**Sets the generator panel to center
+     * @param component
+     */
+    public static void center(Component component) {
+        Dimension screenSize = component.getToolkit().getScreenSize();
         int BORDER_SIZE = 50;
         screenSize.width -= BORDER_SIZE;
         screenSize.height -= BORDER_SIZE;
-        Dimension componentSize = c.getSize();
+        Dimension componentSize = component.getSize();
         int xPos = (screenSize.width - componentSize.width) / 2;
         xPos = Math.max(xPos, 0);
         int yPos = (screenSize.height - componentSize.height) / 2;
         yPos = Math.max(yPos, 0);
-        c.setLocation(new Point(xPos, yPos));
+        component.setLocation(new Point(xPos, yPos));
     }
 
+    /* 
+     * (non-Javadoc)
+     * @see org.protege.editor.owl.codegeneration.GenerateCodeWithOptions#okClicked()
+     */
     public void okClicked() {
         
         codeGenOptionFrame.setVisible(false);
@@ -84,6 +103,9 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.protege.editor.owl.codegeneration.GenerateCodeWithOptions#cancelClicked()
+     */
     public void cancelClicked() {
         codeGenOptionFrame.setVisible(false);
     }

@@ -2,7 +2,7 @@ package org.protege.editor.owl.codegeneration;
 
 import java.io.File;
 
-/**
+/** Interface for code generation options.
  * @author z.khan
  *
  */

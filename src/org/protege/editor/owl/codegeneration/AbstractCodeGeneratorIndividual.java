@@ -25,6 +25,11 @@ public abstract class AbstractCodeGeneratorIndividual extends OWLNamedIndividual
     
     private OWLOntology owlOntology;
 
+    /**Constructor
+     * @param owlDataFactory
+     * @param iri
+     * @param owlOntology
+     */
     public AbstractCodeGeneratorIndividual(OWLDataFactory owlDataFactory, IRI iri, OWLOntology owlOntology) {
         super(owlDataFactory, iri);
         this.owlOntology = owlOntology;
@@ -37,6 +42,9 @@ public abstract class AbstractCodeGeneratorIndividual extends OWLNamedIndividual
         return owlOntology;
     }
     
+    /**
+     * Deletes the individual from Ontology 
+     */
     protected void deleteIndividual() {
         OWLEntityRemover remover = new OWLEntityRemover(getOwlOntology().getOWLOntologyManager(), Collections
                 .singleton(getOwlOntology()));
@@ -44,17 +52,17 @@ public abstract class AbstractCodeGeneratorIndividual extends OWLNamedIndividual
         getOwlOntology().getOWLOntologyManager().applyChanges(remover.getChanges());
     }
     
-    /**
-     * @param oldHasTopping
-     * @param owlObjectProperty 
+    /**Removes the value from object property of the individual
+     * @param owlObjectProperty The property from which the value is to be removed
+     * @param owlNamedIndividual The value to be removed
      */
-    protected void removeObjectPropertyValue(OWLNamedIndividual oldHasTopping, OWLObjectProperty owlObjectProperty) {
+    protected void removeObjectPropertyValue(OWLObjectProperty owlObjectProperty, OWLNamedIndividual owlNamedIndividual) {
         Set<OWLIndividual> values = getObjectPropertyValues(owlObjectProperty, getOwlOntology());
         if (values == null || values.isEmpty()) {
             return;
         }
         for (OWLIndividual owlIndividual : values) {
-            if (owlIndividual.isNamed() && owlIndividual.asOWLNamedIndividual().getIRI().toString().equals(oldHasTopping.getIRI().toString())) {
+            if (owlIndividual.isNamed() && owlIndividual.asOWLNamedIndividual().getIRI().toString().equals(owlNamedIndividual.getIRI().toString())) {
                 OWLObjectPropertyAssertionAxiom axiom = getOWLDataFactory().getOWLObjectPropertyAssertionAxiom(
                         owlObjectProperty, this, owlIndividual);
                 getOwlOntology().getOWLOntologyManager().removeAxiom(getOwlOntology(), axiom);
@@ -63,7 +71,11 @@ public abstract class AbstractCodeGeneratorIndividual extends OWLNamedIndividual
         }
     }
     
-    protected void removeDataPropertyValue(OWLLiteral owlLiteralToRemove, OWLDataProperty owlDataProperty) {
+    /**Removes the value from data property of the individual
+     * @param owlDataProperty The property from which the value is to be removed
+     * @param owlLiteralToRemove The owl literal to be removed
+     */
+    protected void removeDataPropertyValue(OWLDataProperty owlDataProperty, OWLLiteral owlLiteralToRemove ) {
         Set<OWLLiteral> values = getDataPropertyValues(owlDataProperty, getOwlOntology());
         if (values == null || values.isEmpty()) {
             return;
@@ -79,6 +91,11 @@ public abstract class AbstractCodeGeneratorIndividual extends OWLNamedIndividual
         }
     }
 
+    /**Checks whether the individual contains the owl literal 
+     * @param owlDataProperty The property to check from 
+     * @param owlLiteralToCheck The owl literal to check for
+     * @return the result
+     */
     protected boolean doesPropertyContainsLiteral(OWLDataProperty owlDataProperty, OWLLiteral owlLiteralToCheck) {
         Set<OWLLiteral> values = getDataPropertyValues(owlDataProperty, getOwlOntology());
         if (values == null || values.isEmpty()) {
