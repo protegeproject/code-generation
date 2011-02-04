@@ -1,8 +1,5 @@
 <?xml version = "1.0" encoding = "utf-8"?>
 
-<!-- 
-     *** CHANGE ME *** change the project name.
-  -->
 <project name = "OWL Code Generation" default = "install" basedir = ".">    
 
    <!-- 
@@ -12,8 +9,8 @@
      -->
 
    <property environment="env"/>
-   <!--<property name = "protege.home"      location="${env.PROTEGE_HOME}"/>-->
-   <property name = "protege.home" location="C:\Program Files\Protege_4.1_beta"/>
+   <property name = "protege.home"      location="${env.PROTEGE_HOME}"/>
+   <!-- <property name = "protege.home" location="C:\Program Files\Protege_4.1_beta"/> -->
    <property file="${protege.home}/build.properties"/>
    <property file="local.properties"/>
 
@@ -22,13 +19,6 @@
    <property name="minor.version" value="0"/>
    <property name="micro.version" value="0"/>
 
-   <!-- 
-        **** CHANGE ME ****
-
-        This setting defines the name of the plugin.
-        This may be the only setting that the developer needs to
-        change.
-     -->
    <property name = "plugin"          value = "org.protege.editor.owl.codegeneration"/>
 
    
@@ -89,16 +79,6 @@
       <fail message = "missing protege libraries"/>
     </target>
 
-   <!-- 
-        **** CHANGE ME ****
-
-        The following target only needs to be modified if the user
-        needs to change the classpath.  It is preconfigured to use
-        the common protege 4 jars, the lib directory and the
-        libraries that have been uncovered in buildlibs. Also note
-        that the lib entry needs to be removed from the class path if
-        you do not have a lib directory.
-     -->
    <target name = "checkProtegeLibs" depends="init">
      <echo message="**********************************************************"/>
      <echo message="Using Protege Home = ${protege.home}"/>
@@ -120,21 +100,10 @@
        <pathelement location="${equinox.registry}"/>
        <pathelement location="${owl.editor.jar}"/>
        <pathelement location="${owl.lib}"/>
-       <fileset dir="${lib}"/>
        <fileset dir="${genlib}"/>
      </path>
    </target>
 
-
-   <!-- 
-        **** CHANGE ME ****
-
-        The following target only needs to be modified if the
-        developer needs to obtain some jar files that are contained in
-        the Protege bundles.  The contents of these jar files are
-        found when Protege 4 runs but may be needed in order to
-        compile the plugin. 
-     -->
    <target name = "buildlibs" depends="checkProtegeLibsAndReport">
        <unjar dest="${build}"
               src="${common.lib}">
@@ -152,35 +121,10 @@
      <manifest file="${manifest}" 
                mode = "update">
         <attribute name="Built-By" value = "${user.name}"/>
-        <!-- 
-             **** CHANGE ME ****
-
-             Do you want the bundle version to be set by the build
-             file/version.properties file?  This is good in situations
-             where there is an automatic build with version updates.
-             It also automatically guarantees that a fresh build is
-             later than the latest released version even if the major,
-             minor and micro version are the same.  Finally it will
-             guarantee the creation of a update.properties file that
-             can be used for automatic updates.  The disadvantage
-             is that the copy run in an ide will often have an old
-             version number.
-         -->
         <attribute name="Bundle-Version" value="${bundle.version}"/>
      </manifest>
    </target>
 
-   <!-- 
-        **** CHANGE ME ****
-
-        Here is the copy.resources target.  It may need modification
-        to copy the right resources into the classes directory.  By
-        default it already copies non-java files found in the source
-        directory, the libraries needed by the project and the
-        viewconfig and the plugin.xml.  This will be sufficient in
-        many cases.  Also if you have no lib directory, you will need
-        to delete the line involving the lib directory.
-     -->
    <target name="copy.resources" depends="build.manifest">
      <copy todir="${classes}">
        <fileset dir="${src}">
@@ -189,9 +133,6 @@
          <exclude name="**/MANIFEST.MF"/>
          <exclude name="**/manifest.mf"/>
        </fileset>
-     </copy>
-     <copy todir="${classes}/lib">
-       <fileset dir="${lib}" excludes="junit*.jar"/>
      </copy>
      <copy todir="${classes}">
        <fileset dir="." includes="*.xml">
