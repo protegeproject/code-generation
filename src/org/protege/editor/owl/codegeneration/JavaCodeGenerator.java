@@ -279,15 +279,15 @@ public class JavaCodeGenerator {
         printWriter.println(" */");
         printWriter.println("public interface " + interfaceName + getInterfaceExtendsCode(owlClass) + " {");
 
-        for (Iterator iterator = owlObjectProperties.iterator(); iterator.hasNext();) {
-            OWLObjectProperty owlObjectProperty = (OWLObjectProperty) iterator.next();
+        for (Iterator<OWLObjectProperty> iterator = owlObjectProperties.iterator(); iterator.hasNext();) {
+            OWLObjectProperty owlObjectProperty = iterator.next();
             printInterfaceObjectPropertyCode(owlObjectProperty, printWriter);
 
             printWriter.println();
 
         }
-        for (Iterator iterator = owlDataProperties.iterator(); iterator.hasNext();) {
-            OWLDataProperty owlDataProperty = (OWLDataProperty) iterator.next();
+        for (Iterator<OWLDataProperty> iterator = owlDataProperties.iterator(); iterator.hasNext();) {
+            OWLDataProperty owlDataProperty = iterator.next();
             printInterfaceDataPropertyCode(owlDataProperty, printWriter);
         }
         printWriter.println();
