@@ -25,6 +25,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 
+import org.protege.owl.codegeneration.EditableJavaCodeGeneratorOptions;
+import org.protege.owl.codegeneration.JavaCodeGeneratorConstants;
+
 /**
  * This class creates a panel, which contains options for code generations.
  * @author z.khan

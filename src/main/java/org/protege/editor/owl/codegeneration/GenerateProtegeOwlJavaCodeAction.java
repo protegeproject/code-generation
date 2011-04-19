@@ -13,6 +13,8 @@ import org.apache.log4j.Logger;
 import org.protege.editor.core.ProtegeApplication;
 import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
+import org.protege.owl.codegeneration.EditableJavaCodeGeneratorOptionsImpl;
+import org.protege.owl.codegeneration.JavaCodeGenerator;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 

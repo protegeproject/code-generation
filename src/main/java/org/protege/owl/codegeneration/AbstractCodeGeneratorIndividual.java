@@ -1,4 +1,4 @@
-package org.protege.editor.owl.codegeneration;
+package org.protege.owl.codegeneration;
 
 import java.util.Collections;
 import java.util.Set;
