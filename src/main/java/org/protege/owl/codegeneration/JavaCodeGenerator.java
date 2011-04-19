@@ -36,7 +36,7 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 public class JavaCodeGenerator {
 	public static final Logger LOGGER = Logger.getLogger(JavaCodeGenerator.class);
 
-    private JavaCodeGeneratorOptions options;
+    private CodeGenerationOptions options;
 
     List<Node<OWLClass>> classesNodeList;
     private OWLReasoner reasoner;
@@ -54,7 +54,7 @@ public class JavaCodeGenerator {
      * @param owlOntology
      * @param options
      */
-    public JavaCodeGenerator(OWLOntology owlOntology, JavaCodeGeneratorOptions options) {
+    public JavaCodeGenerator(OWLOntology owlOntology, CodeGenerationOptions options) {
 
         this.owlOntology = owlOntology;
         this.options = options;

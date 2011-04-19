@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import org.protege.editor.core.ProtegeApplication;
 import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
-import org.protege.owl.codegeneration.EditableJavaCodeGeneratorOptionsImpl;
+import org.protege.owl.codegeneration.CodeGenerationOptions;
 import org.protege.owl.codegeneration.JavaCodeGenerator;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
@@ -28,7 +28,7 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
 
     private static final long serialVersionUID = 1L;
 
-    EditableJavaCodeGeneratorOptionsImpl options;
+    CodeGenerationOptions options;
 
     private JFrame codeGenOptionFrame;
 
@@ -57,7 +57,7 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
      * Displays the panel with options required for code generation
      */
     private void showGeneratorPanel() {
-        options = new EditableJavaCodeGeneratorOptionsImpl();
+        options = new CodeGenerationOptions();
         JavaCodeGeneratorPanel javaCodeGeneratorPanel = new JavaCodeGeneratorPanel(options, this);
         codeGenOptionFrame = new JFrame("Generate Protege-OWL Java Code");
         codeGenOptionFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);

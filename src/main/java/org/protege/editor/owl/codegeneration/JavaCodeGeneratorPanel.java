@@ -24,8 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
-
-import org.protege.owl.codegeneration.EditableJavaCodeGeneratorOptions;
+import org.protege.owl.codegeneration.CodeGenerationOptions;
 import org.protege.owl.codegeneration.JavaCodeGeneratorConstants;
 
 /**
@@ -45,7 +44,7 @@ public class JavaCodeGeneratorPanel extends JPanel {
 
     private JFileChooser fileChooser = new JFileChooser(".");
 
-    private EditableJavaCodeGeneratorOptions options;
+    private CodeGenerationOptions options;
 
     private JTextField packageTextField;
 
@@ -63,8 +62,8 @@ public class JavaCodeGeneratorPanel extends JPanel {
      * @param options the EditableJavaCodeGeneratorOptions object in which to save the option values. 
      * @param generateCodeWithOptions
      */
-    public JavaCodeGeneratorPanel(EditableJavaCodeGeneratorOptions options,
-            GenerateCodeWithOptions generateCodeWithOptions) {
+    public JavaCodeGeneratorPanel(CodeGenerationOptions options,
+              					  GenerateCodeWithOptions generateCodeWithOptions) {
 
         this.options = options;
         this.generateCodeWithOptions = generateCodeWithOptions;

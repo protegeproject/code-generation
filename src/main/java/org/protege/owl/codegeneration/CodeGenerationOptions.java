@@ -6,7 +6,7 @@ import java.io.File;
  * @author z.khan
  *
  */
-public class EditableJavaCodeGeneratorOptionsImpl implements EditableJavaCodeGeneratorOptions {
+public class CodeGenerationOptions {
 
     private boolean abstractMode;
 
