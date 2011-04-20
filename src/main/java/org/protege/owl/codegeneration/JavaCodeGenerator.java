@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.protege.owl.codegeneration.inference.CodeGenerationInference;
+import org.protege.owl.codegeneration.inference.SimpleInference;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
@@ -37,6 +39,7 @@ public class JavaCodeGenerator {
 	public static final Logger LOGGER = Logger.getLogger(JavaCodeGenerator.class);
 
     private CodeGenerationOptions options;
+    private CodeGenerationInference inference;
 
     List<Node<OWLClass>> classesNodeList;
     private OWLReasoner reasoner;
@@ -55,9 +58,9 @@ public class JavaCodeGenerator {
      * @param options
      */
     public JavaCodeGenerator(OWLOntology owlOntology, CodeGenerationOptions options) {
-
         this.owlOntology = owlOntology;
         this.options = options;
+        this.inference = new SimpleInference(owlOntology);
         File folder = options.getOutputFolder();
         if (folder != null && !folder.exists()) {
             folder.mkdirs();
@@ -73,6 +76,10 @@ public class JavaCodeGenerator {
             File file = folder == null ? new File("impl") : new File(folder, "impl");
             file.mkdirs();
         }
+    }
+    
+    public void setCodeGenerationInference(CodeGenerationInference inference) {
+    	
     }
 
     /**Initiates the code generation
