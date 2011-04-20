@@ -21,18 +21,21 @@ import uk.ac.manchester.cs.owl.owlapi.OWLNamedIndividualImpl;
  * @author z.khan
  * 
  */
-public abstract class AbstractCodeGeneratorIndividual extends OWLNamedIndividualImpl{
+public abstract class AbstractCodeGeneratorIndividual {
     
     private OWLOntology owlOntology;
+    private OWLNamedIndividual owlIndividual;
+    private OWLDataFactory owlDataFactory;
 
     /**Constructor
      * @param owlDataFactory
      * @param iri
      * @param owlOntology
      */
-    public AbstractCodeGeneratorIndividual(OWLDataFactory owlDataFactory, IRI iri, OWLOntology owlOntology) {
-        super(owlDataFactory, iri);
+    public AbstractCodeGeneratorIndividual(OWLOntology owlOntology, IRI iri) {
         this.owlOntology = owlOntology;
+        owlDataFactory = owlOntology.getOWLOntologyManager().getOWLDataFactory();
+        owlIndividual = owlDataFactory.getOWLNamedIndividual(iri);
     }
 
     /**
@@ -42,13 +45,17 @@ public abstract class AbstractCodeGeneratorIndividual extends OWLNamedIndividual
         return owlOntology;
     }
     
+    public OWLNamedIndividual getOwlIndividual() {
+		return owlIndividual;
+	}
+    
     /**
      * Deletes the individual from Ontology 
      */
     protected void deleteIndividual() {
         OWLEntityRemover remover = new OWLEntityRemover(getOwlOntology().getOWLOntologyManager(), Collections
                 .singleton(getOwlOntology()));
-        accept(remover);
+        owlIndividual.accept(remover);
         getOwlOntology().getOWLOntologyManager().applyChanges(remover.getChanges());
     }
     
@@ -57,14 +64,14 @@ public abstract class AbstractCodeGeneratorIndividual extends OWLNamedIndividual
      * @param owlNamedIndividual The value to be removed
      */
     protected void removeObjectPropertyValue(OWLObjectProperty owlObjectProperty, OWLNamedIndividual owlNamedIndividual) {
-        Set<OWLIndividual> values = getObjectPropertyValues(owlObjectProperty, getOwlOntology());
+        Set<OWLIndividual> values = owlIndividual.getObjectPropertyValues(owlObjectProperty, getOwlOntology());
         if (values == null || values.isEmpty()) {
             return;
         }
         for (OWLIndividual owlIndividual : values) {
             if (owlIndividual.isNamed() && owlIndividual.asOWLNamedIndividual().getIRI().toString().equals(owlNamedIndividual.getIRI().toString())) {
-                OWLObjectPropertyAssertionAxiom axiom = getOWLDataFactory().getOWLObjectPropertyAssertionAxiom(
-                        owlObjectProperty, this, owlIndividual);
+                OWLObjectPropertyAssertionAxiom axiom = owlDataFactory.getOWLObjectPropertyAssertionAxiom(
+                        owlObjectProperty, this.owlIndividual, owlIndividual);
                 getOwlOntology().getOWLOntologyManager().removeAxiom(getOwlOntology(), axiom);
                 break;
             }
@@ -76,14 +83,14 @@ public abstract class AbstractCodeGeneratorIndividual extends OWLNamedIndividual
      * @param owlLiteralToRemove The owl literal to be removed
      */
     protected void removeDataPropertyValue(OWLDataProperty owlDataProperty, OWLLiteral owlLiteralToRemove ) {
-        Set<OWLLiteral> values = getDataPropertyValues(owlDataProperty, getOwlOntology());
+        Set<OWLLiteral> values = owlIndividual.getDataPropertyValues(owlDataProperty, getOwlOntology());
         if (values == null || values.isEmpty()) {
             return;
         }
         for (OWLLiteral owlLiteral : values) {
             if(owlLiteral.getLiteral().equals(owlLiteralToRemove.getLiteral())){
-                OWLDataPropertyAssertionAxiom axiom = getOWLDataFactory().getOWLDataPropertyAssertionAxiom(
-                        owlDataProperty, this, owlLiteral);
+                OWLDataPropertyAssertionAxiom axiom = owlDataFactory.getOWLDataPropertyAssertionAxiom(
+                        owlDataProperty, this.owlIndividual, owlLiteral);
                 getOwlOntology().getOWLOntologyManager().removeAxiom(getOwlOntology(), axiom);
                 break;
             }
@@ -97,7 +104,7 @@ public abstract class AbstractCodeGeneratorIndividual extends OWLNamedIndividual
      * @return the result
      */
     protected boolean doesPropertyContainsLiteral(OWLDataProperty owlDataProperty, OWLLiteral owlLiteralToCheck) {
-        Set<OWLLiteral> values = getDataPropertyValues(owlDataProperty, getOwlOntology());
+        Set<OWLLiteral> values = owlIndividual.getDataPropertyValues(owlDataProperty, getOwlOntology());
         if (values == null || values.isEmpty()) {
             return false;
         }
@@ -117,8 +124,8 @@ public abstract class AbstractCodeGeneratorIndividual extends OWLNamedIndividual
      * @param literal
      */
     protected void setDataProperty(OWLDataProperty owlDataProperty, OWLLiteral literal) {
-        OWLDataPropertyAssertionAxiom axiom = getOWLDataFactory().getOWLDataPropertyAssertionAxiom(owlDataProperty,
-                this, literal);
+        OWLDataPropertyAssertionAxiom axiom = owlDataFactory.getOWLDataPropertyAssertionAxiom(owlDataProperty,
+                																			  owlIndividual, literal);
         getOwlOntology().getOWLOntologyManager().addAxiom(getOwlOntology(), axiom);
     }
 }

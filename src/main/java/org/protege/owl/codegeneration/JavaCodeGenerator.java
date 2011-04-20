@@ -4,18 +4,19 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inference.SimpleInference;
+import org.protege.owl.codegeneration.names.CodeGenerationNames;
+import org.protege.owl.codegeneration.names.CodeGenerationNamesFactory;
+import org.protege.owl.codegeneration.names.NamingUtilities;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
@@ -24,10 +25,7 @@ import org.semanticweb.owlapi.model.OWLDataRange;
 import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyFormat;
 import org.semanticweb.owlapi.reasoner.Node;
-import org.semanticweb.owlapi.reasoner.OWLReasoner;
-import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 /**
  * A class that can create Java interfaces in the Protege-OWL format
@@ -40,17 +38,15 @@ public class JavaCodeGenerator {
 
     private CodeGenerationOptions options;
     private CodeGenerationInference inference;
+    private CodeGenerationNames names;
 
     List<Node<OWLClass>> classesNodeList;
-    private OWLReasoner reasoner;
     private OWLOntology owlOntology;
-    private Set<OWLObjectProperty> objectProperties = new HashSet<OWLObjectProperty>();;
-    private Set<OWLDataProperty> dataProperties = new HashSet<OWLDataProperty>();;
-    private DefaultPrefixManager prefixManager;
+    private Set<OWLObjectProperty> objectProperties = new HashSet<OWLObjectProperty>();
+    private Set<OWLDataProperty> dataProperties = new HashSet<OWLDataProperty>();
     private PrintWriter vocabularyPrintWriter;
     private FileWriter vocabularyfileWriter;
     private Set<OWLOntology> importedOntologies;
-    private Map<String, String> prefixMap = new HashMap<String, String>();
     private Set<OWLOntology> allOwlOntologies = new HashSet<OWLOntology>();
 
     /**Constructor
@@ -61,6 +57,7 @@ public class JavaCodeGenerator {
         this.owlOntology = owlOntology;
         this.options = options;
         this.inference = new SimpleInference(owlOntology);
+        this.names = new CodeGenerationNamesFactory(owlOntology, options).getCGNames();
         File folder = options.getOutputFolder();
         if (folder != null && !folder.exists()) {
             folder.mkdirs();
@@ -77,53 +74,22 @@ public class JavaCodeGenerator {
             file.mkdirs();
         }
     }
-    
-    public void setCodeGenerationInference(CodeGenerationInference inference) {
-    	
-    }
 
     /**Initiates the code generation
      * @param reasoner
      * @throws IOException
      */
-    public void createAll(OWLReasoner reasoner) throws IOException {
-
-        this.reasoner = reasoner;
+    public void createAll(CodeGenerationInference inference) throws IOException {
+    	this.inference = inference;
         setAllOntologies();
         getOntologyObjectProperties();
         getOntologyDataProperties();
-        setOntologyPrefixMap();
-        Node<OWLClass> topNode = this.reasoner.getTopClassNode();
-        List<OWLClass> owlClassList = getClassesList(topNode);
+        Collection<OWLClass> owlClassList = inference.getClasses();
         printVocabularyCode(owlClassList);
         printFactoryClassCode(owlClassList);
-        for (Iterator iterator = owlClassList.iterator(); iterator.hasNext();) {
-            OWLClass owlClass = (OWLClass) iterator.next();
+        for (OWLClass owlClass : owlClassList) {
             createInterface(owlClass);
             createImplementation(owlClass);
-        }
-    }
-
-    /**
-     * Retrieves the onlology uri to prefix mapping and adds the pair in Map 
-     */
-    protected void setOntologyPrefixMap() {
-        for (OWLOntology importedOntology : importedOntologies) {
-            OWLOntologyFormat format = importedOntology.getOWLOntologyManager().getOntologyFormat(importedOntology);
-            if (format.isPrefixOWLOntologyFormat()) {
-                Map<String, String> map = format.asPrefixOWLOntologyFormat().getPrefixName2PrefixMap();
-                for (Map.Entry<String, String> m : map.entrySet()) {
-                    if (m.getValue().toString().equals(
-                            importedOntology.getOntologyID().getOntologyIRI().toString() + "#")) {
-                        String prefixFormatted = m.getKey().toString().replace(":", "").trim();
-                        if (prefixFormatted.length() > 0) {
-                            prefixMap
-                                    .put(importedOntology.getOntologyID().getOntologyIRI().toString(), prefixFormatted);
-                        }
-                    }
-
-                }
-            }
         }
     }
 
@@ -135,34 +101,6 @@ public class JavaCodeGenerator {
         importedOntologies = owlOntology.getImports();
         allOwlOntologies.add(owlOntology);
         allOwlOntologies.addAll(importedOntologies);
-    }
-
-    /** Generates and returns the interface name of the provided owlClass
-     * @param owlClass The class whose interface name is to be returned
-     * @return The interface name.
-     */
-    protected String getInterfaceName(OWLClass owlClass) {
-        OWLOntology classOntology = getParentOntology(owlClass.getIRI());
-        String classOntologyIRI;
-        if (classOntology != null) {
-            classOntologyIRI = classOntology.getOntologyID().getOntologyIRI().toString();
-        } else {
-            classOntologyIRI = owlOntology.getOntologyID().getOntologyIRI().toString();
-        }
-        String namePrefix = prefixMap.get(classOntologyIRI);
-        if (prefixManager == null || !prefixManager.getDefaultPrefix().startsWith(classOntologyIRI)) {
-            prefixManager = new DefaultPrefixManager(classOntologyIRI + "#");
-        }
-
-        String interfaceName = prefixManager.getShortForm(owlClass);
-        interfaceName = interfaceName.replace(":", "");
-
-        if (options.getPrefixMode() && namePrefix != null) {
-            namePrefix = getInitialLetterAsUpperCase(namePrefix);
-            interfaceName = getInitialLetterAsUpperCase(interfaceName);
-            interfaceName = namePrefix + "_" + interfaceName;
-        }
-        return interfaceName;
     }
 
     /**
@@ -179,47 +117,6 @@ public class JavaCodeGenerator {
             }
         }
         return null;
-    }
-
-    /** Generates and returns the interface name of provided owlClass. 
-     *  The function appends a prefix to the interface name if abstract 
-     *  mode is set to true.
-     * @param owlClass
-     * @return
-     */
-    protected String getInterfaceNamePossiblyAbstract(OWLClass owlClass) {
-        String interfaceName = getInterfaceName(owlClass);
-        if (options.getAbstractMode()) {
-            interfaceName += "_";
-        }
-        return interfaceName;
-    }
-
-    /** Generates and returns the name of the object property
-     * @param owlObjectProperty The property whose name is to be returned.
-     * @return The property name.
-     */
-    protected String getObjectPropertyName(OWLObjectProperty owlObjectProperty) {
-
-        String propertyName = owlObjectProperty.getIRI().getFragment();
-        if (options.getPrefixMode() && propertyName != null) {
-            propertyName = getInitialLetterAsUpperCase(propertyName);
-
-            OWLOntology classOntology = getParentOntology(owlObjectProperty.getIRI());
-            String classOntologyIRI;
-            if (classOntology != null) {
-                classOntologyIRI = classOntology.getOntologyID().getOntologyIRI().toString();
-            } else {
-                classOntologyIRI = owlOntology.getOntologyID().getOntologyIRI().toString();
-            }
-            String namePrefix = prefixMap.get(classOntologyIRI);
-            if (namePrefix != null) {
-                namePrefix = getInitialLetterAsUpperCase(namePrefix);
-                propertyName = getInitialLetterAsUpperCase(propertyName);
-                propertyName = namePrefix + "_" + propertyName;
-            }
-        }
-        return propertyName;
     }
 
     /**
@@ -248,7 +145,7 @@ public class JavaCodeGenerator {
      */
     private void createInterface(OWLClass owlClass) throws IOException {
 
-        String interfaceName = getInterfaceNamePossiblyAbstract(owlClass);
+        String interfaceName = names.getInterfaceNamePossiblyAbstract(owlClass);
         File baseFile = getInterfaceFile(interfaceName);
         FileWriter fileWriter = new FileWriter(baseFile);
         PrintWriter printWriter = new PrintWriter(fileWriter);
@@ -270,13 +167,13 @@ public class JavaCodeGenerator {
     private void printInterfaceCode(String interfaceName, OWLClass owlClass, PrintWriter printWriter) {
         printInterfacePackageStatement(printWriter);
 
-        List<OWLObjectProperty> owlObjectProperties = getClassObjectProperties(owlClass);
-        List<OWLDataProperty> owlDataProperties = getClassDataProperties(owlClass);
+        Collection<OWLObjectProperty> owlObjectProperties = inference.getObjectPropertiesForClass(owlClass);
+        Collection<OWLDataProperty> owlDataProperties = inference.getDataPropertiesForClass(owlClass);
 
         printWriter.println("import org.semanticweb.owlapi.model.*;");
         printWriter.println();
-
-        addImportJavaUtilCode(printWriter, owlDataProperties, owlObjectProperties);
+        printWriter.println("import java.util.*;");
+        printWriter.println();
 
         printWriter.println("/**");
         printWriter.println(" * Generated by Protege (http://protege.stanford.edu).");
@@ -298,6 +195,10 @@ public class JavaCodeGenerator {
             printInterfaceDataPropertyCode(owlDataProperty, printWriter);
         }
         printWriter.println();
+        printWriter.println("    OWLNamedIndividual getOwlIndividual();");
+        printWriter.println();
+        printWriter.println("    OWLOntology getOwlOntology();");
+        printWriter.println();
         printWriter.println("    void delete();");
         printWriter.println("}");
 
@@ -309,8 +210,8 @@ public class JavaCodeGenerator {
      * @param printWriter
      */
     private void printInterfaceObjectPropertyCode(OWLObjectProperty owlObjectProperty, PrintWriter printWriter) {
-        String propertyName = getObjectPropertyName(owlObjectProperty);
-        String propertyNameUpperCase = getInitialLetterAsUpperCase(propertyName);
+        String propertyName = names.getObjectPropertyName(owlObjectProperty);
+        String propertyNameUpperCase = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
         printWriter.println();
         printWriter.println("    // Property " + owlObjectProperty.getIRI());
         printWriter.println();
@@ -382,7 +283,7 @@ public class JavaCodeGenerator {
             for (OWLClassExpression owlClassExpression : oClassExpressions) {
                 try {
                     OWLClass owlClass = owlClassExpression.asOWLClass();
-                    objPropertyRange = getInterfaceName(owlClass);
+                    objPropertyRange = names.getInterfaceName(owlClass);
                     break;
                 } catch (Exception e) {
                     continue;
@@ -397,8 +298,8 @@ public class JavaCodeGenerator {
      * @param printWriter
      */
     private void printInterfaceDataPropertyCode(OWLDataProperty owlDataProperty, PrintWriter printWriter) {
-        String propertyName = getDataPropertyName(owlDataProperty);
-        String propertyNameUpperCase = getInitialLetterAsUpperCase(propertyName);
+        String propertyName = names.getDataPropertyName(owlDataProperty);
+        String propertyNameUpperCase = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
         printWriter.println();
         printWriter.println();
         printWriter.println("    // Property " + owlDataProperty.getIRI());
@@ -488,30 +389,6 @@ public class JavaCodeGenerator {
         return dataPropertyRange;
     }
 
-    protected String getDataPropertyName(OWLDataProperty owlDataProperty) {
-
-        String propertyName = owlDataProperty.getIRI().getFragment();
-
-        if (options.getPrefixMode() && propertyName != null) {
-            propertyName = getInitialLetterAsUpperCase(propertyName);
-
-            OWLOntology classOntology = getParentOntology(owlDataProperty.getIRI());
-            String classOntologyIRI;
-            if (classOntology != null) {
-                classOntologyIRI = classOntology.getOntologyID().getOntologyIRI().toString();
-            } else {
-                classOntologyIRI = owlOntology.getOntologyID().getOntologyIRI().toString();
-            }
-            String namePrefix = prefixMap.get(classOntologyIRI);
-            if (namePrefix != null) {
-                namePrefix = getInitialLetterAsUpperCase(namePrefix);
-                propertyName = getInitialLetterAsUpperCase(propertyName);
-                propertyName = namePrefix + "_" + propertyName;
-            }
-        }
-        return propertyName;
-    }
-
     /**
      * Prints package statement
      * 
@@ -521,88 +398,6 @@ public class JavaCodeGenerator {
         if (options.getPackage() != null) {
             printWriter.println("package " + options.getPackage() + ";");
             printWriter.println();
-        }
-    }
-
-    private List<OWLObjectProperty> getClassObjectProperties(OWLClass owlClass) {
-        List<OWLObjectProperty> owlObjectProperties = new ArrayList<OWLObjectProperty>();
-
-        for (OWLObjectProperty owlObjectProperty : objectProperties) {
-            Set<OWLClassExpression> owlClassExpressions = owlObjectProperty.getDomains(allOwlOntologies);
-
-            for (OWLClassExpression owlClassExpression : owlClassExpressions) {
-            	if (!owlClassExpression.isAnonymous()) {
-            		OWLClass owlCls = owlClassExpression.asOWLClass();
-            		if (owlClass.getIRI().toString().trim().equals(owlCls.getIRI().toString().trim())) {
-            			owlObjectProperties.add(owlObjectProperty);
-            			break;
-            		}
-            	}
-            }
-        }
-        Set<OWLClassExpression> sc = owlClass.getSuperClasses(allOwlOntologies);
-        for (OWLClassExpression owlClassExpression : sc) {
-            if (owlClassExpression.isAnonymous()) {
-                Set<OWLObjectProperty> property = owlClassExpression.getObjectPropertiesInSignature();
-                for (OWLObjectProperty owlObjectProperty : property) {
-                    if (!owlObjectProperties.contains(owlObjectProperty)) {
-                        owlObjectProperties.add(owlObjectProperty);
-                    }
-                }
-            }
-        }
-        
-       Set<OWLClassExpression> eqClasses =  owlClass.getEquivalentClasses(allOwlOntologies);
-        for (OWLClassExpression owlClassExpression : eqClasses) {
-            if (owlClassExpression.isAnonymous()) {
-                Set<OWLObjectProperty> property = owlClassExpression.getObjectPropertiesInSignature();
-                for (OWLObjectProperty owlObjectProperty : property) {
-                    if (!owlObjectProperties.contains(owlObjectProperty)) {
-                        owlObjectProperties.add(owlObjectProperty);
-                    }
-                }
-            }
-        }
-        
-        return owlObjectProperties;
-    }
-
-    private List<OWLDataProperty> getClassDataProperties(OWLClass owlClass) {
-        List<OWLDataProperty> owlDataProperties = new ArrayList<OWLDataProperty>();
-
-        for (OWLDataProperty owlDataProperty : dataProperties) {
-            Set<OWLClassExpression> owlClassExpressions = owlDataProperty.getDomains(allOwlOntologies);
-
-            for (OWLClassExpression owlClassExpression : owlClassExpressions) {
-            	if (!owlClassExpression.isAnonymous()) {
-            		OWLClass owlClassToCompare = owlClassExpression.asOWLClass();
-            		if (owlClass.getIRI().toString().trim().equals(owlClassToCompare.getIRI().toString().trim())) {
-            			owlDataProperties.add(owlDataProperty);
-            			break;
-            		}
-            	}
-            }
-        }
-        return owlDataProperties;
-    }
-
-    private void addImportJavaUtilCode(PrintWriter printWriter, List<OWLDataProperty> owlDataProperties,
-            List<OWLObjectProperty> owlObjectProperties) {
-        for (Iterator iterator = owlDataProperties.iterator(); iterator.hasNext();) {
-            OWLDataProperty owlDataProperty = (OWLDataProperty) iterator.next();
-            if (!owlDataProperty.isFunctional(allOwlOntologies)) {
-                printWriter.println("import java.util.*;");
-                printWriter.println();
-                return;
-            }
-        }
-        for (Iterator iterator = owlObjectProperties.iterator(); iterator.hasNext();) {
-            OWLObjectProperty owlObjectProperty = (OWLObjectProperty) iterator.next();
-            if (!owlObjectProperty.isFunctional(allOwlOntologies)) {
-                printWriter.println("import java.util.*;");
-                printWriter.println();
-                return;
-            }
         }
     }
 
@@ -616,56 +411,19 @@ public class JavaCodeGenerator {
         return new File(options.getOutputFolder(), pack + name + ".java");
     }
 
-    private List<OWLClass> getClassesList(Node<OWLClass> topNode) {
-        Node<OWLClass> unsatisfableClasses = reasoner.getUnsatisfiableClasses();
-
-        List<OWLClass> owlClassList = new ArrayList<OWLClass>();
-        classesNodeList = new ArrayList<Node<OWLClass>>();
-        getSubClasses(topNode);
-
-        for (Iterator iterator = classesNodeList.iterator(); iterator.hasNext();) {
-
-            Node<OWLClass> nodeClasses = (Node<OWLClass>) iterator.next();
-            Set<OWLClass> entities = nodeClasses.getEntities();
-            for (Iterator iterator2 = entities.iterator(); iterator2.hasNext();) {
-                OWLClass owlClass = (OWLClass) iterator2.next();
-                if (!owlClassList.contains(owlClass) && !owlClass.isBuiltIn()
-                        && !unsatisfableClasses.contains(owlClass)) {
-                    owlClassList.add(owlClass);
-                }
-            }
-        }
-        return owlClassList;
-    }
-
-    private void getSubClasses(Node<OWLClass> parent) {
-
-        if (parent.isBottomNode()) {
-            return;
-        }
-
-        parent.getEntities();
-        for (Node<OWLClass> child : reasoner.getSubClasses(parent.getRepresentativeElement(), true)) {
-            if (!classesNodeList.contains(child)) {
-                classesNodeList.add(child);
-                getSubClasses(child);
-            }
-        }
-
-    }
-
     private String getInterfaceExtendsCode(OWLClass owlClass) {
         String str = " extends ";
         String base = getBaseInterface(owlClass);
         if (base == null) {
-            return str + "OWLIndividual";
-        } else {
-            return str + base;
+        	return "";
+        }
+        else {
+        	return str + base;
         }
     }
 
     private void createImplementation(OWLClass owlClass) throws IOException {
-        String implName = getImplementationNamePossiblyAbstract(owlClass);
+        String implName = names.getImplementationNamePossiblyAbstract(owlClass);
 
         File file = getImplementationFile(implName);
         FileWriter fileWriter = new FileWriter(file);
@@ -676,14 +434,6 @@ public class JavaCodeGenerator {
         if (options.getAbstractMode()) {
             createUserImplementation(owlClass);
         }
-    }
-
-    private String getImplementationName(OWLClass owlClass) {
-        return "Default" + getInterfaceName(owlClass);
-    }
-
-    private String getImplementationNamePossiblyAbstract(OWLClass owlClass) {
-        return "Default" + getInterfaceNamePossiblyAbstract(owlClass);
     }
 
     private File getImplementationFile(String implName) {
@@ -697,7 +447,7 @@ public class JavaCodeGenerator {
     }
 
     private void createUserInterface(OWLClass owlClass) throws IOException {
-        String userInterfaceName = getInterfaceName(owlClass);
+        String userInterfaceName = names.getInterfaceName(owlClass);
         File file = getInterfaceFile(userInterfaceName);
         if (!file.exists()) {
             FileWriter fileWriter = new FileWriter(file);
@@ -709,8 +459,8 @@ public class JavaCodeGenerator {
 
     private void printUserInterfaceCode(String userInterfaceName, OWLClass owlClass, PrintWriter printWriter) {
         printInterfacePackageStatement(printWriter);
-        printWriter.println("public interface " + getInterfaceName(owlClass) + " extends "
-                + getInterfaceNamePossiblyAbstract(owlClass) + " {");
+        printWriter.println("public interface " + names.getInterfaceName(owlClass) + " extends "
+                + names.getInterfaceNamePossiblyAbstract(owlClass) + " {");
         printWriter.println("}");
 
     }
@@ -719,11 +469,11 @@ public class JavaCodeGenerator {
 
         printImplementationPackageStatement(printWriter);
         printWriter.println();
-        List<OWLObjectProperty> owlObjectProperties = getClassObjectProperties(owlClass);
-        List<OWLDataProperty> owlDataProperties = getClassDataProperties(owlClass);
+        Collection<OWLObjectProperty> owlObjectProperties = inference.getObjectPropertiesForClass(owlClass);
+        Collection<OWLDataProperty> owlDataProperties = inference.getDataPropertiesForClass(owlClass);
         String pack = options.getPackage();
         if (pack != null) {
-            printWriter.println("import " + pack + "." + getInterfaceNamePossiblyAbstract(owlClass) + ";");
+            printWriter.println("import " + pack + "." + names.getInterfaceNamePossiblyAbstract(owlClass) + ";");
             printWriter.println("import " + pack + ".*;");
             printWriter.println();
         }
@@ -743,7 +493,7 @@ public class JavaCodeGenerator {
 
         printWriter.println();
         printWriter.println("public class " + implName + getImplementationExtendsCode(owlClass));
-        printWriter.println("         implements " + getInterfaceNamePossiblyAbstract(owlClass) + " {");
+        printWriter.println("         implements " + names.getInterfaceNamePossiblyAbstract(owlClass) + " {");
 
         printConstructors(printWriter, implName);
 
@@ -791,14 +541,14 @@ public class JavaCodeGenerator {
         printWriter.println();
         printWriter.println("    public " + implementationName
                 + "(OWLDataFactory owlDataFactory, IRI iri, OWLOntology owlOntology) {");
-        printWriter.println("        super(owlDataFactory, iri, owlOntology);");
+        printWriter.println("        super(owlOntology, iri);");
         printWriter.println("    }");
         printWriter.println();
     }
 
     private void printImplementationObjectPropertyCode(OWLObjectProperty owlObjectProperty, PrintWriter printWriter) {
-        String propertyName = getObjectPropertyName(owlObjectProperty);
-        String propertyNameUpperCase = getInitialLetterAsUpperCase(propertyName);
+        String propertyName = names.getObjectPropertyName(owlObjectProperty);
+        String propertyNameUpperCase = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
         String getPropertyFunctionName = "get" + propertyNameUpperCase + "Property()";
         String objectPropertyRange = getObjectPropertyRange(owlObjectProperty, false);
         boolean isFunctional = owlObjectProperty.isFunctional(allOwlOntologies);
@@ -809,7 +559,7 @@ public class JavaCodeGenerator {
         printWriter.println("    public OWLObjectProperty " + getPropertyFunctionName + " {");
         printWriter.println("        final String iriString = \"" + owlObjectProperty.getIRI() + "\";");
         printWriter.println("        final IRI iri = IRI.create(iriString);");
-        printWriter.println("        return getOWLDataFactory().getOWLObjectProperty(iri);");
+        printWriter.println("        return getOwlOntology().getOWLOntologyManager().getOWLDataFactory().getOWLObjectProperty(iri);");
         printWriter.println("    }");
 
         printWriter.println();
@@ -820,7 +570,7 @@ public class JavaCodeGenerator {
         printWriter.println();
         printWriter.println();
         printWriter.println("    public boolean has" + propertyNameUpperCase + "() {");
-        printWriter.println("        Set<OWLIndividual> values = getObjectPropertyValues(" + getPropertyFunctionName
+        printWriter.println("        Set<OWLIndividual> values = getOwlIndividual().getObjectPropertyValues(" + getPropertyFunctionName
                 + ", getOwlOntology());");
         printWriter.println("        return (values == null || values.isEmpty()) ? false : true;");
         printWriter.println("    }");
@@ -839,9 +589,9 @@ public class JavaCodeGenerator {
             printWriter.println("    public void add" + propertyNameUpperCase + "(" + objPropertyJavaName + " new"
                     + propertyNameUpperCase + ") {");
             printWriter
-                    .println("        OWLObjectPropertyAssertionAxiom axiom = getOWLDataFactory().getOWLObjectPropertyAssertionAxiom( "
+                    .println("        OWLObjectPropertyAssertionAxiom axiom = getOwlOntology().getOWLOntologyManager().getOWLDataFactory().getOWLObjectPropertyAssertionAxiom( "
                             + getPropertyFunctionName
-                            + ", this, (OWLIndividual)"
+                            + ", getOwlIndividual(), (OWLIndividual)"
                             + " new"
                             + propertyNameUpperCase
                             + " );");
@@ -865,8 +615,8 @@ public class JavaCodeGenerator {
             printWriter.println("        for (" + objPropertyJavaName + " element : " + " new" + propertyNameUpperCase
                     + "List" + ") {");
             printWriter
-                    .println("            OWLObjectPropertyAssertionAxiom axiom = getOWLDataFactory().getOWLObjectPropertyAssertionAxiom( "
-                            + getPropertyFunctionName + ", this, (OWLIndividual)" + " element);");
+                    .println("            OWLObjectPropertyAssertionAxiom axiom = getOwlOntology().getOWLOntologyManager().getOWLDataFactory().getOWLObjectPropertyAssertionAxiom( "
+                            + getPropertyFunctionName + ", getOwlIndividual(), (OWLIndividual)" + " element);");
             printWriter
                     .println("            getOwlOntology().getOWLOntologyManager().addAxiom(getOwlOntology(), axiom);");
             printWriter.println("        }");
@@ -907,7 +657,7 @@ public class JavaCodeGenerator {
 
             printWriter.println("        Set<" + objectPropertyType + "> propertyValues = new HashSet<"
                     + objectPropertyType + ">();");
-            printWriter.println("        Set<OWLIndividual> values = getObjectPropertyValues("
+            printWriter.println("        Set<OWLIndividual> values = getOwlIndividual().getObjectPropertyValues("
                     + getPropertyFunctionName + ", getOwlOntology());");
             printWriter.println("        if(values ==null || values.isEmpty()){");
             printWriter.println("            return null;");
@@ -923,7 +673,7 @@ public class JavaCodeGenerator {
             printWriter.println("        return propertyValues;");
 
         } else {
-            printWriter.println("        Set<OWLIndividual> values = getObjectPropertyValues("
+            printWriter.println("        Set<OWLIndividual> values = getOwlIndividual().getObjectPropertyValues("
                     + getPropertyFunctionName + ", getOwlOntology());");
             printWriter.println("        if (values == null || values.isEmpty()) {");
             printWriter.println("            return null;");
@@ -943,7 +693,7 @@ public class JavaCodeGenerator {
      * @throws IOException
      */
     private void createUserImplementation(OWLClass owlClass) throws IOException {
-        String implName = getImplementationName(owlClass);
+        String implName = names.getImplementationName(owlClass);
         File file = getImplementationFile(implName);
         if (!file.exists()) {
             FileWriter fileWriter = new FileWriter(file);
@@ -968,8 +718,8 @@ public class JavaCodeGenerator {
         }
         printWriter.println("import org.semanticweb.owlapi.model.*;");
         printWriter.println();
-        printWriter.println("public class " + implName + " extends " + getImplementationNamePossiblyAbstract(owlClass));
-        printWriter.println("         implements " + getInterfaceName(owlClass) + " {");
+        printWriter.println("public class " + implName + " extends " + names.getImplementationNamePossiblyAbstract(owlClass));
+        printWriter.println("         implements " + names.getInterfaceName(owlClass) + " {");
         printConstructors(printWriter, implName);
         printWriter.println("}");
 
@@ -981,8 +731,8 @@ public class JavaCodeGenerator {
      */
     private void printImplementationDataPropertyCode(OWLDataProperty owlDataProperty, PrintWriter printWriter) {
 
-        String propertyName = getDataPropertyName(owlDataProperty);
-        String propertyNameUpperCase = getInitialLetterAsUpperCase(propertyName);
+        String propertyName = names.getDataPropertyName(owlDataProperty);
+        String propertyNameUpperCase = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
         String getPropertyFunctionName = "get" + propertyNameUpperCase + "Property()";
 
         Set<OWLDataRange> owlDataRanges = owlDataProperty.getRanges(allOwlOntologies);
@@ -1034,8 +784,8 @@ public class JavaCodeGenerator {
             printWriter
                     .println("        if (!doesPropertyContainsLiteral(" + getPropertyFunctionName + ", literal)) {");
             printWriter
-                    .println("            OWLDataPropertyAssertionAxiom axiom = getOWLDataFactory().getOWLDataPropertyAssertionAxiom(");
-            printWriter.println("                " + getPropertyFunctionName + ", this, literal);");
+                    .println("            OWLDataPropertyAssertionAxiom axiom = getOwlOntology().getOWLOntologyManager().getOWLDataFactory().getOWLDataPropertyAssertionAxiom(");
+            printWriter.println("                " + getPropertyFunctionName + ", getOwlIndividual(), literal);");
             printWriter
                     .println("            getOwlOntology().getOWLOntologyManager().addAxiom(getOwlOntology(), axiom);");
             printWriter.println("        }");
@@ -1202,7 +952,7 @@ public class JavaCodeGenerator {
      * @param owlClassList
      * @throws IOException
      */
-    private void printVocabularyCode(List<OWLClass> owlClassList) throws IOException {
+    private void printVocabularyCode(Collection<OWLClass> owlClassList) throws IOException {
         createVocabularyClassFile();
         printVocabularyInitialCode();
 
@@ -1210,13 +960,13 @@ public class JavaCodeGenerator {
                 .println("    private static final OWLDataFactory factory = OWLManager.createOWLOntologyManager().getOWLDataFactory();");
         vocabularyPrintWriter.println();
 
-        for (Iterator iterator = owlClassList.iterator(); iterator.hasNext();) {
-            OWLClass owlClass = (OWLClass) iterator.next();
+        for (Iterator<OWLClass> iterator = owlClassList.iterator(); iterator.hasNext();) {
+            OWLClass owlClass = iterator.next();
             printClassVocabularyCode(owlClass);
         }
 
         for (OWLObjectProperty owlObjectProperty : objectProperties) {
-            String propertyName = getObjectPropertyName(owlObjectProperty);
+            String propertyName = names.getObjectPropertyName(owlObjectProperty);
             vocabularyPrintWriter
                     .println("    public static final OWLObjectProperty " + propertyName.toUpperCase()
                             + " = factory.getOWLObjectProperty(IRI.create(\"" + owlObjectProperty.getIRI().toString()
@@ -1225,7 +975,7 @@ public class JavaCodeGenerator {
         }
 
         for (OWLDataProperty owlDataProperty : dataProperties) {
-            String propertyName = getDataPropertyName(owlDataProperty);
+            String propertyName = names.getDataPropertyName(owlDataProperty);
             vocabularyPrintWriter.println("    public static final OWLDataProperty " + propertyName.toUpperCase()
                     + " = factory.getOWLDataProperty(IRI.create(\"" + owlDataProperty.getIRI().toString() + "\"));");
             vocabularyPrintWriter.println();
@@ -1266,7 +1016,7 @@ public class JavaCodeGenerator {
      * @param owlClass
      */
     private void printClassVocabularyCode(OWLClass owlClass) {
-        String className = getInterfaceName(owlClass);
+        String className = names.getInterfaceName(owlClass);
         vocabularyPrintWriter.println("    public static final OWLClass " + className.toUpperCase()
                 + " = factory.getOWLClass(IRI.create(\"" + owlClass.getIRI().toString() + "\"));");
         vocabularyPrintWriter.println();
@@ -1285,7 +1035,7 @@ public class JavaCodeGenerator {
      * @param owlClassList
      * @throws IOException
      */
-    private void printFactoryClassCode(List<OWLClass> owlClassList) throws IOException {
+    private void printFactoryClassCode(Collection<OWLClass> owlClassList) throws IOException {
         FileWriter factoryFileWriter = null;
         PrintWriter factoryPrintWriter = null;
         File factoryFile = getInterfaceFile(options.getFactoryClassName());
@@ -1293,8 +1043,8 @@ public class JavaCodeGenerator {
         factoryPrintWriter = new PrintWriter(factoryFileWriter);
         printFactoryInitialCode(factoryPrintWriter);
 
-        for (Iterator iterator = owlClassList.iterator(); iterator.hasNext();) {
-            OWLClass owlClass = (OWLClass) iterator.next();
+        for (Iterator<OWLClass> iterator = owlClassList.iterator(); iterator.hasNext();) {
+            OWLClass owlClass = iterator.next();
             printFactoryCodeForClass(owlClass, factoryPrintWriter);
         }
         printFactoryClassEndCode(factoryPrintWriter, factoryFileWriter);
@@ -1342,8 +1092,8 @@ public class JavaCodeGenerator {
      * @param factoryPrintWriter
      */
     private void printFactoryCodeForClass(OWLClass owlClass, PrintWriter factoryPrintWriter) {
-        String implName = getImplementationName(owlClass);
-        String className = getInterfaceName(owlClass);
+        String implName = names.getImplementationName(owlClass);
+        String className = names.getInterfaceName(owlClass);
 
         factoryPrintWriter.println("    public " + className + " create" + className + "(String name) {");
         factoryPrintWriter
@@ -1352,7 +1102,7 @@ public class JavaCodeGenerator {
                 + "(owlOntology.getOWLOntologyManager().getOWLDataFactory(), iri, owlOntology);");
         factoryPrintWriter
                 .println("        OWLClassAssertionAxiom axiom = owlOntology.getOWLOntologyManager().getOWLDataFactory().getOWLClassAssertionAxiom("
-                        + className.toUpperCase() + ", entity); ");
+                        + className.toUpperCase() + ", entity.getOwlIndividual()); ");
         factoryPrintWriter.println("        owlOntology.getOWLOntologyManager().addAxiom(owlOntology, axiom);");
         factoryPrintWriter.println("        return entity;");
         factoryPrintWriter.println("    }");
@@ -1418,7 +1168,7 @@ public class JavaCodeGenerator {
             OWLClass superClass = owlClassExpression.asOWLClass();
             if (superClass != null && !superClass.isTopEntity() && !superClass.isBuiltIn()) {
                 if (baseImplementationString.equals("")) {
-                    baseImplementationString = getImplementationName(superClass);
+                    baseImplementationString = names.getImplementationName(superClass);
                 } else {
                     return null;
                 }
@@ -1443,7 +1193,7 @@ public class JavaCodeGenerator {
             }
             OWLClass superClass = owlClassExpression.asOWLClass();
             if (superClass != null && !superClass.isTopEntity() && !superClass.isBuiltIn()) {
-                baseInterfaceString += (baseInterfaceString.equals("") ? "" : ", ") + getInterfaceName(superClass);
+                baseInterfaceString += (baseInterfaceString.equals("") ? "" : ", ") + names.getInterfaceName(superClass);
             }
         }
         if (baseInterfaceString.equals("")) {
@@ -1453,18 +1203,5 @@ public class JavaCodeGenerator {
         }
     }
 
-    /** Returns the provided string with initial letter as capital
-     * @param name
-     * @return
-     */
-    public String getInitialLetterAsUpperCase(String name) {
-        if (name == null) {
-            return null;
-        }
-        if (name.length() > 1) {
-            return Character.toUpperCase(name.charAt(0)) + name.substring(1);
-        } else {
-            return name.toUpperCase();
-        }
-    }
+
 }

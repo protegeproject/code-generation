@@ -15,6 +15,7 @@ import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
 import org.protege.owl.codegeneration.CodeGenerationOptions;
 import org.protege.owl.codegeneration.JavaCodeGenerator;
+import org.protege.owl.codegeneration.inference.ReasonerBasedInference;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
@@ -96,7 +97,7 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
         JavaCodeGenerator javaCodeGenerator = new JavaCodeGenerator(owlOntology, options);
 
         try {
-            javaCodeGenerator.createAll(reasoner);
+            javaCodeGenerator.createAll(new ReasonerBasedInference(owlOntology, reasoner));
             JOptionPane.showMessageDialog(null, "Java code successfully generated.", "Information",
                     JOptionPane.INFORMATION_MESSAGE);
             LOGGER.info("Java code successfully generated.");
