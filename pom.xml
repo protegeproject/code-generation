@@ -43,7 +43,7 @@
       <dependency>
         <groupId>cobertura</groupId>
         <artifactId>cobertura</artifactId>
-        <version>1.4</version>
+        <version>1.9.4.1</version>
       </dependency>
         <dependency>
           <groupId>log4j</groupId>
