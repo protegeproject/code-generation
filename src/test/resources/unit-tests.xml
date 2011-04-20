@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Code Generation Test Suite" verbose="1">
+
+    <test name="Postgres Tests">
+        <classes>
+            <class name="org.protege.owl.codegeneration.TestCodeGeneration"/>
+        </classes>
+    </test>
+
+</suite>

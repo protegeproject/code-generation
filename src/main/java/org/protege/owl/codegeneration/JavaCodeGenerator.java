@@ -730,7 +730,7 @@ public class JavaCodeGenerator {
 
         printWriter.println("import java.util.*;");
         printWriter.println();
-        printWriter.println("import org.protege.editor.owl.codegeneration.AbstractCodeGeneratorIndividual;");
+        printWriter.println("import org.protege.owl.codegeneration.AbstractCodeGeneratorIndividual;");
         printWriter.println("import org.semanticweb.owlapi.model.*;");
 
         printWriter.println();
