@@ -41,7 +41,7 @@
 
 	<dependencies>
       <dependency>
-        <groupId>cobertura</groupId>
+        <groupId>net.sourceforge.cobertura</groupId>
         <artifactId>cobertura</artifactId>
         <version>1.9.4.1</version>
       </dependency>
