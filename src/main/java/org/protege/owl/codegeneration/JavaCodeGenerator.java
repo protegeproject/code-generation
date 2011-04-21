@@ -385,14 +385,6 @@ public class JavaCodeGenerator {
 		return PropertyConstants.UNKNOWN_JAVA_DATA_TYPE;
 	}
 
-	/** Determines whether the data type for the OWLDataProperty is basic or not
-	 * @param owlDataProperty
-	 * @return
-	 */
-	private boolean isDataTypeBasic(OWLDataProperty owlDataProperty) {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
 	private File getInterfaceFile(String name) {
 	    String pack = options.getPackage();
 	    if (pack != null) {
