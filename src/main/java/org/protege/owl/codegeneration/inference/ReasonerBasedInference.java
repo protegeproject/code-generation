@@ -11,10 +11,12 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
 public class ReasonerBasedInference implements CodeGenerationInference {
 	private OWLOntology ontology;
@@ -97,6 +99,13 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		return functionalProperties != null && functionalProperties.contains(p);
 	}
 	
+	@Override
+	public Collection<OWLClass> getRange(OWLClass cls, OWLObjectProperty p) {
+		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
+		OWLClassExpression values = factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectInverseOf(p), cls);
+		return reasoner.getSuperClasses(values, true).getFlattened();
+	}
+	
 	public Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass cls) {
 		Set<OWLDataProperty> properties = dataPropertyMap.get(cls);
 		if (properties == null) {
@@ -110,6 +119,37 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 	public boolean isFunctional(OWLClass cls, OWLDataProperty p) {
 		Set<OWLDataProperty> functionalProperties = functionalDataPropertyMap.get(cls);
 		return functionalProperties != null && functionalProperties.contains(p);
+	}
+	
+	/*
+	 * There is no standard reasoner method so look for the supported data types.  See
+	 * JavaCodeGenerator.getOwlDataTypeAsString()
+	 */
+	public OWLDatatype getRange(OWLClass cls, OWLDataProperty p) {
+		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
+		OWLDatatype dt;
+		dt = factory.getIntegerOWLDatatype();
+		if (!reasoner.isSatisfiable(getNotHasDatatype(cls, p, dt))) {
+			return dt;
+		}
+		dt = factory.getBooleanOWLDatatype();
+		if (!reasoner.isSatisfiable(getNotHasDatatype(cls, p, dt))) {
+			return dt;
+		}
+		dt = factory.getFloatOWLDatatype();
+		if (!reasoner.isSatisfiable(getNotHasDatatype(cls, p, dt))) {
+			return dt;
+		}
+		dt = factory.getOWLDatatype(XSDVocabulary.STRING.getIRI());
+		if (!reasoner.isSatisfiable(getNotHasDatatype(cls, p, dt))) {
+			return dt;
+		}
+		return null;
+	}
+	
+	private OWLClassExpression getNotHasDatatype(OWLClass cls, OWLDataProperty p, OWLDatatype dt) {
+		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
+		return factory.getOWLObjectComplementOf(factory.getOWLDataSomeValuesFrom(p, dt));
 	}
 	
 }

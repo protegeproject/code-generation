@@ -1,0 +1,10 @@
+
+    //Property ${iri}
+
+    ${propertyRange} get${OwlProperty}();
+
+    boolean has${OwlProperty}();
+
+    Iterator<${propertyRange}> list${OwlProperty}();
+
+    void add${OwlProperty}(${propertyRange} new${OwlProperty});

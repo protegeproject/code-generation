@@ -33,7 +33,7 @@ public class ProtegeJavaMapping {
     
     public void add(String protegeClassName, 
                            Class<?> javaInterface, 
-                           Class<? extends AbstractCodeGeneratorIndividual> javaImplementation) {
+                           Class<? extends WrappedIndividual> javaImplementation) {
         Entry entry = new Entry(protegeClassName, javaInterface, javaImplementation);
         protegeMap.put(protegeClassName, entry);
         interfaceMap.put(javaInterface, entry);
@@ -86,7 +86,7 @@ public class ProtegeJavaMapping {
             if (entry == null) {
                 continue;
             }
-            Class<? extends AbstractCodeGeneratorIndividual> javaImplementationClass = entry.getJavaImplementation();
+            Class<? extends WrappedIndividual> javaImplementationClass = entry.getJavaImplementation();
             if (javaInterface.isAssignableFrom(javaImplementationClass)) {
                 return javaImplementationClass.asSubclass(javaInterface);
             }
@@ -97,11 +97,11 @@ public class ProtegeJavaMapping {
     private static class Entry {
         private String protegeClass;
         private Class<?> javaInterface;
-        private Class<? extends AbstractCodeGeneratorIndividual> javaImplementation;
+        private Class<? extends WrappedIndividual> javaImplementation;
         
         public Entry(String protegeClass,
                      Class<?> javaInterface,
-                     Class<? extends AbstractCodeGeneratorIndividual> javaImplementation) {
+                     Class<? extends WrappedIndividual> javaImplementation) {
             this.protegeClass = protegeClass;
             this.javaInterface = javaInterface;
             this.javaImplementation = javaImplementation;
@@ -115,7 +115,7 @@ public class ProtegeJavaMapping {
             return javaInterface;
         }
 
-        public Class<? extends AbstractCodeGeneratorIndividual> getJavaImplementation() {
+        public Class<? extends WrappedIndividual> getJavaImplementation() {
             return javaImplementation;
         }        
     }

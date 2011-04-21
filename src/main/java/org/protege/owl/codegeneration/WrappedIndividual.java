@@ -15,13 +15,11 @@ import org.semanticweb.owlapi.model.OWLObjectPropertyAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.util.OWLEntityRemover;
 
-import uk.ac.manchester.cs.owl.owlapi.OWLNamedIndividualImpl;
-
 /**
  * @author z.khan
  * 
  */
-public abstract class AbstractCodeGeneratorIndividual {
+public class WrappedIndividual {
     
     private OWLOntology owlOntology;
     private OWLNamedIndividual owlIndividual;
@@ -32,7 +30,7 @@ public abstract class AbstractCodeGeneratorIndividual {
      * @param iri
      * @param owlOntology
      */
-    public AbstractCodeGeneratorIndividual(OWLOntology owlOntology, IRI iri) {
+    public WrappedIndividual(OWLOntology owlOntology, IRI iri) {
         this.owlOntology = owlOntology;
         owlDataFactory = owlOntology.getOWLOntologyManager().getOWLDataFactory();
         owlIndividual = owlDataFactory.getOWLNamedIndividual(iri);
@@ -52,7 +50,7 @@ public abstract class AbstractCodeGeneratorIndividual {
     /**
      * Deletes the individual from Ontology 
      */
-    protected void deleteIndividual() {
+    protected void delete() {
         OWLEntityRemover remover = new OWLEntityRemover(getOwlOntology().getOWLOntologyManager(), Collections
                 .singleton(getOwlOntology()));
         owlIndividual.accept(remover);
@@ -63,7 +61,7 @@ public abstract class AbstractCodeGeneratorIndividual {
      * @param owlObjectProperty The property from which the value is to be removed
      * @param owlNamedIndividual The value to be removed
      */
-    protected void removeObjectPropertyValue(OWLObjectProperty owlObjectProperty, OWLNamedIndividual owlNamedIndividual) {
+    protected void cgRemoveObjectPropertyValue(OWLObjectProperty owlObjectProperty, OWLNamedIndividual owlNamedIndividual) {
         Set<OWLIndividual> values = owlIndividual.getObjectPropertyValues(owlObjectProperty, getOwlOntology());
         if (values == null || values.isEmpty()) {
             return;
@@ -82,7 +80,7 @@ public abstract class AbstractCodeGeneratorIndividual {
      * @param owlDataProperty The property from which the value is to be removed
      * @param owlLiteralToRemove The owl literal to be removed
      */
-    protected void removeDataPropertyValue(OWLDataProperty owlDataProperty, OWLLiteral owlLiteralToRemove ) {
+    protected void cgRemoveDataPropertyValue(OWLDataProperty owlDataProperty, OWLLiteral owlLiteralToRemove ) {
         Set<OWLLiteral> values = owlIndividual.getDataPropertyValues(owlDataProperty, getOwlOntology());
         if (values == null || values.isEmpty()) {
             return;
@@ -103,7 +101,7 @@ public abstract class AbstractCodeGeneratorIndividual {
      * @param owlLiteralToCheck The owl literal to check for
      * @return the result
      */
-    protected boolean doesPropertyContainsLiteral(OWLDataProperty owlDataProperty, OWLLiteral owlLiteralToCheck) {
+    protected boolean cgDoesPropertyContainsLiteral(OWLDataProperty owlDataProperty, OWLLiteral owlLiteralToCheck) {
         Set<OWLLiteral> values = owlIndividual.getDataPropertyValues(owlDataProperty, getOwlOntology());
         if (values == null || values.isEmpty()) {
             return false;
@@ -123,7 +121,7 @@ public abstract class AbstractCodeGeneratorIndividual {
      *            The data property whose value to set
      * @param literal
      */
-    protected void setDataProperty(OWLDataProperty owlDataProperty, OWLLiteral literal) {
+    protected void cgSetDataProperty(OWLDataProperty owlDataProperty, OWLLiteral literal) {
         OWLDataPropertyAssertionAxiom axiom = owlDataFactory.getOWLDataPropertyAssertionAxiom(owlDataProperty,
                 																			  owlIndividual, literal);
         getOwlOntology().getOWLOntologyManager().addAxiom(getOwlOntology(), axiom);
