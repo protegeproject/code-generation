@@ -1,0 +1,3 @@
+
+
+    public static final OWLClass ${OwlClass} = factory.getOWLClass(IRI.create("${iri}"));

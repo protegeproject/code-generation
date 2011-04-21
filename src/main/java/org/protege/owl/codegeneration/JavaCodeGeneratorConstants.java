@@ -14,7 +14,7 @@ package org.protege.owl.codegeneration;
  */
 public class JavaCodeGeneratorConstants {
 
-    public static final String ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS = "AbstractCodeGeneratorIndividual";
+    public static final String ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS = "WrappedIndividual";
 
     public static final String VOCABULARY_CLASS_NAME = "Vocabulary";
 

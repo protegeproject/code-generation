@@ -2,6 +2,7 @@ package org.protege.owl.codegeneration;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URL;
 import java.util.HashMap;
@@ -12,11 +13,14 @@ public enum SubstitutionVariable {
 	PACKAGE("package"),
 	JAVA_CLASS_NAME("javaClass"),
 	IMPLEMENTS_EXTENDS("extends"),
+	INTERFACE_NAME("interfaceName"),
+	IMPLEMENTATION_NAME("implementationName"),
 	IRI("iri"),
 	CLASS("owlClass"), 
 	CAPITALIZED_CLASS("OwlClass"),
 	PROPERTY("owlProperty"), 
 	CAPITALIZED_PROPERTY("OwlProperty"),
+	UPPERCASE_PROPERTY("OWLProperty"),
 	PROPERTY_RANGE("propertyRange"),
 	DATE("date"),
 	USER("user");
@@ -46,7 +50,7 @@ public enum SubstitutionVariable {
 					if (charsRead < 0) {
 						break;
 					}
-					buffer.append(characters, 0, charsRead - 1);
+					buffer.append(characters, 0, charsRead);
 				}
 				template = buffer.toString();
 				templateMap.put(resource, template);
@@ -59,13 +63,13 @@ public enum SubstitutionVariable {
 		return template;
 	}
 	
-	public static String fillTemplate(String resource, Map<SubstitutionVariable, String> substitutions) {
+	public static void fillTemplate(PrintWriter writer, String resource, Map<SubstitutionVariable, String> substitutions) {
 		String result = getTemplate(resource);
 		for (Entry<SubstitutionVariable, String> entry : substitutions.entrySet()) {
 			SubstitutionVariable var = entry.getKey();
 			String replacement = entry.getValue();
 			result = result.replaceAll("\\$\\{" + var.getName() + "\\}", replacement);
 		}
-		return result;
+		writer.append(result);
 	}
 }

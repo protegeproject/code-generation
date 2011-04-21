@@ -12,6 +12,8 @@ public interface CodeGenerationInference {
 
 	Collection<OWLClass> getClasses();
 	
+	Collection<OWLClass> getSuperClasses(OWLClass owlClass);
+	
 	Collection<OWLClass> getTypes(OWLNamedIndividual i);
 	
 	Collection<OWLObjectProperty> getObjectPropertiesForClass(OWLClass cls);

@@ -1,0 +1,14 @@
+
+    /* ***************************************************
+     * Property ${iri}
+     */
+     
+    Collection<? extends ${propertyRange}> get${OwlProperty}();
+
+    boolean has${OwlProperty}();
+
+    void add${OwlProperty}(${propertyRange} new${OwlProperty});
+
+    void remove${OwlProperty}(${propertyRange} old${OwlProperty});
+
+    void set${OwlProperty}(Collection<? extends ${propertyRange}> values);

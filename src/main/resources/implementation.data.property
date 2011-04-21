@@ -1,0 +1,24 @@
+
+    /* ***************************************************
+     * Property ${iri}
+     */
+     
+    public Collection<? extends ${propertyRange}> get${OwlProperty}() {
+		throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public boolean has${OwlProperty}() {
+		throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void add${OwlProperty}(${propertyRange} new${OwlProperty}) {
+		throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void remove${OwlProperty}(${propertyRange} old${OwlProperty}) {
+		throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void set${OwlProperty}(Collection<? extends ${propertyRange}> values) {
+		throw new UnsupportedOperationException("Not implemented yet");
+    }

@@ -37,12 +37,7 @@ public class CodeGenerationOptions {
     public final static String FILE_NAME_DEFAULT = "";
 
     public final static String PACKAGE_DEFAULT = null;
-
-    public void setAbstractMode(boolean value) {
-        abstractMode = value;
-
-    }
-
+    
     public void setFactoryClassName(String value) {
         if (value != null && value.trim().length() > 0) {
             factoryClassName = value;
@@ -68,10 +63,6 @@ public class CodeGenerationOptions {
 
     public void setSetMode(boolean value) {
         setMode = value;
-    }
-
-    public boolean getAbstractMode() {
-        return abstractMode;
     }
 
     public String getFactoryClassName() {

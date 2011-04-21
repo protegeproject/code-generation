@@ -28,6 +28,7 @@ public class GenerateTestCode {
 	 */
 	public static void main(String[] args) throws Exception {
 		generateSimpleJavaCode();
+		System.out.println("All code generated.");
 	}
 	
 	private static void generateSimpleJavaCode() throws OWLOntologyCreationException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {

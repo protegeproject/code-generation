@@ -6,14 +6,12 @@
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-    <!ENTITY CodeGeneration001 "http://protege.org/ontologies/CodeGeneration001.owl#" >
 ]>
 
 
 <rdf:RDF xmlns="http://protege.org/ontologies/CodeGeneration001.owl#"
      xml:base="http://protege.org/ontologies/CodeGeneration001.owl"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-     xmlns:CodeGeneration001="http://protege.org/ontologies/CodeGeneration001.owl#"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
@@ -56,10 +54,29 @@
 
     <!-- http://protege.org/ontologies/CodeGeneration001.owl#iriP -->
 
-    <owl:ObjectProperty rdf:about="&CodeGeneration001;iriP">
+    <owl:ObjectProperty rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#iriP">
         <rdfs:label>labelP</rdfs:label>
-        <rdfs:domain rdf:resource="&CodeGeneration001;IriA"/>
+        <rdfs:domain rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriA"/>
     </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://protege.org/ontologies/CodeGeneration001.owl#iriQ -->
+
+    <owl:DatatypeProperty rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#iriQ">
+        <rdfs:label>labelQ</rdfs:label>
+    </owl:DatatypeProperty>
     
 
 
@@ -76,16 +93,16 @@
 
     <!-- http://protege.org/ontologies/CodeGeneration001.owl#IriA -->
 
-    <owl:Class rdf:about="&CodeGeneration001;IriA">
+    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#IriA">
         <rdfs:label>Label A</rdfs:label>
-        <owl:disjointWith rdf:resource="&CodeGeneration001;IriB"/>
+        <owl:disjointWith rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriB"/>
     </owl:Class>
     
 
 
     <!-- http://protege.org/ontologies/CodeGeneration001.owl#IriB -->
 
-    <owl:Class rdf:about="&CodeGeneration001;IriB"/>
+    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#IriB"/>
 </rdf:RDF>
 
 

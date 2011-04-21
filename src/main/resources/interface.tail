@@ -1,0 +1,12 @@
+
+    /* ***************************************************
+     * Common interfaces
+     */
+
+    OWLNamedIndividual getOwlIndividual();
+
+    OWLOntology getOwlOntology();
+
+    void delete();
+
+}

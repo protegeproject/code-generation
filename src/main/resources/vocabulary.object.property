@@ -1,0 +1,3 @@
+
+
+    public static final OWLObjectProperty ${OwlProperty} = factory.getOWLObjectProperty(IRI.create("${iri}"));

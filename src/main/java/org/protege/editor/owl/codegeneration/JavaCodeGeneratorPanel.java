@@ -38,8 +38,6 @@ public class JavaCodeGeneratorPanel extends JPanel {
 
     private GenerateCodeWithOptions generateCodeWithOptions;
 
-    private JCheckBox abstractCheckBox;
-
     private JTextField factoryClassNameTextField;
 
     private JFileChooser fileChooser = new JFileChooser(".");
@@ -89,9 +87,6 @@ public class JavaCodeGeneratorPanel extends JPanel {
             factoryClassNameTextField.setText(options.getFactoryClassName());
         }
 
-        abstractCheckBox = new JCheckBox("Create abstract base files (e.g., Person_)");
-        abstractCheckBox.setSelected(options.getAbstractMode());
-
         setCheckBox = new JCheckBox("Return Set instead of Collection");
         setCheckBox.setSelected(options.getSetMode());
 
@@ -136,9 +131,6 @@ public class JavaCodeGeneratorPanel extends JPanel {
         add(getComponentWithNonStretchingVertically(factoryClassNameTextField));
         add(Box.createVerticalStrut(8));
 
-        add(createCheckBoxPanel(abstractCheckBox));
-        add(Box.createVerticalStrut(8));
-
         add(createCheckBoxPanel(setCheckBox));
         add(Box.createVerticalStrut(8));
 
@@ -181,8 +173,6 @@ public class JavaCodeGeneratorPanel extends JPanel {
                         .setFactoryClassName(factoryClassNameTextField.getText().trim().length() > 0 ? factoryClassNameTextField
                                 .getText().trim()
                                 : JavaCodeGeneratorConstants.FACTORY_CLASS_NAME);
-
-                options.setAbstractMode(abstractCheckBox.isSelected());
                 options.setSetMode(setCheckBox.isSelected());
                 options.setPrefixMode(prefixCheckBox.isSelected());
                 if (options.getPackage() == null) {
@@ -229,7 +219,6 @@ public class JavaCodeGeneratorPanel extends JPanel {
         }
         options.setOutputFolder(newFile);
 
-        options.setAbstractMode(abstractCheckBox.isSelected());
         options.setSetMode(setCheckBox.isSelected());
         options.setPrefixMode(prefixCheckBox.isSelected());
         options.setFactoryClassName(factoryClassNameTextField.getText());
