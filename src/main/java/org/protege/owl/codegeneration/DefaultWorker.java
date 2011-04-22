@@ -126,7 +126,7 @@ public class DefaultWorker implements Worker {
     }
 
 
-	public String getTemplate(CodeGenerationPhase phase) {
+	public String getTemplate(CodeGenerationPhase phase, OWLClass owlClass, Object owlProperty) {
     	String resource = "/" + phase.getTemplateName();
 		String template = templateMap.get(phase);
 		if (template == null) {

@@ -77,41 +77,22 @@ public class JavaCodeGenerator {
         Collection<OWLDataProperty> owlDataProperties = worker.getDataPropertiesForClass(owlClass);
         
     	Map<SubstitutionVariable, String> substitutions = new EnumMap<SubstitutionVariable, String>(SubstitutionVariable.class);
+    	
     	worker.configureSubstitutions(CodeGenerationPhase.CREATE_INTERFACE_HEADER, substitutions, owlClass, null);
-        fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_INTERFACE_HEADER), substitutions);
+        fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_INTERFACE_HEADER, owlClass, null), substitutions);
 
         for (OWLObjectProperty owlObjectProperty : owlObjectProperties) {
-            printInterfaceObjectPropertyCode(owlClass, owlObjectProperty, printWriter, substitutions);
+        	worker.configureSubstitutions(CodeGenerationPhase.CREATE_OBJECT_PROPERTY_INTERFACE, substitutions, owlClass, owlObjectProperty);
+        	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_OBJECT_PROPERTY_INTERFACE, owlClass, owlObjectProperty), substitutions);
         }
+        
         for (OWLDataProperty owlDataProperty :owlDataProperties) {
-            printInterfaceDataPropertyCode(owlClass, owlDataProperty, printWriter, substitutions);
+            worker.configureSubstitutions(CodeGenerationPhase.CREATE_DATA_PROPERTY_INTERFACE, substitutions, owlClass, owlDataProperty);
+        	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_DATA_PROPERTY_INTERFACE, owlClass, owlDataProperty), substitutions);
         }
-    	worker.configureSubstitutions(CodeGenerationPhase.CREATE_INTERFACE_TAIL, substitutions, owlClass, null);
-        fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_INTERFACE_TAIL), substitutions);
-
-    }
-
-    /**
-     * Writes the interface object code for the provided OWLObjectProperty to the PrintStream
-     * @param owlObjectProperty
-     * @param printWriter
-     */
-    private void printInterfaceObjectPropertyCode(OWLClass owlClass, OWLObjectProperty owlObjectProperty, 
-    		                                      PrintWriter printWriter,
-    		                                      Map<SubstitutionVariable, String> substitutions) {
-    	worker.configureSubstitutions(CodeGenerationPhase.CREATE_OBJECT_PROPERTY_INTERFACE, substitutions, owlClass, owlObjectProperty);
-    	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_OBJECT_PROPERTY_INTERFACE), substitutions);
-    }
-    
-    /**
-     * @param owlDataProperty
-     * @param printWriter
-     */
-    private void printInterfaceDataPropertyCode(OWLClass owlClass, OWLDataProperty owlDataProperty, 
-    		                                    PrintWriter printWriter,
-    		                                    Map<SubstitutionVariable, String> substitutions) {
-        worker.configureSubstitutions(CodeGenerationPhase.CREATE_DATA_PROPERTY_INTERFACE, substitutions, owlClass, owlDataProperty);
-    	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_DATA_PROPERTY_INTERFACE), substitutions);
+    	
+        worker.configureSubstitutions(CodeGenerationPhase.CREATE_INTERFACE_TAIL, substitutions, owlClass, null);
+        fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_INTERFACE_TAIL, owlClass, null), substitutions);
     }
     
     
@@ -128,40 +109,24 @@ public class JavaCodeGenerator {
         Collection<OWLDataProperty> owlDataProperties = worker.getDataPropertiesForClass(owlClass);
         
     	Map<SubstitutionVariable, String> substitutions = new EnumMap<SubstitutionVariable, String>(SubstitutionVariable.class);
-        worker.configureSubstitutions(CodeGenerationPhase.CREATE_IMPLEMENTATION_HEADER, substitutions, owlClass, null);
-    	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_IMPLEMENTATION_HEADER), substitutions);
-        for (OWLObjectProperty owlObjectProperty : owlObjectProperties) {
-            printImplementationObjectPropertyCode(owlClass, owlObjectProperty, printWriter, substitutions);
+        
+    	worker.configureSubstitutions(CodeGenerationPhase.CREATE_IMPLEMENTATION_HEADER, substitutions, owlClass, null);
+    	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_IMPLEMENTATION_HEADER, owlClass, null), substitutions);
+        
+    	for (OWLObjectProperty owlObjectProperty : owlObjectProperties) {
+            worker.configureSubstitutions(CodeGenerationPhase.CREATE_OBJECT_PROPERTY_IMPLEMENTATION, substitutions, owlClass, owlObjectProperty);
+        	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_OBJECT_PROPERTY_IMPLEMENTATION, owlClass, owlObjectProperty), substitutions);
         }
+        
         for (OWLDataProperty owlDataProperty :owlDataProperties) {
-            printImplementationDataPropertyCode(owlClass, owlDataProperty, printWriter, substitutions);
+            worker.configureSubstitutions(CodeGenerationPhase.CREATE_DATA_PROPERTY_IMPLEMENTATION, substitutions, owlClass, owlDataProperty);
+        	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_DATA_PROPERTY_IMPLEMENTATION, owlClass, owlDataProperty), substitutions);
         }
+        
         worker.configureSubstitutions(CodeGenerationPhase.CREATE_IMPLEMENTATION_TAIL, substitutions, owlClass, null);
-    	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_IMPLEMENTATION_TAIL), substitutions);
+    	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_IMPLEMENTATION_TAIL, owlClass, null), substitutions);
     }
 
-    /**
-     * Writes the interface object code for the provided OWLObjectProperty to the PrintStream
-     * @param owlObjectProperty
-     * @param printWriter
-     */
-    private void printImplementationObjectPropertyCode(OWLClass owlClass, OWLObjectProperty owlObjectProperty, 
-    		                                      PrintWriter printWriter,
-    		                                      Map<SubstitutionVariable, String> substitutions) {
-        worker.configureSubstitutions(CodeGenerationPhase.CREATE_OBJECT_PROPERTY_IMPLEMENTATION, substitutions, owlClass, owlObjectProperty);
-    	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_OBJECT_PROPERTY_IMPLEMENTATION), substitutions);
-    }
-    
-    /**
-     * @param owlDataProperty
-     * @param printWriter
-     */
-    private void printImplementationDataPropertyCode(OWLClass owlClass, OWLDataProperty owlDataProperty, 
-    		                                    PrintWriter printWriter,
-    		                                    Map<SubstitutionVariable, String> substitutions) {
-        worker.configureSubstitutions(CodeGenerationPhase.CREATE_DATA_PROPERTY_IMPLEMENTATION, substitutions, owlClass, owlDataProperty);
-    	fillTemplate(printWriter, worker.getTemplate(CodeGenerationPhase.CREATE_DATA_PROPERTY_IMPLEMENTATION), substitutions);
-    }
 
 
     /** Initilizes the vocabulary code generation 
@@ -174,24 +139,24 @@ public class JavaCodeGenerator {
         PrintWriter vocabularyPrintWriter = new PrintWriter(vocabularyfileWriter);
     	Map<SubstitutionVariable, String> substitutions = new EnumMap<SubstitutionVariable, String>(SubstitutionVariable.class);
         worker.configureSubstitutions(CodeGenerationPhase.CREATE_VOCABULARY_HEADER, substitutions, null, null);
-        fillTemplate(vocabularyPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_VOCABULARY_HEADER), substitutions);
+        fillTemplate(vocabularyPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_VOCABULARY_HEADER, null, null), substitutions);
 
         for (OWLClass owlClass : owlClassList) {
             worker.configureSubstitutions(CodeGenerationPhase.CREATE_CLASS_VOCABULARY, substitutions, owlClass, null);
-            fillTemplate(vocabularyPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_CLASS_VOCABULARY), substitutions);        }
+            fillTemplate(vocabularyPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_CLASS_VOCABULARY, owlClass, null), substitutions);        }
 
         for (OWLObjectProperty owlObjectProperty : worker.getOwlObjectProperties()) {
             worker.configureSubstitutions(CodeGenerationPhase.CREATE_OBJECT_PROPERTY_VOCABULARY, substitutions, null, owlObjectProperty);
-            fillTemplate(vocabularyPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_OBJECT_PROPERTY_VOCABULARY), substitutions);
+            fillTemplate(vocabularyPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_OBJECT_PROPERTY_VOCABULARY, null, owlObjectProperty), substitutions);
         }
 
         for (OWLDataProperty owlDataProperty : worker.getOwlDataProperties()) {
             worker.configureSubstitutions(CodeGenerationPhase.CREATE_DATA_PROPERTY_VOCABULARY, substitutions, null, owlDataProperty);
-            fillTemplate(vocabularyPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_DATA_PROPERTY_VOCABULARY), substitutions);
+            fillTemplate(vocabularyPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_DATA_PROPERTY_VOCABULARY, null, owlDataProperty), substitutions);
         }
         
         worker.configureSubstitutions(CodeGenerationPhase.CREATE_VOCABULARY_TAIL, substitutions, null, null);
-        fillTemplate(vocabularyPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_VOCABULARY_TAIL), substitutions);
+        fillTemplate(vocabularyPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_VOCABULARY_TAIL, null, null), substitutions);
     
         vocabularyPrintWriter.close();
     }
@@ -210,15 +175,15 @@ public class JavaCodeGenerator {
     	Map<SubstitutionVariable, String> substitutions = new EnumMap<SubstitutionVariable, String>(SubstitutionVariable.class);
         
     	worker.configureSubstitutions(CodeGenerationPhase.CREATE_FACTORY_HEADER, substitutions, null, null);
-    	fillTemplate(factoryPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_FACTORY_HEADER), substitutions);
+    	fillTemplate(factoryPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_FACTORY_HEADER, null, null), substitutions);
 
         for (OWLClass owlClass : owlClassList) {
             worker.configureSubstitutions(CodeGenerationPhase.CREATE_FACTORY_CLASS, substitutions, owlClass, null);
-            fillTemplate(factoryPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_FACTORY_CLASS), substitutions);
+            fillTemplate(factoryPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_FACTORY_CLASS, owlClass, null), substitutions);
         }
         
         worker.configureSubstitutions(CodeGenerationPhase.CREATE_FACTORY_TAIL, substitutions, null, null);
-        fillTemplate(factoryPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_FACTORY_TAIL), substitutions);
+        fillTemplate(factoryPrintWriter, worker.getTemplate(CodeGenerationPhase.CREATE_FACTORY_TAIL, null, null), substitutions);
         
         factoryPrintWriter.close();
     }
