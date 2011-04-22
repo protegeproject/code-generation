@@ -12,17 +12,22 @@ public class PrefixNames extends AbstractCodeGenerationNames {
 		super(options);
 	}
 	
-	@Override
+	
 	public String getInterfaceName(OWLClass owlClass) {
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 	
-	@Override
+	
+	public String getClassName(OWLClass owlClass) {
+		throw new UnsupportedOperationException("Not supported yet");
+	}
+	
+	
 	public String getObjectPropertyName(OWLObjectProperty owlObjectProperty) {
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 	
-	@Override
+	
 	public String getDataPropertyName(OWLDataProperty owlDataProperty) {
 		throw new UnsupportedOperationException("Not implemented yet");
 	}

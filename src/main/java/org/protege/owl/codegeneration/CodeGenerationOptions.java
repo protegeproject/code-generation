@@ -1,6 +1,11 @@
 package org.protege.owl.codegeneration;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.util.EnumMap;
 
 /**This class stores the data required for owl code generator.
  * @author z.khan
@@ -37,6 +42,10 @@ public class CodeGenerationOptions {
     public final static String FILE_NAME_DEFAULT = "";
 
     public final static String PACKAGE_DEFAULT = null;
+    
+    /* ****************************************************************
+     * POJO Configuration methods
+     */
     
     public void setFactoryClassName(String value) {
         if (value != null && value.trim().length() > 0) {

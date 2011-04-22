@@ -18,6 +18,7 @@ public enum SubstitutionVariable {
 	IRI("iri"),
 	CLASS("owlClass"), 
 	CAPITALIZED_CLASS("OwlClass"),
+	UPPERCASE_CLASS("OWLClass"),
 	PROPERTY("owlProperty"), 
 	CAPITALIZED_PROPERTY("OwlProperty"),
 	UPPERCASE_PROPERTY("OWLProperty"),
@@ -34,42 +35,5 @@ public enum SubstitutionVariable {
 	
 	public String getName() {
 		return name;
-	}
-	
-	public static String getTemplate(String resource) {
-		String template = templateMap.get(resource);
-		if (template == null) {
-			try {
-				URL u = SubstitutionVariable.class.getResource(resource);
-				Reader reader = new InputStreamReader(u.openStream());
-				StringBuffer buffer = new StringBuffer();
-				int charsRead;
-				char[] characters = new char[1024];
-				while (true) {
-					charsRead = reader.read(characters);
-					if (charsRead < 0) {
-						break;
-					}
-					buffer.append(characters, 0, charsRead);
-				}
-				template = buffer.toString();
-				templateMap.put(resource, template);
-				reader.close();
-			}
-			catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return template;
-	}
-	
-	public static void fillTemplate(PrintWriter writer, String resource, Map<SubstitutionVariable, String> substitutions) {
-		String result = getTemplate(resource);
-		for (Entry<SubstitutionVariable, String> entry : substitutions.entrySet()) {
-			SubstitutionVariable var = entry.getKey();
-			String replacement = entry.getValue();
-			result = result.replaceAll("\\$\\{" + var.getName() + "\\}", replacement);
-		}
-		writer.append(result);
 	}
 }

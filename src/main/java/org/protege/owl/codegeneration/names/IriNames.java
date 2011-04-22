@@ -19,22 +19,28 @@ public class IriNames extends AbstractCodeGenerationNames {
 	}
 	
 	
-	@Override
+	
 	public String getInterfaceName(OWLClass owlClass) {
 		String name = provider.getShortForm(owlClass);
 		name = NamingUtilities.convertToJavaIdentifier(name);
 		name = NamingUtilities.convertInitialLetterToUpperCase(name);
 		return name;
 	}
+	
+	public String getClassName(OWLClass owlClass) {
+		String name = provider.getShortForm(owlClass);
+		name = NamingUtilities.convertToJavaIdentifier(name);
+		return name;
+	}
 
-	@Override
+	
 	public String getObjectPropertyName(OWLObjectProperty owlObjectProperty) {
 		String name = provider.getShortForm(owlObjectProperty);
 		name = NamingUtilities.convertToJavaIdentifier(name);
 		return name;
 	}
 	
-	@Override
+	
 	public String getDataPropertyName(OWLDataProperty owlDataProperty) {
 		String name = provider.getShortForm(owlDataProperty);
 		name = NamingUtilities.convertToJavaIdentifier(name);
