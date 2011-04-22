@@ -4,21 +4,18 @@
      */
      
     public Collection<? extends ${propertyRange}> get${OwlProperty}() {
-		throw new UnsupportedOperationException("Not implemented yet");
+		return getDelegate().getPropertyValues(getOwlIndividual(), Vocabulary.${OWLProperty}, ${propertyRange}.class);
     }
 
     public boolean has${OwlProperty}() {
-		throw new UnsupportedOperationException("Not implemented yet");
+		return !get${OwlProperty}().isEmpty();
     }
 
     public void add${OwlProperty}(${propertyRange} new${OwlProperty}) {
-		throw new UnsupportedOperationException("Not implemented yet");
+	    getDelegate().addPropertyValue(getOwlIndividual(), Vocabulary.${OWLProperty}, new${OwlProperty});
     }
 
     public void remove${OwlProperty}(${propertyRange} old${OwlProperty}) {
-		throw new UnsupportedOperationException("Not implemented yet");
+		getDelegate().removePropertyValue(getOwlIndividual(), Vocabulary.${OWLProperty}, old${OwlProperty});
     }
 
-    public void set${OwlProperty}(Collection<? extends ${propertyRange}> values) {
-		throw new UnsupportedOperationException("Not implemented yet");
-    }

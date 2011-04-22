@@ -19,6 +19,10 @@ public interface Worker {
 	
 	Collection<OWLClass> getOwlClasses();
 	
+	Collection<OWLObjectProperty> getOwlObjectProperties();
+	
+	Collection<OWLDataProperty> getOwlDataProperties();
+	
 	Collection<OWLObjectProperty> getObjectPropertiesForClass(OWLClass owlClass);
 	
 	Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass owlClass);
@@ -37,6 +41,4 @@ public interface Worker {
 			                    Object owlProperty);
 	
 	String getTemplate(CodeGenerationPhase phase);
-
-	CodeGenerationNames getNames();
 }

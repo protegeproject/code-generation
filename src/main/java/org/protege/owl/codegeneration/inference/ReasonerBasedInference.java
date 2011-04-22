@@ -13,6 +13,7 @@ import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLDatatype;
+import org.semanticweb.owlapi.model.OWLIndividual;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -75,10 +76,14 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		ys.add(y);
 	}
 	
-	public Collection<OWLClass> getClasses() {
+	public Collection<OWLClass> getOwlClasses() {
 		Set<OWLClass> classes = new HashSet<OWLClass>(ontology.getClassesInSignature());
 		classes.removeAll(reasoner.getUnsatisfiableClasses().getEntities());
 		return classes;
+	}
+	
+	public Collection<OWLNamedIndividual> getIndividuals(OWLClass owlClass) {
+		return reasoner.getInstances(owlClass, false).getFlattened();
 	}
 	
 	public Collection<OWLClass> getSuperClasses(OWLClass owlClass) {

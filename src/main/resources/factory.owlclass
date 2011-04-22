@@ -1,13 +1,21 @@
 
+    /* ***************************************************
+     * Class ${iri}
+     */
+
+    {
+        javaMapping.add("${iri}", ${interfaceName}.class, ${implementationName}.class);
+    }
+
     public ${interfaceName} create${interfaceName}(String name) {
-		throw new UnsupportedOperationException("Not implemented yet");
+		return delegate.createWrappedIndividual(name, ${implementationName}.class);
     }
 
     public ${interfaceName} get${interfaceName}(String name) {
-		throw new UnsupportedOperationException("Not implemented yet");
+		return delegate.getWrappedIndividual(name, ${implementationName}.class);
     }
 
-    public Collection<${interfaceName}> getAll${interfaceName}Instances() {
-		throw new UnsupportedOperationException("Not implemented yet");
+    public Collection<? extends ${interfaceName}> getAll${interfaceName}Instances() {
+		return delegate.getWrappedIndividuals("${iri}", ${implementationName}.class);
     }
 

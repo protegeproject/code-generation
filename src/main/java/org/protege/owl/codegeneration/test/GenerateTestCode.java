@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 
 import org.protege.owl.codegeneration.CodeGenerationOptions;
+import org.protege.owl.codegeneration.DefaultWorker;
 import org.protege.owl.codegeneration.JavaCodeGenerator;
+import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inference.ReasonerBasedInference;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -37,10 +39,10 @@ public class GenerateTestCode {
 		CodeGenerationOptions options = new CodeGenerationOptions();
 		options.setPackage("org.protege.owl.codegeneration.testSimple");
 		options.setOutputFolder(new File("target/generated-sources"));
-		JavaCodeGenerator generator = new JavaCodeGenerator(owlOntology, options);
 		OWLReasonerFactory rFactory = (OWLReasonerFactory) Class.forName("org.semanticweb.HermiT.Reasoner$ReasonerFactory").newInstance();
 		OWLReasoner reasoner = rFactory.createNonBufferingReasoner(owlOntology);
-		generator.createAll(new ReasonerBasedInference(owlOntology, reasoner));
+        CodeGenerationInference inference = new ReasonerBasedInference(owlOntology, reasoner);
+        DefaultWorker.generateCode(owlOntology, options, inference);
 	}
 
 }

@@ -1,3 +1,5 @@
 
-
+    /* ***************************************************
+     * Data Property ${iri}
+     */
     public static final OWLDataProperty ${OWLProperty} = factory.getOWLDataProperty(IRI.create("${iri}"));

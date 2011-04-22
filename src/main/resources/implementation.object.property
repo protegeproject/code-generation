@@ -20,9 +20,8 @@
     }
 
     public void remove${OwlProperty}(${propertyRange} old${OwlProperty}) {
-		throw new UnsupportedOperationException("Not implemented yet");
+        getDelegate().addPropertyValue(getOwlIndividual(),
+                                       Vocabulary.${OWLProperty},
+                                       old${OwlProperty});
     }
 
-    public void set${OwlProperty}(Collection<? extends ${propertyRange}> values) {
-		throw new UnsupportedOperationException("Not implemented yet");
-    }

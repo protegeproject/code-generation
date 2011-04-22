@@ -1,3 +1,6 @@
 
+    /* ***************************************************
+     * Class ${iri}
+     */
 
     public static final OWLClass ${OWLClass} = factory.getOWLClass(IRI.create("${iri}"));

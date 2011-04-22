@@ -4,6 +4,11 @@ import ${package}.impl.*;
 
 import java.util.Collection;
 
+import org.protege.owl.codegeneration.FactoryHelper;
+import org.protege.owl.codegeneration.ProtegeJavaMapping;
+import org.protege.owl.codegeneration.inference.CodeGenerationInference;
+import org.protege.owl.codegeneration.inference.SimpleInference;
+
 import org.semanticweb.owlapi.model.OWLOntology;
 
 /**
@@ -13,8 +18,16 @@ import org.semanticweb.owlapi.model.OWLOntology;
  */
 public class ${javaClass} {
     private OWLOntology ontology;
+    private ProtegeJavaMapping javaMapping;
+    private FactoryHelper delegate;
 
     public ${javaClass}(OWLOntology ontology) {
+	    this(ontology, new SimpleInference(ontology));
+    }
+    
+    public ${javaClass}(OWLOntology ontology, CodeGenerationInference inference) {
         this.ontology = ontology;
+        javaMapping = new ProtegeJavaMapping(ontology, inference);
+        delegate = new FactoryHelper(ontology, inference);
     }
 

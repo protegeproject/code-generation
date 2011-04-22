@@ -42,9 +42,15 @@ public class DefaultWorker implements Worker {
     private CodeGenerationInference inference;
     private CodeGenerationNames names;
     
-    public DefaultWorker(OWLOntology ontology, CodeGenerationOptions options) {
-    	this(ontology, options, new SimpleInference(ontology));
+    public static void generateCode(OWLOntology ontology, CodeGenerationOptions options) throws IOException {
+    	generateCode(ontology, options, new SimpleInference(ontology));
     }
+    
+    public static void generateCode(OWLOntology ontology, CodeGenerationOptions options, CodeGenerationInference inference) throws IOException {
+    	Worker worker = new DefaultWorker(ontology, options, inference);
+    	JavaCodeGenerator generator = new JavaCodeGenerator(worker);
+    	generator.createAll();
+    }    
 	
     
     public DefaultWorker(OWLOntology ontology, 
@@ -60,6 +66,17 @@ public class DefaultWorker implements Worker {
 		return owlOntology;
 	}
     
+    public Collection<OWLClass> getOwlClasses() {
+    	return inference.getOwlClasses();
+    }
+    
+    public Collection<OWLObjectProperty> getOwlObjectProperties() {
+    	return owlOntology.getObjectPropertiesInSignature(true);
+    }
+    
+    public Collection<OWLDataProperty> getOwlDataProperties() {
+    	return owlOntology.getDataPropertiesInSignature(true);
+    }
 
     public void initialize() {
         File folder = options.getOutputFolder();
@@ -204,19 +221,23 @@ public class DefaultWorker implements Worker {
 	
 	private void configureObjectPropertyInterfaceSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass, OWLObjectProperty owlObjectProperty) {
         String propertyName = names.getObjectPropertyName(owlObjectProperty);
-        String propertyNameUpperCase = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
+        String propertyCapitalized = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
+        String propertyUpperCase = propertyName.toUpperCase();
     	substitutions.put(IRI, owlObjectProperty.getIRI().toString());
     	substitutions.put(PROPERTY, propertyName);
-    	substitutions.put(CAPITALIZED_PROPERTY, propertyNameUpperCase);
+    	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
+    	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
     	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlClass, owlObjectProperty));
 	}
 
 	private void configureDataPropertyInterfaceSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass, OWLDataProperty owlDataProperty) {
                 String propertyName = names.getDataPropertyName(owlDataProperty);
-        String propertyNameUpperCase = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
+        String propertyCapitalized = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
+        String propertyUpperCase = propertyName.toUpperCase();
     	substitutions.put(IRI, owlDataProperty.getIRI().toString());
     	substitutions.put(PROPERTY, propertyName);
-    	substitutions.put(CAPITALIZED_PROPERTY, propertyNameUpperCase);
+    	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
+    	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
     	substitutions.put(PROPERTY_RANGE, getDataPropertyRange(owlClass, owlDataProperty));
     }
 
@@ -277,6 +298,7 @@ public class DefaultWorker implements Worker {
     }
 
     private void configureFactoryClassSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass) {
+    	substitutions.put(IRI, owlClass.getIRI().toString());
         substitutions.put(INTERFACE_NAME, names.getInterfaceName(owlClass));
         substitutions.put(IMPLEMENTATION_NAME, names.getImplementationName(owlClass));
     }

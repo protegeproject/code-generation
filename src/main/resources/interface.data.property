@@ -11,4 +11,4 @@
 
     void remove${OwlProperty}(${propertyRange} old${OwlProperty});
 
-    void set${OwlProperty}(Collection<? extends ${propertyRange}> values);
+
