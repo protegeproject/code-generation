@@ -1,235 +1,54 @@
-<?xml version="1.0"?>
-
-
-<!DOCTYPE rdf:RDF [
-    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
-    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
-    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
-    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-]>
-
-
-<rdf:RDF xmlns="http://protege.org/ontologies/CodeGeneration001.owl#"
-     xml:base="http://protege.org/ontologies/CodeGeneration001.owl"
-     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-     xmlns:owl="http://www.w3.org/2002/07/owl#"
-     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <owl:Ontology rdf:about="http://protege.org/ontologies/CodeGeneration001.owl"/>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Annotation properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Datatypes
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Object Properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#iriP -->
-
-    <owl:ObjectProperty rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#iriP">
-        <rdfs:label>labelP</rdfs:label>
-        <rdfs:domain rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriA"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Data properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#iriQ -->
-
-    <owl:DatatypeProperty rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#iriQ">
-        <rdfs:label>labelQ</rdfs:label>
-        <rdfs:domain rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriB"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Classes
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#A1 -->
-
-    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#A1">
-        <rdfs:subClassOf rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriA"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#iriP"/>
-                <owl:allValuesFrom rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#B1"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#A2 -->
-
-    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#A2">
-        <rdfs:subClassOf rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriA"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#iriP"/>
-                <owl:allValuesFrom rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#B2"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#B1 -->
-
-    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#B1">
-        <rdfs:subClassOf rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriB"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#iriQ"/>
-                <owl:allValuesFrom rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#B2 -->
-
-    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#B2">
-        <rdfs:subClassOf rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriB"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#iriQ"/>
-                <owl:allValuesFrom rdf:resource="&xsd;integer"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#IriA -->
-
-    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#IriA">
-        <rdfs:label>Label A</rdfs:label>
-        <owl:disjointWith rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriB"/>
-    </owl:Class>
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#IriB -->
-
-    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#IriB"/>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Individuals
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#x -->
-
-    <owl:NamedIndividual rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#x">
-        <rdf:type rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriA"/>
-        <iriP rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#y"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#x1 -->
-
-    <owl:NamedIndividual rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#x1">
-        <rdf:type rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#A1"/>
-        <iriP rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#y1"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#x2 -->
-
-    <owl:NamedIndividual rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#x2">
-        <rdf:type rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#A2"/>
-        <iriP rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#y2"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#y -->
-
-    <owl:NamedIndividual rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#y">
-        <rdf:type rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriB"/>
-        <iriQ rdf:datatype="&xsd;float">5</iriQ>
-        <iriQ rdf:datatype="&owl;rational">5/8</iriQ>
-        <iriQ rdf:datatype="&xsd;boolean">True</iriQ>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#y1 -->
-
-    <owl:NamedIndividual rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#y1">
-        <rdf:type rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#B1"/>
-        <iriQ rdf:datatype="&xsd;string">xyzzy</iriQ>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://protege.org/ontologies/CodeGeneration001.owl#y2 -->
-
-    <owl:NamedIndividual rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#y2">
-        <rdf:type rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#B2"/>
-        <iriQ rdf:datatype="&xsd;int">8</iriQ>
-    </owl:NamedIndividual>
-</rdf:RDF>
-
-
-
-<!-- Generated by the OWL API (version 3.2.3.1801) http://owlapi.sourceforge.net -->
-
+Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(:=<http://protege.org/ontologies/CodeGeneration001.owl#>)
+Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
+Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+
+
+Ontology(<http://protege.org/ontologies/CodeGeneration001.owl>
+
+Declaration(Class(:A1))
+SubClassOf(:A1 :IriA)
+SubClassOf(:A1 ObjectAllValuesFrom(:iriP :B1))
+Declaration(Class(:A2))
+SubClassOf(:A2 :IriA)
+SubClassOf(:A2 ObjectAllValuesFrom(:iriP :B2))
+Declaration(Class(:B1))
+SubClassOf(:B1 :IriB)
+SubClassOf(:B1 DataAllValuesFrom(:iriQ xsd:string))
+Declaration(Class(:B2))
+SubClassOf(:B2 :IriB)
+SubClassOf(:B2 DataAllValuesFrom(:iriQ xsd:integer))
+Declaration(Class(:IriA))
+AnnotationAssertion(rdfs:label :IriA "Label A")
+DisjointClasses(:IriA :IriB)
+Declaration(Class(:IriB))
+DisjointClasses(:IriB :IriA)
+Declaration(ObjectProperty(:iriP))
+AnnotationAssertion(rdfs:label :iriP "labelP")
+ObjectPropertyDomain(:iriP :IriA)
+Declaration(DataProperty(:iriQ))
+AnnotationAssertion(rdfs:label :iriQ "labelQ")
+DataPropertyDomain(:iriQ :IriB)
+Declaration(NamedIndividual(:x))
+ClassAssertion(:IriA :x)
+ObjectPropertyAssertion(:iriP :x :y)
+Declaration(NamedIndividual(:x1))
+ClassAssertion(:A1 :x1)
+ObjectPropertyAssertion(:iriP :x1 :y1)
+Declaration(NamedIndividual(:x2))
+ClassAssertion(:A2 :x2)
+ObjectPropertyAssertion(:iriP :x2 :y2)
+Declaration(NamedIndividual(:y))
+ClassAssertion(:IriB :y)
+DataPropertyAssertion(:iriQ :y "True"^^xsd:boolean)
+DataPropertyAssertion(:iriQ :y "5/8"^^owl:rational)
+DataPropertyAssertion(:iriQ :y "5"^^xsd:float)
+Declaration(NamedIndividual(:y1))
+ClassAssertion(:B1 :y1)
+DataPropertyAssertion(:iriQ :y1 "xyzzy"^^xsd:string)
+Declaration(NamedIndividual(:y2))
+ClassAssertion(:B2 :y2)
+DataPropertyAssertion(:iriQ :y2 "8"^^xsd:int)
+)
