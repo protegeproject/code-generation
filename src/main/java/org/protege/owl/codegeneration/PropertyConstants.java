@@ -11,7 +11,7 @@ package org.protege.owl.codegeneration;
  */
 public class PropertyConstants {
 
-    public static final String UNKNOWN_JAVA_OBJECT_TYPE = "WrappedIndividual";
+    public static final String UKNOWN_CODE_GENERATED_INTERFACE = "WrappedIndividual";
     
     public static final String UNKNOWN_JAVA_DATA_TYPE = "Object";
 

@@ -6,7 +6,7 @@
     public Collection<? extends ${propertyRange}> get${OwlProperty}() {
         return getDelegate().getPropertyValues(getOwlIndividual(),
                                                Vocabulary.${OWLProperty},
-                                               ${propertyRange}.class);
+                                               ${propertyRangeImplementation}.class);
     }
 
     public boolean has${OwlProperty}() {
@@ -20,8 +20,8 @@
     }
 
     public void remove${OwlProperty}(${propertyRange} old${OwlProperty}) {
-        getDelegate().addPropertyValue(getOwlIndividual(),
-                                       Vocabulary.${OWLProperty},
-                                       old${OwlProperty});
+        getDelegate().removePropertyValue(getOwlIndividual(),
+                                          Vocabulary.${OWLProperty},
+                                          old${OwlProperty});
     }
 

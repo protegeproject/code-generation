@@ -26,12 +26,12 @@ public class FactoryHelper {
 		factory = manager.getOWLDataFactory();
 	}
 	
-	public <X extends WrappedIndividual> X createWrappedIndividual(String name, Class<X> c) {
+	public <X extends WrappedIndividualImpl> X createWrappedIndividual(String name, Class<X> c) {
 		manager.addAxiom(ontology, factory.getOWLDeclarationAxiom(factory.getOWLNamedIndividual(IRI.create(name))));
 		return getWrappedIndividual(name, c);
 	}
 	
-	public <X extends WrappedIndividual> X getWrappedIndividual(String name, Class<X> c) {
+	public <X extends WrappedIndividualImpl> X getWrappedIndividual(String name, Class<X> c) {
 		try {
     		Constructor<X> constructor = c.getConstructor(OWLOntology.class, IRI.class);
     		return constructor.newInstance(ontology, IRI.create(name));
@@ -41,7 +41,7 @@ public class FactoryHelper {
 		}
 	}
 	
-	public <X extends WrappedIndividual> Collection<X> getWrappedIndividuals(String name, Class<X> c) {
+	public <X extends WrappedIndividualImpl> Collection<X> getWrappedIndividuals(String name, Class<X> c) {
 		Set<X> wrappers = new HashSet<X>();
 		OWLClass owlClass = factory.getOWLClass(IRI.create(name));
 		for (OWLNamedIndividual i : inference.getIndividuals(owlClass)) {

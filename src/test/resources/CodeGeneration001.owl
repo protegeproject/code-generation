@@ -76,6 +76,7 @@
 
     <owl:DatatypeProperty rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#iriQ">
         <rdfs:label>labelQ</rdfs:label>
+        <rdfs:domain rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriB"/>
     </owl:DatatypeProperty>
     
 
@@ -88,6 +89,62 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
+    
+
+
+    <!-- http://protege.org/ontologies/CodeGeneration001.owl#A1 -->
+
+    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#A1">
+        <rdfs:subClassOf rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriA"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#iriP"/>
+                <owl:allValuesFrom rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#B1"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://protege.org/ontologies/CodeGeneration001.owl#A2 -->
+
+    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#A2">
+        <rdfs:subClassOf rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriA"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#iriP"/>
+                <owl:allValuesFrom rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#B2"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://protege.org/ontologies/CodeGeneration001.owl#B1 -->
+
+    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#B1">
+        <rdfs:subClassOf rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriB"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#iriQ"/>
+                <owl:allValuesFrom rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://protege.org/ontologies/CodeGeneration001.owl#B2 -->
+
+    <owl:Class rdf:about="http://protege.org/ontologies/CodeGeneration001.owl#B2">
+        <rdfs:subClassOf rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#IriB"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://protege.org/ontologies/CodeGeneration001.owl#iriQ"/>
+                <owl:allValuesFrom rdf:resource="&xsd;integer"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
     
 
 

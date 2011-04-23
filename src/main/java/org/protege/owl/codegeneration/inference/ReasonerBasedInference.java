@@ -26,7 +26,6 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 	private Map<OWLClass, Set<OWLObjectProperty>> objectPropertyMap             = new HashMap<OWLClass, Set<OWLObjectProperty>>();
 	private Map<OWLClass, Set<OWLObjectProperty>> functionalObjectPropertyMap   = new HashMap<OWLClass, Set<OWLObjectProperty>>();
 	private Map<OWLClass, Set<OWLDataProperty>> dataPropertyMap                 = new HashMap<OWLClass, Set<OWLDataProperty>>();
-	private Map<OWLClass, Set<OWLDataProperty>> functionalDataPropertyMap       = new HashMap<OWLClass, Set<OWLDataProperty>>();
 
 	public ReasonerBasedInference(OWLOntology ontology, OWLReasoner reasoner) {
 		this.ontology = ontology;
@@ -55,13 +54,9 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 			OWLClassExpression someCE = factory.getOWLDataSomeValuesFrom(p, factory.getTopDatatype());
 			OWLClassExpression functionalCE = factory.getOWLDataMaxCardinality(1, p);
 			Set<OWLClass> disjoints = reasoner.getDisjointClasses(someCE).getFlattened();
-			Set<OWLClass> functionals = reasoner.getSubClasses(functionalCE, false).getFlattened();
 			for (OWLClass cls : ontology.getClassesInSignature()) {
-				if (!disjoints.contains(p)) {
+				if (!disjoints.contains(cls)) {
 					addToMap(dataPropertyMap, cls, p);
-				}
-				if (functionals.contains(cls)) {
-					addToMap(functionalDataPropertyMap, cls, p);
 				}
 			}
 		}
@@ -124,11 +119,6 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		else {
 			return Collections.unmodifiableSet(properties);
 		}
-	}
-	
-	public boolean isFunctional(OWLClass cls, OWLDataProperty p) {
-		Set<OWLDataProperty> functionalProperties = functionalDataPropertyMap.get(cls);
-		return functionalProperties != null && functionalProperties.contains(p);
 	}
 	
 

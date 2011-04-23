@@ -1,5 +1,6 @@
 package org.protege.owl.codegeneration;
 
+import static org.protege.owl.codegeneration.SubstitutionVariable.*;
 import static org.protege.owl.codegeneration.SubstitutionVariable.CAPITALIZED_PROPERTY;
 import static org.protege.owl.codegeneration.SubstitutionVariable.DATE;
 import static org.protege.owl.codegeneration.SubstitutionVariable.IMPLEMENTATION_NAME;
@@ -100,7 +101,6 @@ public class DefaultWorker implements Worker {
     	return inference.getObjectPropertiesForClass(owlClass);
     }
     
-    @Override
     public Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass owlClass) {
     	return inference.getDataPropertiesForClass(owlClass);
     }
@@ -227,7 +227,7 @@ public class DefaultWorker implements Worker {
     	substitutions.put(PROPERTY, propertyName);
     	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
     	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
-    	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlClass, owlObjectProperty));
+    	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlClass, owlObjectProperty, true));
 	}
 
 	private void configureDataPropertyInterfaceSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass, OWLDataProperty owlDataProperty) {
@@ -257,7 +257,8 @@ public class DefaultWorker implements Worker {
     	substitutions.put(PROPERTY, propertyName);
     	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitilized);
     	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
-    	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlClass, owlObjectProperty));
+    	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlClass, owlObjectProperty, true));
+    	substitutions.put(PROPERTY_RANGE_IMPLEMENTATION, getObjectPropertyRange(owlClass, owlObjectProperty, false));
     }
 
     private void configureDataPropertyImplementationSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass, OWLDataProperty owlDataProperty) {
@@ -322,7 +323,7 @@ public class DefaultWorker implements Worker {
 	    String str = " extends ";
 	    String base = getBaseInterface(owlClass);
 	    if (base == null) {
-	    	return "";
+	    	return str + PropertyConstants.UKNOWN_CODE_GENERATED_INTERFACE;
 	    }
 	    else {
 	    	return str + base;
@@ -347,11 +348,11 @@ public class DefaultWorker implements Worker {
         }
     }
     
-	private String getObjectPropertyRange(OWLClass owlClass, OWLObjectProperty owlObjectProperty) {
+	private String getObjectPropertyRange(OWLClass owlClass, OWLObjectProperty owlObjectProperty, boolean isInterface) {
 		OWLDataFactory factory  = owlOntology.getOWLOntologyManager().getOWLDataFactory();
 		Collection<OWLClass> classes = inference.getRange(owlClass, owlObjectProperty);
 		if (classes.isEmpty() || classes.size() > 1 || classes.contains(factory.getOWLThing())) {
-			return PropertyConstants.UNKNOWN_JAVA_OBJECT_TYPE;
+			return isInterface ? PropertyConstants.UKNOWN_CODE_GENERATED_INTERFACE : JavaCodeGeneratorConstants.ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS;
 		}
 		return names.getInterfaceName(classes.iterator().next());
 	}

@@ -1,7 +1,6 @@
 package ${package};
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.protege.owl.codegeneration.WrappedIndividual;
 

@@ -23,6 +23,7 @@ public enum SubstitutionVariable {
 	CAPITALIZED_PROPERTY("OwlProperty"),
 	UPPERCASE_PROPERTY("OWLProperty"),
 	PROPERTY_RANGE("propertyRange"),
+	PROPERTY_RANGE_IMPLEMENTATION("propertyRangeImplementation"),
 	DATE("date"),
 	USER("user");
 	
