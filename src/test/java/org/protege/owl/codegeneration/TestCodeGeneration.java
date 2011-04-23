@@ -7,6 +7,7 @@ import org.protege.owl.codegeneration.testSimple.IriB;
 import org.testng.annotations.Test;
 
 public class TestCodeGeneration {
+	public static String NS01="http://protege.org/ontologies/CodeGeneration001.owl";
 
 	@Test
 	public void testPropertyByDomain() throws SecurityException, NoSuchMethodException {
@@ -18,5 +19,10 @@ public class TestCodeGeneration {
 
 		TestUtilities.assertMethodNotFound(interfaceA, "getIriQ", new Class<?>[0]);
 		assertNotNull(interfaceB.getMethod("getIriQ", new Class<?>[0]));
+	}
+	
+	@Test
+	public void testDataValues() {
+		
 	}
 }

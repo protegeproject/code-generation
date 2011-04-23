@@ -31,3 +31,6 @@ public class ${javaClass} {
         delegate = new FactoryHelper(ontology, inference);
     }
 
+    public OWLOntology getOwlOntology() {
+        return ontology;
+    }

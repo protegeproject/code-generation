@@ -25,7 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import org.protege.owl.codegeneration.CodeGenerationOptions;
-import org.protege.owl.codegeneration.JavaCodeGeneratorConstants;
+import org.protege.owl.codegeneration.Constants;
 
 /**
  * This class creates a panel, which contains options for code generations.
@@ -172,7 +172,7 @@ public class JavaCodeGeneratorPanel extends JPanel {
                 options
                         .setFactoryClassName(factoryClassNameTextField.getText().trim().length() > 0 ? factoryClassNameTextField
                                 .getText().trim()
-                                : JavaCodeGeneratorConstants.FACTORY_CLASS_NAME);
+                                : Constants.FACTORY_CLASS_NAME);
                 options.setSetMode(setCheckBox.isSelected());
                 options.setPrefixMode(prefixCheckBox.isSelected());
                 if (options.getPackage() == null) {

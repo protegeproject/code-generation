@@ -24,7 +24,6 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 	private OWLOntology ontology;
 	private OWLReasoner reasoner;
 	private Map<OWLClass, Set<OWLObjectProperty>> objectPropertyMap             = new HashMap<OWLClass, Set<OWLObjectProperty>>();
-	private Map<OWLClass, Set<OWLObjectProperty>> functionalObjectPropertyMap   = new HashMap<OWLClass, Set<OWLObjectProperty>>();
 	private Map<OWLClass, Set<OWLDataProperty>> dataPropertyMap                 = new HashMap<OWLClass, Set<OWLDataProperty>>();
 
 	public ReasonerBasedInference(OWLOntology ontology, OWLReasoner reasoner) {
@@ -37,22 +36,15 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 		for (OWLObjectProperty p : ontology.getObjectPropertiesInSignature()) {
 			OWLClassExpression someCE = factory.getOWLObjectSomeValuesFrom(p, factory.getOWLThing());
-			OWLClassExpression functionalCE = factory.getOWLObjectMaxCardinality(1, p);
 			Set<OWLClass> disjoints = reasoner.getDisjointClasses(someCE).getFlattened();
-			Set<OWLClass> functionals = reasoner.getSubClasses(functionalCE, false).getFlattened();
-			functionals.addAll(reasoner.getEquivalentClasses(functionalCE).getEntities());
 			for (OWLClass cls : ontology.getClassesInSignature()) {
 				if (!disjoints.contains(cls)) {
 					addToMap(objectPropertyMap, cls, p);
-				}
-				if (functionals.contains(cls)) {
-					addToMap(functionalObjectPropertyMap, cls, p);
 				}
 			}
 		}
 		for (OWLDataProperty p : ontology.getDataPropertiesInSignature()) {
 			OWLClassExpression someCE = factory.getOWLDataSomeValuesFrom(p, factory.getTopDatatype());
-			OWLClassExpression functionalCE = factory.getOWLDataMaxCardinality(1, p);
 			Set<OWLClass> disjoints = reasoner.getDisjointClasses(someCE).getFlattened();
 			for (OWLClass cls : ontology.getClassesInSignature()) {
 				if (!disjoints.contains(cls)) {
@@ -99,11 +91,6 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		}
 	}
 	
-	public boolean isFunctional(OWLClass cls, OWLObjectProperty p) {
-		Set<OWLObjectProperty> functionalProperties = functionalObjectPropertyMap.get(cls);
-		return functionalProperties != null && functionalProperties.contains(p);
-	}
-	
 	@Override
 	public Collection<OWLClass> getRange(OWLClass cls, OWLObjectProperty p) {
 		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
@@ -129,7 +116,7 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 			OWLClassExpression hasValueOfSomeOtherType 
 			              = factory.getOWLObjectIntersectionOf(
 			            		            cls,
-											factory.getOWLObjectComplementOf(factory.getOWLDataSomeValuesFrom(p, dt))
+											factory.getOWLObjectComplementOf(factory.getOWLDataAllValuesFrom(p, dt))
 											);
 			if (!reasoner.isSatisfiable(hasValueOfSomeOtherType)) {
 				return dt;

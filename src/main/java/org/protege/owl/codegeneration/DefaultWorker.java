@@ -117,7 +117,7 @@ public class DefaultWorker implements Worker {
     
     @Override
     public File getVocabularyFile() {
-    	return getInterfaceFile(JavaCodeGeneratorConstants.VOCABULARY_CLASS_NAME);
+    	return getInterfaceFile(Constants.VOCABULARY_CLASS_NAME);
     }
     
     @Override
@@ -323,7 +323,7 @@ public class DefaultWorker implements Worker {
 	    String str = " extends ";
 	    String base = getBaseInterface(owlClass);
 	    if (base == null) {
-	    	return str + PropertyConstants.UKNOWN_CODE_GENERATED_INTERFACE;
+	    	return str + Constants.UKNOWN_CODE_GENERATED_INTERFACE;
 	    }
 	    else {
 	    	return str + base;
@@ -352,7 +352,7 @@ public class DefaultWorker implements Worker {
 		OWLDataFactory factory  = owlOntology.getOWLOntologyManager().getOWLDataFactory();
 		Collection<OWLClass> classes = inference.getRange(owlClass, owlObjectProperty);
 		if (classes.isEmpty() || classes.size() > 1 || classes.contains(factory.getOWLThing())) {
-			return isInterface ? PropertyConstants.UKNOWN_CODE_GENERATED_INTERFACE : JavaCodeGeneratorConstants.ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS;
+			return isInterface ? Constants.UKNOWN_CODE_GENERATED_INTERFACE : Constants.ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS;
 		}
 		return names.getInterfaceName(classes.iterator().next());
 	}
@@ -370,7 +370,7 @@ public class DefaultWorker implements Worker {
 	private String getDataPropertyJavaName(OWLDatatype dt) {
 	    String dataPropertyRange = null;
 	    if (dt == null) {
-	        dataPropertyRange = PropertyConstants.UNKNOWN_JAVA_DATA_TYPE;
+	        dataPropertyRange = Constants.UNKNOWN_JAVA_DATA_TYPE;
 	    } else {
 	        dataPropertyRange = getOwlDataTypeAsJavaClassString(dt);
 	    }
@@ -386,14 +386,14 @@ public class DefaultWorker implements Worker {
 				return handled.getJavaClass();
 			}
 		}
-		return PropertyConstants.UNKNOWN_JAVA_DATA_TYPE;
+		return Constants.UNKNOWN_JAVA_DATA_TYPE;
 	}
 
     private String getImplementationExtendsCode(OWLClass owlClass) {
 	    String str = " extends ";
 	    String base = getBaseImplementation(owlClass);
 	    if (base == null) {
-	        return str + JavaCodeGeneratorConstants.ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS;
+	        return str + Constants.ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS;
 	    } else {
 	        return str + base;
 	    }
