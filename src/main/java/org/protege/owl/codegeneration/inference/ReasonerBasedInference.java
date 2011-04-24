@@ -73,6 +73,15 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		return reasoner.getInstances(owlClass, false).getFlattened();
 	}
 	
+	public boolean canAs(OWLNamedIndividual i, OWLClass c) {
+		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
+		return reasoner.isSatisfiable(factory.getOWLObjectIntersectionOf(c, factory.getOWLObjectOneOf(i)));
+	}
+	
+	public boolean canAssert(OWLNamedIndividual i, OWLClass c) {
+		return canAs(i, c);
+	}
+	
 	public Collection<OWLClass> getSuperClasses(OWLClass owlClass) {
 		return reasoner.getSuperClasses(owlClass, true).getFlattened();
 	}

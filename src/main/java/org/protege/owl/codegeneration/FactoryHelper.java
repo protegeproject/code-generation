@@ -26,12 +26,25 @@ public class FactoryHelper {
 		factory = manager.getOWLDataFactory();
 	}
 	
-	public <X extends WrappedIndividualImpl> X createWrappedIndividual(String name, Class<X> c) {
-		manager.addAxiom(ontology, factory.getOWLDeclarationAxiom(factory.getOWLNamedIndividual(IRI.create(name))));
+	public <X extends WrappedIndividualImpl> X createWrappedIndividual(String name, OWLClass type, Class<X> c) {
+		OWLNamedIndividual i = factory.getOWLNamedIndividual(IRI.create(name));
+		if (!inference.canAssert(i, type)) {
+			return null;
+		}
+		manager.addAxiom(ontology, factory.getOWLDeclarationAxiom(i));
 		return getWrappedIndividual(name, c);
 	}
 	
-	public <X extends WrappedIndividualImpl> X getWrappedIndividual(String name, Class<X> c) {
+	public <X extends WrappedIndividualImpl> X getWrappedIndividual(String name, OWLClass type, Class<X> c) {
+		IRI iri = IRI.create(name);
+		OWLNamedIndividual i = factory.getOWLNamedIndividual(iri);
+		if (!inference.canAs(i, type)) {
+			return null;
+		}
+		return getWrappedIndividual(name, c);
+	}
+	
+	private <X extends WrappedIndividualImpl> X getWrappedIndividual(String name, Class<X> c) {
 		try {
     		Constructor<X> constructor = c.getConstructor(OWLOntology.class, IRI.class);
     		return constructor.newInstance(ontology, IRI.create(name));
@@ -41,9 +54,8 @@ public class FactoryHelper {
 		}
 	}
 	
-	public <X extends WrappedIndividualImpl> Collection<X> getWrappedIndividuals(String name, Class<X> c) {
+	public <X extends WrappedIndividualImpl> Collection<X> getWrappedIndividuals(OWLClass owlClass, Class<X> c) {
 		Set<X> wrappers = new HashSet<X>();
-		OWLClass owlClass = factory.getOWLClass(IRI.create(name));
 		for (OWLNamedIndividual i : inference.getIndividuals(owlClass)) {
 			wrappers.add(getWrappedIndividual(i.getIRI().toString(), c));
 		}

@@ -1,5 +1,6 @@
 package org.protege.owl.codegeneration;
 
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -95,5 +96,12 @@ public class TestCodeGeneration {
 		Collection<? extends WrappedIndividual> values = x.getIriP();
 		assertTrue(values.size() == 1);
 		assertEquals(values.iterator().next().getOwlIndividual().getIRI().toString(), NS01 + "#y");
+	}
+	
+	@Test
+	public void testBadType() throws Exception {
+		MyFactory factory = TestUtilities.openFactory("CodeGeneration001.owl", MyFactory.class);
+		IriB x = factory.getIriB(NS01 + "#x");
+		assertNull(x);
 	}
 }

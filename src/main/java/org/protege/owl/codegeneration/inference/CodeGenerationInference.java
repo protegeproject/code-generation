@@ -5,7 +5,6 @@ import java.util.Collection;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLDatatype;
-import org.semanticweb.owlapi.model.OWLIndividual;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 
@@ -16,6 +15,10 @@ public interface CodeGenerationInference {
 	Collection<OWLClass> getSuperClasses(OWLClass owlClass);
 	
 	Collection<OWLNamedIndividual> getIndividuals(OWLClass owlClass);
+	
+	boolean canAs(OWLNamedIndividual i, OWLClass c);
+	
+	boolean canAssert(OWLNamedIndividual i, OWLClass c);
 	
 	Collection<OWLClass> getTypes(OWLNamedIndividual i);
 	

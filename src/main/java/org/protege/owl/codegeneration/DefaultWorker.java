@@ -302,6 +302,7 @@ public class DefaultWorker implements Worker {
     	substitutions.put(IRI, owlClass.getIRI().toString());
         substitutions.put(INTERFACE_NAME, names.getInterfaceName(owlClass));
         substitutions.put(IMPLEMENTATION_NAME, names.getImplementationName(owlClass));
+        substitutions.put(UPPERCASE_CLASS, names.getClassName(owlClass).toUpperCase());
     }
 	
 	/* ******************************************************************************

@@ -8,14 +8,14 @@
     }
 
     public ${interfaceName} create${interfaceName}(String name) {
-		return delegate.createWrappedIndividual(name, ${implementationName}.class);
+		return delegate.createWrappedIndividual(name, Vocabulary.${OWLClass}, ${implementationName}.class);
     }
 
     public ${interfaceName} get${interfaceName}(String name) {
-		return delegate.getWrappedIndividual(name, ${implementationName}.class);
+		return delegate.getWrappedIndividual(name, Vocabulary.${OWLClass}, ${implementationName}.class);
     }
 
     public Collection<? extends ${interfaceName}> getAll${interfaceName}Instances() {
-		return delegate.getWrappedIndividuals("${iri}", ${implementationName}.class);
+		return delegate.getWrappedIndividuals(Vocabulary.${OWLClass}, ${implementationName}.class);
     }
 

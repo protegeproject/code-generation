@@ -21,9 +21,16 @@ public class SimpleInference implements CodeGenerationInference {
 		return ontology.getClassesInSignature(true);
 	}
 	
-	@Override
 	public Collection<OWLNamedIndividual> getIndividuals(OWLClass owlClass) {
 		throw new UnsupportedOperationException("Not implemented yet");
+	}
+	
+	public boolean canAs(OWLNamedIndividual i, OWLClass c) {
+		throw new UnsupportedOperationException("Not supported yet");
+	}
+	
+	public boolean canAssert(OWLNamedIndividual i, OWLClass c) {
+		throw new UnsupportedOperationException("Not supported yet");
 	}
 	
 	public Collection<OWLClass> getSuperClasses(OWLClass owlClass) {
