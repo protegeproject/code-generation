@@ -66,6 +66,11 @@ public enum HandledDatatypes {
 				return null;
 			}
 		}
+		
+		@Override
+		public boolean isMatch(OWLDatatype dt) {
+			return dt.getIRI().equals(XSDVocabulary.INT.getIRI()) || dt.getIRI().equals(XSDVocabulary.INTEGER.getIRI());
+		}
 	}
 	;
 	

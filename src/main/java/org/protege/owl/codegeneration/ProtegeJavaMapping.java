@@ -19,15 +19,11 @@ public class ProtegeJavaMapping {
     private OWLOntology ontology;
     
     private Map<String, Entry> protegeMap  = new HashMap<String, Entry>();
-    private Map<Class, Entry> interfaceMap = new HashMap<Class, Entry>();
-    private Map<Class, Entry> implementationMap = new HashMap<Class, Entry>();
+    private Map<Class<?>, Entry> interfaceMap = new HashMap<Class<?>, Entry>();
+    private Map<Class<?>, Entry> implementationMap = new HashMap<Class<?>, Entry>();
 
-    public ProtegeJavaMapping(OWLOntology ontology) {
-    	inference = new SimpleInference(ontology);
-    	dataFactory = ontology.getOWLOntologyManager().getOWLDataFactory();
-    }
-    
-    public ProtegeJavaMapping(OWLOntology ontology, CodeGenerationInference inference) {
+    public void initialize(OWLOntology ontology, CodeGenerationInference inference) {
+    	this.ontology = ontology;
     	this.inference = inference;
     }
     

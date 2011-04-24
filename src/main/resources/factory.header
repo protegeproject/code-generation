@@ -18,7 +18,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
  */
 public class ${javaClass} {
     private OWLOntology ontology;
-    private ProtegeJavaMapping javaMapping;
+    private ProtegeJavaMapping javaMapping = new ProtegeJavaMapping();
     private FactoryHelper delegate;
 
     public ${javaClass}(OWLOntology ontology) {
@@ -27,7 +27,7 @@ public class ${javaClass} {
     
     public ${javaClass}(OWLOntology ontology, CodeGenerationInference inference) {
         this.ontology = ontology;
-        javaMapping = new ProtegeJavaMapping(ontology, inference);
+        javaMapping.initialize(ontology, inference);
         delegate = new FactoryHelper(ontology, inference);
     }
 
