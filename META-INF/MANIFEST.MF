@@ -2,9 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Protege OWL Code Generation
 Bundle-SymbolicName: org.protege.editor.owl.codegeneration;singleton:=true
-Import-Package: org.osgi.framework,
- org.apache.log4j,
- javax.swing,
+Import-Package: javax.swing,
  javax.swing.border,
  javax.swing.colorchooser,
  javax.swing.event,
@@ -21,22 +19,28 @@ Import-Package: org.osgi.framework,
  javax.swing.text.rtf,
  javax.swing.tree,
  javax.swing.undo,
+ javax.xml.parsers,
+ org.apache.log4j,
+ org.osgi.framework,
+ org.protege.editor.core;resolution:=optional,
+ org.protege.editor.core.ui.error;resolution:=optional,
+ org.protege.editor.owl.model;resolution:=optional,
+ org.protege.editor.owl.model.inference;resolution:=optional,
+ org.protege.editor.owl.ui.action;resolution:=optional,
+ org.semanticweb.owlapi.apibinding,
+ org.semanticweb.owlapi.model,
+ org.semanticweb.owlapi.reasoner,
+ org.semanticweb.owlapi.util,
+ org.semanticweb.owlapi.vocab,
  org.w3c.dom,
  org.w3c.dom.bootstrap,
  org.w3c.dom.events,
  org.w3c.dom.ls,
  org.xml.sax,
  org.xml.sax.ext,
- org.xml.sax.helpers,
- javax.xml.parsers
+ org.xml.sax.helpers
 Bundle-ClassPath: .,
  lib/org.semanticweb.HermiT.jar
 Bundle-Version: 1.0.0
-Bundle-Activator: org.protege.editor.core.plugin.DefaultPluginActivator 
-Require-Bundle: org.eclipse.equinox.registry,
- org.eclipse.equinox.common,
- org.protege.editor.core.application,
- org.protege.editor.owl,
- org.semanticweb.owl.owlapi
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
