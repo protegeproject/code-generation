@@ -100,7 +100,6 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		}
 	}
 	
-	@Override
 	public Collection<OWLClass> getRange(OWLClass cls, OWLObjectProperty p) {
 		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 		OWLClassExpression values = factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectInverseOf(p), cls);

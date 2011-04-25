@@ -115,12 +115,10 @@ public class DefaultWorker implements Worker {
     	return getImplementationFile(implName);
     }
     
-    @Override
     public File getVocabularyFile() {
     	return getInterfaceFile(Constants.VOCABULARY_CLASS_NAME);
     }
     
-    @Override
     public File getFactoryFile() {
     	return getInterfaceFile(options.getFactoryClassName());
     }
@@ -154,7 +152,6 @@ public class DefaultWorker implements Worker {
 		return template;
     }
 	
-	@Override
 	public void configureSubstitutions(CodeGenerationPhase phase,
 									   Map<SubstitutionVariable, String> substitutions, 
 									   OWLClass owlClass,
