@@ -13,20 +13,14 @@ import java.util.EnumMap;
  */
 public class CodeGenerationOptions {
 
-    private boolean abstractMode;
-
-    private boolean prefixMode;
-
-    private boolean setMode;
-
     private String javaCodePackage = PACKAGE_DEFAULT;
 
     private String factoryClassName = FACTORY_CLASS_NAME_DEFAULT;
 
     private File outputFolder;
 
-    public final static String ABSTRACT_MODE = "JavaCodeAbstract";
-
+    private boolean useReasoner;
+    
     public final static String FACTORY_CLASS_NAME = "JavaCodeFactoryClassName";
 
     public final static String FILE_NAME = "JavaCodeFileName";
@@ -65,14 +59,10 @@ public class CodeGenerationOptions {
         }
         javaCodePackage = value;
     }
-
-    public void setPrefixMode(boolean value) {
-        prefixMode = value;
-    }
-
-    public void setSetMode(boolean value) {
-        setMode = value;
-    }
+    
+    public void setUseReasoner(boolean useReasoner) {
+		this.useReasoner = useReasoner;
+	}
 
     public String getFactoryClassName() {
         return factoryClassName;
@@ -85,13 +75,9 @@ public class CodeGenerationOptions {
     public String getPackage() {
         return javaCodePackage;
     }
-
-    public boolean getPrefixMode() {
-        return prefixMode;
-    }
-
-    public boolean getSetMode() {
-        return setMode;
-    }
+    
+    public boolean useReasoner() {
+		return useReasoner;
+	}
 
 }
