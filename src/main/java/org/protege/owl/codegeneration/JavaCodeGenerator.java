@@ -90,7 +90,7 @@ public class JavaCodeGenerator {
      */
     private void printInterfaceCode(OWLClass owlClass, PrintWriter printWriter) {
         Collection<OWLObjectProperty> owlObjectProperties = worker.getObjectPropertiesForClass(owlClass);
-        Collection<OWLDataProperty> owlDataProperties = worker.getDataPropertiesForClass(owlClass);
+        Collection<OWLDataProperty> owlDataProperties     = worker.getDataPropertiesForClass(owlClass);
         
     	Map<SubstitutionVariable, String> substitutions = new EnumMap<SubstitutionVariable, String>(SubstitutionVariable.class);
     	
