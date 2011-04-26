@@ -1,6 +1,5 @@
 package org.protege.owl.codegeneration;
 
-import static org.protege.owl.codegeneration.SubstitutionVariable.*;
 import static org.protege.owl.codegeneration.SubstitutionVariable.CAPITALIZED_PROPERTY;
 import static org.protege.owl.codegeneration.SubstitutionVariable.DATE;
 import static org.protege.owl.codegeneration.SubstitutionVariable.IMPLEMENTATION_NAME;
@@ -11,6 +10,7 @@ import static org.protege.owl.codegeneration.SubstitutionVariable.JAVA_CLASS_NAM
 import static org.protege.owl.codegeneration.SubstitutionVariable.PACKAGE;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE;
+import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE_IMPLEMENTATION;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_CLASS;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_PROPERTY;
 
@@ -27,7 +27,6 @@ import java.util.Map;
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inference.SimpleInference;
 import org.protege.owl.codegeneration.names.CodeGenerationNames;
-import org.protege.owl.codegeneration.names.CodeGenerationNamesFactory;
 import org.protege.owl.codegeneration.names.NamingUtilities;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
@@ -40,15 +39,15 @@ public class DefaultWorker implements Worker {
 	private EnumMap<CodeGenerationPhase, String> templateMap = new EnumMap<CodeGenerationPhase, String>(CodeGenerationPhase.class);
 	private OWLOntology owlOntology;
 	private CodeGenerationOptions options;
+	private CodeGenerationNames names;
     private CodeGenerationInference inference;
-    private CodeGenerationNames names;
     
-    public static void generateCode(OWLOntology ontology, CodeGenerationOptions options) throws IOException {
-    	generateCode(ontology, options, new SimpleInference(ontology));
+    public static void generateCode(OWLOntology ontology, CodeGenerationOptions options, CodeGenerationNames names) throws IOException {
+    	generateCode(ontology, options, names, new SimpleInference(ontology));
     }
     
-    public static void generateCode(OWLOntology ontology, CodeGenerationOptions options, CodeGenerationInference inference) throws IOException {
-    	Worker worker = new DefaultWorker(ontology, options, inference);
+    public static void generateCode(OWLOntology ontology, CodeGenerationOptions options, CodeGenerationNames names, CodeGenerationInference inference) throws IOException {
+    	Worker worker = new DefaultWorker(ontology, options, names, inference);
     	JavaCodeGenerator generator = new JavaCodeGenerator(worker);
     	generator.createAll();
     }    
@@ -56,11 +55,12 @@ public class DefaultWorker implements Worker {
     
     public DefaultWorker(OWLOntology ontology, 
     		             CodeGenerationOptions options,
+    		             CodeGenerationNames names,
 			             CodeGenerationInference inference) {
 		this.owlOntology = ontology;
 		this.options = options;
+		this.names = names;
 		this.inference = inference;
-		this.names = new CodeGenerationNamesFactory(ontology, options).getCGNames();
 	}
 
     public OWLOntology getOwlOntology() {
@@ -335,7 +335,7 @@ public class DefaultWorker implements Worker {
     private String getBaseInterface(OWLClass owlClass) {
         String baseInterfaceString = "";
         for (OWLClass superClass : inference.getSuperClasses(owlClass)) {
-            if (superClass != null && !superClass.isTopEntity()) {
+            if (!superClass.isTopEntity()) {
                 baseInterfaceString += (baseInterfaceString.equals("") ? "" : ", ") + names.getInterfaceName(superClass);
             }
         }
@@ -347,16 +347,15 @@ public class DefaultWorker implements Worker {
     }
     
 	private String getObjectPropertyRange(OWLClass owlClass, OWLObjectProperty owlObjectProperty, boolean isInterface) {
-		OWLDataFactory factory  = owlOntology.getOWLOntologyManager().getOWLDataFactory();
-		Collection<OWLClass> classes = inference.getRange(owlClass, owlObjectProperty);
-		if (classes.isEmpty() || classes.size() > 1 || classes.contains(factory.getOWLThing())) {
+		OWLClass range = inference.getRange(owlObjectProperty);
+		if (range == null) {
 			return isInterface ? Constants.UKNOWN_CODE_GENERATED_INTERFACE : Constants.ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS;
 		}
-		return names.getInterfaceName(classes.iterator().next());
+		return names.getInterfaceName(range);
 	}
 
 	private String getDataPropertyRange(OWLClass owlClass, OWLDataProperty owlDataProperty) {
-	    OWLDatatype  dt = inference.getRange(owlClass, owlDataProperty);
+	    OWLDatatype  dt = inference.getRange(owlDataProperty);
 	    return getDataPropertyJavaName(dt);
 	}
 
@@ -390,7 +389,7 @@ public class DefaultWorker implements Worker {
     private String getImplementationExtendsCode(OWLClass owlClass) {
 	    String str = " extends ";
 	    String base = getBaseImplementation(owlClass);
-	    if (base == null) {
+	    if (base == null || base.equals("")) {
 	        return str + Constants.ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS;
 	    } else {
 	        return str + base;
@@ -415,9 +414,9 @@ public class DefaultWorker implements Worker {
      * @return
      */
     private String getBaseImplementation(OWLClass owlClass) {
-        String baseImplementationString = null;
+        String baseImplementationString = "";
         for (OWLClass superClass : inference.getSuperClasses(owlClass)) {
-            if (superClass != null && !superClass.isTopEntity()) {
+            if (!superClass.isTopEntity()) {
                 if (baseImplementationString == null) {
                     baseImplementationString = names.getImplementationName(superClass);
                 } else {
