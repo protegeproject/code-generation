@@ -135,6 +135,9 @@
        </fileset>
      </copy>
      <copy todir="${classes}">
+         <fileset dir="src/main/resources"/>
+     </copy>
+     <copy todir="${classes}">
        <fileset dir="." includes="*.xml">
            <exclude name="build.xml"/>
        </fileset>
