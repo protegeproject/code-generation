@@ -5,10 +5,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLClassExpression;
+import org.semanticweb.owlapi.model.OWLDataComplementOf;
+import org.semanticweb.owlapi.model.OWLDataIntersectionOf;
+import org.semanticweb.owlapi.model.OWLDataOneOf;
 import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataRange;
+import org.semanticweb.owlapi.model.OWLDataRangeVisitorEx;
+import org.semanticweb.owlapi.model.OWLDataUnionOf;
 import org.semanticweb.owlapi.model.OWLDatatype;
+import org.semanticweb.owlapi.model.OWLDatatypeRestriction;
 import org.semanticweb.owlapi.model.OWLIndividual;
+import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -46,33 +53,12 @@ public class SimpleInference implements CodeGenerationInference {
 		return i.getTypes(ontology.getImportsClosure()).contains(c);
 	}
 	
-	public boolean canAssert(OWLNamedIndividual i, OWLClass c) {
-		for (OWLOntology inImportsClosure : ontology.getImportsClosure()) {
-			if (inImportsClosure.containsEntityInSignature(i)) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
 	public Collection<OWLClass> getSuperClasses(OWLClass owlClass) {
-		Collection<OWLClass> superClasses = new HashSet<OWLClass>();
-		for (OWLClassExpression superClass : owlClass.getSuperClasses(ontology.getImportsClosure())) {
-			if (!superClass.isAnonymous()) {
-				superClasses.add(superClass.asOWLClass());
-			}
-		}
-		return superClasses;
+		return getSubCollection(owlClass.getSuperClasses(ontology.getImportsClosure()), OWLClass.class);
 	}
 	
 	public Collection<OWLClass> getTypes(OWLNamedIndividual i) {
-		Collection<OWLClass> types = new HashSet<OWLClass>();
-		for (OWLClassExpression type : i.getTypes(ontology.getImportsClosure())) {
-			if (!type.isAnonymous()) {
-				types.add(type.asOWLClass());
-			}
-		}
-		return types;
+		return getSubCollection(i.getTypes(ontology.getImportsClosure()), OWLClass.class);
 	}
 	
 	public Collection<OWLObjectProperty> getObjectPropertiesForClass(OWLClass cls) {
@@ -85,15 +71,99 @@ public class SimpleInference implements CodeGenerationInference {
 		return propertiesForClass;
 	}
 	
-	public Collection<OWLClass> getRange(OWLClass cls, OWLObjectProperty p) {
-		throw new UnsupportedOperationException("Not supported yet");
+	public OWLClass getRange(OWLObjectProperty p) {
+		return asSingleton(getSubCollection(p.getRanges(ontology.getImportsClosure()), OWLClass.class));
 	}
 	
 	public Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass cls) {
-		throw new UnsupportedOperationException("Not implemented yet");
+		Set<OWLDataProperty> propertiesForClass = new HashSet<OWLDataProperty>();
+		for (OWLDataProperty property : dataProperties) {
+			if (property.getDomains(ontology.getImportsClosure()).contains(cls)) {
+				propertiesForClass.add(property);
+			}
+		}
+		return propertiesForClass;
+	}
+	
+
+	public OWLDatatype getRange(OWLDataProperty p) {
+		for (OWLDataRange range : p.getRanges(ontology.getImportsClosure())) {
+			OWLDatatype type = range.accept(new RangeAsDatatypeVisitor());
+			if (type != null) {
+				return type;
+			}
+		}
+		return null;
+	}
+	
+	private static <Y, X extends Y> Collection<X> getSubCollection(Collection<Y> collection, Class<? extends X> xClass) {
+		Collection<X> subCollection = new HashSet<X>();
+		for (Y y : collection) {
+			if (xClass.isAssignableFrom(y.getClass())) {
+				subCollection.add(xClass.cast(y));
+			}
+		}
+		return subCollection;
+	}
+	
+	/* package */ static <X> X asSingleton(Collection<X> xs) {
+		if (xs.size() == 1) {
+			return xs.iterator().next();
+		}
+		return null;
+	}
+	
+	private static class RangeAsDatatypeVisitor implements OWLDataRangeVisitorEx<OWLDatatype> {
+
+		
+		public OWLDatatype visit(OWLDatatype node) {
+			return node;
+		}
+
+		
+		public OWLDatatype visit(OWLDataOneOf node) {
+			OWLDatatype type = null;
+			for (OWLLiteral literal : node.getValues()) {
+				if (type == null) {
+					type = literal.getDatatype();
+				}
+				else if (!type.equals(literal.getDatatype())){
+					return null;
+				}
+			}
+			return type;
+		}
+
+		
+		public OWLDatatype visit(OWLDataComplementOf node) {
+			return null;
+		}
+
+		
+		public OWLDatatype visit(OWLDataIntersectionOf node) {
+			return node.getOperands().iterator().next().accept(this);
+		}
+
+		
+		public OWLDatatype visit(OWLDataUnionOf node) {
+			OWLDatatype type = null;
+			for (OWLDataRange range : node.getOperands()) {
+				OWLDatatype otherType = range.accept(this);
+				if (type == null) {
+					type = otherType;
+				}
+				else if (!type.equals(otherType)){
+					return null;
+				}
+			}
+			return type;
+		}
+
+		
+		public OWLDatatype visit(OWLDatatypeRestriction node) {
+			return node.getDatatype();
+		}
+		
 	}
 
-	public OWLDatatype getRange(OWLClass cls, OWLDataProperty p) {
-		throw new UnsupportedOperationException("Not supported yet");
-	}
 }
