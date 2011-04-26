@@ -49,7 +49,7 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 	}
 
     private void analyzeClassObjectPropertyAssociations(Set<OWLObjectProperty> objectProperties) {
-		LOGGER.info("Calculating class/data property associations...");
+		LOGGER.info("Calculating class/object property associations...");
 		long startTime = System.currentTimeMillis();
 		for (OWLObjectProperty p : objectProperties) {
 			OWLClassExpression someCE = factory.getOWLObjectSomeValuesFrom(p, factory.getOWLThing());
@@ -63,7 +63,7 @@ public class ReasonerBasedInference implements CodeGenerationInference {
     }
 
     private void analyzeClassDataPropertyAssociations(Set<OWLDataProperty> dataProperties) {
-		LOGGER.info("Calculating class/object property associations...");
+		LOGGER.info("Calculating class/data property associations...");
 		long startTime = System.currentTimeMillis();
 		for (OWLDataProperty p : dataProperties) {
 			OWLClassExpression someCE = factory.getOWLDataSomeValuesFrom(p, factory.getTopDatatype());
