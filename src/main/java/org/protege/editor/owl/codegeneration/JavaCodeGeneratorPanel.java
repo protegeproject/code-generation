@@ -24,6 +24,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
+
+import org.protege.editor.owl.model.inference.NoOpReasoner;
 import org.protege.owl.codegeneration.CodeGenerationOptions;
 import org.protege.owl.codegeneration.Constants;
 
@@ -36,7 +38,7 @@ public class JavaCodeGeneratorPanel extends JPanel {
 
     private static final long serialVersionUID = 4160225251535243881L;
 
-    private GenerateCodeWithOptions generateCodeWithOptions;
+    private GenerateCodeCallback generateCodeCallback;
 
     private JTextField factoryClassNameTextField;
 
@@ -48,9 +50,7 @@ public class JavaCodeGeneratorPanel extends JPanel {
 
     private JTextField rootFolderTextField;
 
-    private JCheckBox setCheckBox;
-
-    private JCheckBox prefixCheckBox;
+    private JCheckBox useReasonerCheckBox;
 
     private JButton okButton;
 
@@ -61,10 +61,10 @@ public class JavaCodeGeneratorPanel extends JPanel {
      * @param generateCodeWithOptions
      */
     public JavaCodeGeneratorPanel(CodeGenerationOptions options,
-              					  GenerateCodeWithOptions generateCodeWithOptions) {
+    		                      GenerateCodeCallback generateCodeWithOptions) {
 
         this.options = options;
-        this.generateCodeWithOptions = generateCodeWithOptions;
+        this.generateCodeCallback = generateCodeWithOptions;
 
         Border border = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setBorder(border);
@@ -80,18 +80,18 @@ public class JavaCodeGeneratorPanel extends JPanel {
 
         fileChooser.setDialogTitle("Select output folder");
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        rootFolderTextField.setText(fileChooser.getCurrentDirectory().toString());
 
         factoryClassNameTextField = new JTextField();
         if (options.getFactoryClassName() != null) {
             factoryClassNameTextField.setText(options.getFactoryClassName());
         }
 
-        setCheckBox = new JCheckBox("Return Set instead of Collection");
-        setCheckBox.setSelected(options.getSetMode());
-
-        prefixCheckBox = new JCheckBox("Include prefixes in generated Java names");
-        prefixCheckBox.setSelected(options.getPrefixMode());
+        useReasonerCheckBox = new JCheckBox("Use Reasoner");
+        if (generateCodeWithOptions.getOWLModelManager().getReasoner() instanceof NoOpReasoner) {
+        	useReasonerCheckBox.setEnabled(false);
+        	options.setUseReasoner(false);
+        }
+        useReasonerCheckBox.setSelected(options.useReasoner());
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -131,10 +131,7 @@ public class JavaCodeGeneratorPanel extends JPanel {
         add(getComponentWithNonStretchingVertically(factoryClassNameTextField));
         add(Box.createVerticalStrut(8));
 
-        add(createCheckBoxPanel(setCheckBox));
-        add(Box.createVerticalStrut(8));
-
-        add(createCheckBoxPanel(prefixCheckBox));
+        add(createCheckBoxPanel(useReasonerCheckBox));
         add(Box.createVerticalStrut(8));
 
         JPanel buttonJPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -173,13 +170,12 @@ public class JavaCodeGeneratorPanel extends JPanel {
                         .setFactoryClassName(factoryClassNameTextField.getText().trim().length() > 0 ? factoryClassNameTextField
                                 .getText().trim()
                                 : Constants.FACTORY_CLASS_NAME);
-                options.setSetMode(setCheckBox.isSelected());
-                options.setPrefixMode(prefixCheckBox.isSelected());
+                options.setUseReasoner(useReasonerCheckBox.isSelected());
                 if (options.getPackage() == null) {
                     JOptionPane.showMessageDialog(null, "Enter package name.", "Error", JOptionPane.ERROR_MESSAGE);
 
                 } else {
-                    generateCodeWithOptions.okClicked();
+                    generateCodeCallback.okClicked();
                 }
 
             }
@@ -193,7 +189,7 @@ public class JavaCodeGeneratorPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                generateCodeWithOptions.cancelClicked();
+                generateCodeCallback.cancelClicked();
             }
 
         });
@@ -219,8 +215,7 @@ public class JavaCodeGeneratorPanel extends JPanel {
         }
         options.setOutputFolder(newFile);
 
-        options.setSetMode(setCheckBox.isSelected());
-        options.setPrefixMode(prefixCheckBox.isSelected());
+        options.setUseReasoner(useReasonerCheckBox.isSelected());
         options.setFactoryClassName(factoryClassNameTextField.getText());
 
         String pack = packageTextField.getText().trim();
