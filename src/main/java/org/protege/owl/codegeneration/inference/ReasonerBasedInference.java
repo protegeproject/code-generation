@@ -54,6 +54,7 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		for (OWLObjectProperty p : objectProperties) {
 			OWLClassExpression someCE = factory.getOWLObjectSomeValuesFrom(p, factory.getOWLThing());
 			for (OWLClass superClass : reasoner.getSuperClasses(someCE, true).getFlattened()) {
+				addToMap(class2ObjectPropertyMap, superClass, p);
 				for (OWLClass subSuperClass : reasoner.getSubClasses(superClass, false).getFlattened()) {
 					addToMap(class2ObjectPropertyMap, subSuperClass, p);
 				}
@@ -68,6 +69,7 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		for (OWLDataProperty p : dataProperties) {
 			OWLClassExpression someCE = factory.getOWLDataSomeValuesFrom(p, factory.getTopDatatype());
 			for (OWLClass superClass : reasoner.getSuperClasses(someCE, true).getFlattened()) {
+				addToMap(class2DataPropertyMap, superClass, p);
 				for (OWLClass subSuperClass : reasoner.getSubClasses(superClass, false).getFlattened()) {
 					addToMap(class2DataPropertyMap, subSuperClass, p);
 				}
@@ -84,11 +86,11 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 			Collection<OWLClass> classes;
 			classes = reasoner.getEquivalentClasses(possibleValues).getEntities();
 			if (classes != null && !classes.isEmpty()) {
-				objectRangeMap.put(p, SimpleInference.asSingleton(classes));
+				objectRangeMap.put(p, SimpleInference.asSingleton(classes, ontology));
 			}
 			else {
 				classes = reasoner.getSuperClasses(possibleValues, true).getFlattened();
-				objectRangeMap.put(p, SimpleInference.asSingleton(classes));
+				objectRangeMap.put(p, SimpleInference.asSingleton(classes, ontology));
 			}
 		}
 		LOGGER.info("Took " + (System.currentTimeMillis() - startTime) + "ms.");

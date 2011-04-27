@@ -14,6 +14,7 @@ import org.semanticweb.owlapi.model.OWLDataRangeVisitorEx;
 import org.semanticweb.owlapi.model.OWLDataUnionOf;
 import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLDatatypeRestriction;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLIndividual;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
@@ -72,7 +73,7 @@ public class SimpleInference implements CodeGenerationInference {
 	}
 	
 	public OWLClass getRange(OWLObjectProperty p) {
-		return asSingleton(getSubCollection(p.getRanges(ontology.getImportsClosure()), OWLClass.class));
+		return asSingleton(getSubCollection(p.getRanges(ontology.getImportsClosure()), OWLClass.class), ontology);
 	}
 	
 	public Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass cls) {
@@ -106,11 +107,19 @@ public class SimpleInference implements CodeGenerationInference {
 		return subCollection;
 	}
 	
-	/* package */ static <X> X asSingleton(Collection<X> xs) {
-		if (xs.size() == 1) {
-			return xs.iterator().next();
+	/* package */ static <X extends OWLEntity> X asSingleton(Collection<X> xs, OWLOntology owlOntology) {
+		X result = null;
+		for (X x : xs) {
+			if (owlOntology.containsEntityInSignature(x, true)) {
+				if (result != null) {
+					result = x;
+				}
+				else {
+					return null;
+				}
+			}
 		}
-		return null;
+		return result;
 	}
 	
 	private static class RangeAsDatatypeVisitor implements OWLDataRangeVisitorEx<OWLDatatype> {
