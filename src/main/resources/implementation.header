@@ -16,7 +16,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
  * Source Class: ${javaClass}
  * @version generated on ${date}
  */
-public class ${javaClass} ${extends} {
+public class ${javaClass} extends WrappedIndividualImpl ${extends} {
 
     public ${javaClass}(OWLOntology ontology, IRI iri) {
         super(ontology, iri);

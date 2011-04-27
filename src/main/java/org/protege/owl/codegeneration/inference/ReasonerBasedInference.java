@@ -162,6 +162,12 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		return objectRangeMap.get(p);
 	}
 	
+	public OWLClass getRange(OWLClass cls, OWLObjectProperty p) {
+		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
+		OWLClassExpression values = factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectInverseOf(p), cls);
+		return SimpleInference.asSingleton(reasoner.getSuperClasses(values, true).getFlattened(), ontology);
+	}
+	
 	public Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass cls) {
 		Set<OWLDataProperty> properties = class2DataPropertyMap.get(cls);
 		if (properties == null) {
@@ -172,9 +178,25 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		}
 	}
 	
-
 	public OWLDatatype getRange(OWLDataProperty p) {
 		return dataRangeMap.get(p);
 	}
+	
+	public OWLDatatype getRange(OWLClass cls, OWLDataProperty p) {
+		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
+		for (HandledDatatypes handled : HandledDatatypes.values()) {
+			OWLDatatype dt = factory.getOWLDatatype(handled.getIri());
+			OWLClassExpression hasValueOfSomeOtherType 
+			              = factory.getOWLObjectIntersectionOf(
+			            		            cls,
+											factory.getOWLObjectComplementOf(factory.getOWLDataAllValuesFrom(p, dt))
+											);
+			if (!reasoner.isSatisfiable(hasValueOfSomeOtherType)) {
+				return dt;
+			}
+		}
+		return null;
+	}
+
 
 }

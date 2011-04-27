@@ -3,7 +3,7 @@
      * Property ${iri}
      */
      
-    Collection<? extends ${propertyRange}> get${OwlProperty}();
+    Collection<? extends ${propertyRangeForClass}> get${OwlProperty}();
 
     boolean has${OwlProperty}();
 

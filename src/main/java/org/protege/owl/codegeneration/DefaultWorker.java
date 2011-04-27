@@ -10,6 +10,7 @@ import static org.protege.owl.codegeneration.SubstitutionVariable.JAVA_CLASS_NAM
 import static org.protege.owl.codegeneration.SubstitutionVariable.PACKAGE;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE;
+import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE_FOR_CLASS;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE_IMPLEMENTATION;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_CLASS;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_PROPERTY;
@@ -224,7 +225,8 @@ public class DefaultWorker implements Worker {
     	substitutions.put(PROPERTY, propertyName);
     	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
     	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
-    	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlClass, owlObjectProperty, true));
+    	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlObjectProperty, true));
+    	substitutions.put(PROPERTY_RANGE_FOR_CLASS, getObjectPropertyRange(owlClass, owlObjectProperty, true));
 	}
 
 	private void configureDataPropertyInterfaceSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass, OWLDataProperty owlDataProperty) {
@@ -235,13 +237,14 @@ public class DefaultWorker implements Worker {
     	substitutions.put(PROPERTY, propertyName);
     	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
     	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
-    	substitutions.put(PROPERTY_RANGE, getDataPropertyRange(owlClass, owlDataProperty));
+    	substitutions.put(PROPERTY_RANGE, getDataPropertyRange(owlDataProperty));
+    	substitutions.put(PROPERTY_RANGE_FOR_CLASS, getDataPropertyRange(owlClass, owlDataProperty));
     }
 
     private void configureImplementationHeaderSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass) {
         String implName = names.getImplementationName(owlClass);
     	substitutions.put(PACKAGE, options.getPackage());
-    	substitutions.put(IMPLEMENTS_EXTENDS, getImplementationExtendsCode(owlClass) + " implements " + names.getInterfaceName(owlClass));
+    	substitutions.put(IMPLEMENTS_EXTENDS, " implements " + names.getInterfaceName(owlClass));
     	substitutions.put(DATE, new Date().toString());
     	substitutions.put(JAVA_CLASS_NAME, implName);
     }
@@ -254,7 +257,8 @@ public class DefaultWorker implements Worker {
     	substitutions.put(PROPERTY, propertyName);
     	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitilized);
     	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
-    	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlClass, owlObjectProperty, true));
+    	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlObjectProperty, true));
+    	substitutions.put(PROPERTY_RANGE_FOR_CLASS, getObjectPropertyRange(owlClass, owlObjectProperty, true));
     	substitutions.put(PROPERTY_RANGE_IMPLEMENTATION, getObjectPropertyRange(owlClass, owlObjectProperty, false));
     }
 
@@ -266,7 +270,8 @@ public class DefaultWorker implements Worker {
     	substitutions.put(PROPERTY, propertyName);
     	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
     	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
-    	substitutions.put(PROPERTY_RANGE, getDataPropertyRange(owlClass, owlDataProperty));
+    	substitutions.put(PROPERTY_RANGE, getDataPropertyRange(owlDataProperty));
+    	substitutions.put(PROPERTY_RANGE_FOR_CLASS, getDataPropertyRange(owlClass, owlDataProperty));
     }
 
     private void configureVocabularyHeaderSubstitutions(Map<SubstitutionVariable, String> substitutions) {
@@ -346,16 +351,29 @@ public class DefaultWorker implements Worker {
         }
     }
     
-	private String getObjectPropertyRange(OWLClass owlClass, OWLObjectProperty owlObjectProperty, boolean isInterface) {
+	private String getObjectPropertyRange(OWLObjectProperty owlObjectProperty, boolean isInterface) {
 		OWLClass range = inference.getRange(owlObjectProperty);
 		if (range == null) {
 			return isInterface ? Constants.UKNOWN_CODE_GENERATED_INTERFACE : Constants.ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS;
 		}
-		return names.getInterfaceName(range);
+		return isInterface ? names.getInterfaceName(range) : names.getImplementationName(range);
+	}
+	
+	private String getObjectPropertyRange(OWLClass owlClass, OWLObjectProperty owlObjectProperty, boolean isInterface) {
+		OWLClass range = inference.getRange(owlClass, owlObjectProperty);
+		if (range == null) {
+			return isInterface ? Constants.UKNOWN_CODE_GENERATED_INTERFACE : Constants.ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS;
+		}
+		return isInterface ? names.getInterfaceName(range) : names.getImplementationName(range);
+	}
+
+	private String getDataPropertyRange(OWLDataProperty owlDataProperty) {
+	    OWLDatatype  dt = inference.getRange(owlDataProperty);
+	    return getDataPropertyJavaName(dt);
 	}
 
 	private String getDataPropertyRange(OWLClass owlClass, OWLDataProperty owlDataProperty) {
-	    OWLDatatype  dt = inference.getRange(owlDataProperty);
+	    OWLDatatype  dt = inference.getRange(owlClass, owlDataProperty);
 	    return getDataPropertyJavaName(dt);
 	}
 
@@ -386,19 +404,6 @@ public class DefaultWorker implements Worker {
 		return Constants.UNKNOWN_JAVA_DATA_TYPE;
 	}
 
-    private String getImplementationExtendsCode(OWLClass owlClass) {
-	    String str = " extends ";
-	    String base = getBaseImplementation(owlClass);
-	    if (base == null || base.equals("")) {
-	        return str + Constants.ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS;
-	    } else {
-	        return str + base;
-	    }
-	}
-
-
-
-
 	private File getImplementationFile(String implName) {
 	    String pack = options.getPackage();
 	    if (pack != null) {
@@ -408,24 +413,6 @@ public class DefaultWorker implements Worker {
 	    }
 	    return new File(options.getOutputFolder(), pack + "impl/" + implName + ".java");
 	}
-
-	/** Returns base implementation of the provided OWLClass
-     * @param owlClass
-     * @return
-     */
-    private String getBaseImplementation(OWLClass owlClass) {
-        String baseImplementationString = "";
-        for (OWLClass superClass : inference.getSuperClasses(owlClass)) {
-            if (!superClass.isTopEntity()) {
-                if (baseImplementationString == null) {
-                    baseImplementationString = names.getImplementationName(superClass);
-                } else {
-                    return null;
-                }
-            }
-        }
-        return baseImplementationString;
-    }
 
 
 }

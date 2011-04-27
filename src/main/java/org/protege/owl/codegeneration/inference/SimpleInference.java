@@ -76,6 +76,13 @@ public class SimpleInference implements CodeGenerationInference {
 		return asSingleton(getSubCollection(p.getRanges(ontology.getImportsClosure()), OWLClass.class), ontology);
 	}
 	
+	/*
+	 * TODO - examine restrictions
+	 */
+	public OWLClass getRange(OWLClass c, OWLObjectProperty p) {
+		return getRange(p);
+	}
+	
 	public Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass cls) {
 		Set<OWLDataProperty> propertiesForClass = new HashSet<OWLDataProperty>();
 		for (OWLDataProperty property : dataProperties) {
@@ -97,6 +104,13 @@ public class SimpleInference implements CodeGenerationInference {
 		return null;
 	}
 	
+	/*
+	 * TODO - examine restrictions
+	 */
+	public OWLDatatype getRange(OWLClass c, OWLDataProperty p) {
+		return getRange(p);
+	}
+	
 	private static <Y, X extends Y> Collection<X> getSubCollection(Collection<Y> collection, Class<? extends X> xClass) {
 		Collection<X> subCollection = new HashSet<X>();
 		for (Y y : collection) {
@@ -111,7 +125,7 @@ public class SimpleInference implements CodeGenerationInference {
 		X result = null;
 		for (X x : xs) {
 			if (owlOntology.containsEntityInSignature(x, true)) {
-				if (result != null) {
+				if (result == null) {
 					result = x;
 				}
 				else {

@@ -3,7 +3,7 @@
      * Object Property ${iri}
      */
      
-    public Collection<? extends ${propertyRange}> get${OwlProperty}() {
+    public Collection<? extends ${propertyRangeForClass}> get${OwlProperty}() {
         return getDelegate().getPropertyValues(getOwlIndividual(),
                                                Vocabulary.${OWLProperty},
                                                ${propertyRangeImplementation}.class);

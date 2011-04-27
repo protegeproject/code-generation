@@ -3,8 +3,8 @@
      * Data Property ${iri}
      */
      
-    public Collection<? extends ${propertyRange}> get${OwlProperty}() {
-		return getDelegate().getPropertyValues(getOwlIndividual(), Vocabulary.${OWLProperty}, ${propertyRange}.class);
+    public Collection<? extends ${propertyRangeForClass}> get${OwlProperty}() {
+		return getDelegate().getPropertyValues(getOwlIndividual(), Vocabulary.${OWLProperty}, ${propertyRangeForClass}.class);
     }
 
     public boolean has${OwlProperty}() {

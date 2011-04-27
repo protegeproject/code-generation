@@ -39,6 +39,8 @@ public interface CodeGenerationInference {
 		
 	OWLClass getRange(OWLObjectProperty p);
 	
+	OWLClass getRange(OWLClass c, OWLObjectProperty p);
+	
 	/**
 	 * This method must satisfy two conditions:
 	 * <ul>
@@ -57,4 +59,7 @@ public interface CodeGenerationInference {
 	Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass cls);
 		
 	OWLDatatype getRange(OWLDataProperty p);
+	
+	OWLDatatype getRange(OWLClass c, OWLDataProperty p);
+
 }
