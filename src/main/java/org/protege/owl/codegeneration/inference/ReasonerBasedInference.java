@@ -48,35 +48,67 @@ public class ReasonerBasedInference implements CodeGenerationInference {
         analyzeDataPropertyRanges(dataProperties); 
 	}
 
+	/*
+	 * The javaizeMap may be slow.  If this is a problem consider reverting this implementation back to svn revision 22612.
+	 */
     private void analyzeClassObjectPropertyAssociations(Set<OWLObjectProperty> objectProperties) {
 		LOGGER.info("Calculating class/object property associations...");
 		long startTime = System.currentTimeMillis();
 		for (OWLObjectProperty p : objectProperties) {
-			OWLClassExpression someCE = factory.getOWLObjectSomeValuesFrom(p, factory.getOWLThing());
-			for (OWLClass superClass : reasoner.getSuperClasses(someCE, true).getFlattened()) {
-				addToMap(class2ObjectPropertyMap, superClass, p);
-				for (OWLClass subSuperClass : reasoner.getSubClasses(superClass, false).getFlattened()) {
-					addToMap(class2ObjectPropertyMap, subSuperClass, p);
+			OWLClassExpression noValues = factory.getOWLObjectComplementOf(factory.getOWLObjectSomeValuesFrom(p, factory.getOWLThing()));
+			Set<OWLClass> couldHaveValues = new HashSet<OWLClass>(ontology.getClassesInSignature(true));
+			couldHaveValues.removeAll(reasoner.getSubClasses(noValues, false).getFlattened());
+			couldHaveValues.removeAll(reasoner.getEquivalentClasses(noValues).getEntities());
+			for (OWLClass owlClass : couldHaveValues) {
+				if (ontology.containsEntityInSignature(owlClass, true)) {
+					addToMap(class2ObjectPropertyMap, owlClass, p);
 				}
 			}
 		}
+		javaizeMap(class2ObjectPropertyMap);
 		LOGGER.info("Took " + (System.currentTimeMillis() - startTime) + "ms.");
     }
 
+	/*
+	 * The javaizeMap may be slow.  If this is a problem consider reverting this implementation back to svn revision 22612.
+	 */
     private void analyzeClassDataPropertyAssociations(Set<OWLDataProperty> dataProperties) {
 		LOGGER.info("Calculating class/data property associations...");
 		long startTime = System.currentTimeMillis();
 		for (OWLDataProperty p : dataProperties) {
-			OWLClassExpression someCE = factory.getOWLDataSomeValuesFrom(p, factory.getTopDatatype());
-			for (OWLClass superClass : reasoner.getSuperClasses(someCE, true).getFlattened()) {
-				addToMap(class2DataPropertyMap, superClass, p);
-				for (OWLClass subSuperClass : reasoner.getSubClasses(superClass, false).getFlattened()) {
-					addToMap(class2DataPropertyMap, subSuperClass, p);
+			OWLClassExpression noValues = factory.getOWLObjectComplementOf(factory.getOWLDataSomeValuesFrom(p, factory.getTopDatatype()));
+			Set<OWLClass> couldHaveValues = new HashSet<OWLClass>(ontology.getClassesInSignature(true));
+			couldHaveValues.removeAll(reasoner.getSubClasses(noValues, false).getFlattened());
+			couldHaveValues.removeAll(reasoner.getEquivalentClasses(noValues).getEntities());
+			for (OWLClass owlClass : couldHaveValues) {
+				if (ontology.containsEntityInSignature(owlClass, true)) {
+					addToMap(class2DataPropertyMap, owlClass, p);
 				}
 			}
 		}
+		javaizeMap(class2DataPropertyMap);
 		LOGGER.info("Took " + (System.currentTimeMillis() - startTime) + "ms.");
     }
+    
+    private <X> void javaizeMap(Map<OWLClass, Set<X>> map) {
+    	javaizeMap(factory.getOWLThing(), map);
+    }
+    
+    private <X> void javaizeMap(OWLClass parent, Map<OWLClass, Set<X>> map) {
+    	Set<X> parentValues = map.get(parent);
+    	for (OWLClass subClass : reasoner.getSubClasses(parent, true).getFlattened()) {
+    		if (parentValues != null) {
+    			Set<X> childValues = map.get(subClass);
+    			if (childValues != null) {
+    				childValues.addAll(parentValues);
+    			}
+    			else {
+    				map.put(subClass, new HashSet<X>(parentValues));
+    			}
+    		}
+    		javaizeMap(subClass, map);
+    	}
+    }    
 
     private void analyzeObjectPropertyRanges(Set<OWLObjectProperty> objectProperties) {
 		LOGGER.info("Calculating object property ranges...");
@@ -163,7 +195,6 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 	}
 	
 	public OWLClass getRange(OWLClass cls, OWLObjectProperty p) {
-		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 		OWLClassExpression values = factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectInverseOf(p), cls);
 		return SimpleInference.asSingleton(reasoner.getSuperClasses(values, true).getFlattened(), ontology);
 	}

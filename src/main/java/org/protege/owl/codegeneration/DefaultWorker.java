@@ -226,7 +226,6 @@ public class DefaultWorker implements Worker {
     	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
     	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
     	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlObjectProperty, true));
-    	substitutions.put(PROPERTY_RANGE_FOR_CLASS, getObjectPropertyRange(owlClass, owlObjectProperty, true));
 	}
 
 	private void configureDataPropertyInterfaceSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass, OWLDataProperty owlDataProperty) {
@@ -258,8 +257,7 @@ public class DefaultWorker implements Worker {
     	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitilized);
     	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
     	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlObjectProperty, true));
-    	substitutions.put(PROPERTY_RANGE_FOR_CLASS, getObjectPropertyRange(owlClass, owlObjectProperty, true));
-    	substitutions.put(PROPERTY_RANGE_IMPLEMENTATION, getObjectPropertyRange(owlClass, owlObjectProperty, false));
+    	substitutions.put(PROPERTY_RANGE_IMPLEMENTATION, getObjectPropertyRange(owlObjectProperty, false));
     }
 
     private void configureDataPropertyImplementationSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass, OWLDataProperty owlDataProperty) {
@@ -340,7 +338,7 @@ public class DefaultWorker implements Worker {
     private String getBaseInterface(OWLClass owlClass) {
         String baseInterfaceString = "";
         for (OWLClass superClass : inference.getSuperClasses(owlClass)) {
-            if (!superClass.isTopEntity()) {
+            if (owlOntology.containsEntityInSignature(superClass, true)) {
                 baseInterfaceString += (baseInterfaceString.equals("") ? "" : ", ") + names.getInterfaceName(superClass);
             }
         }

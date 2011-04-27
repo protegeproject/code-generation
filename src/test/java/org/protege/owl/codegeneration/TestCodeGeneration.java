@@ -1,10 +1,10 @@
 package org.protege.owl.codegeneration;
 
-import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Collection;
 
@@ -38,8 +38,8 @@ public class TestCodeGeneration {
 	public void testGenericListTypes() throws SecurityException, NoSuchMethodException {
 		Class<?>[] noArguments = new Class<?>[0];
 		TestUtilities.assertReturnsCollectionOf(IriA.class.getMethod("getIriP", noArguments), WrappedIndividual.class);
-		TestUtilities.assertReturnsCollectionOf(A1.class.getMethod("getIriP", noArguments), B1.class);
-		TestUtilities.assertReturnsCollectionOf(A2.class.getMethod("getIriP", noArguments), B2.class);
+		TestUtilities.assertReturnsCollectionOf(A1.class.getMethod("getIriP", noArguments), WrappedIndividual.class);
+		TestUtilities.assertReturnsCollectionOf(A2.class.getMethod("getIriP", noArguments), WrappedIndividual.class);
 		TestUtilities.assertReturnsCollectionOf(IriB.class.getMethod("getIriQ", noArguments), Object.class);
 		TestUtilities.assertReturnsCollectionOf(B1.class.getMethod("getIriQ", noArguments), String.class);
 		TestUtilities.assertReturnsCollectionOf(B2.class.getMethod("getIriQ", noArguments), Integer.class);		
