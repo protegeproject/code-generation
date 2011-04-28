@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import org.protege.owl.codegeneration.CodeGenerationOptions;
 import org.protege.owl.codegeneration.DefaultWorker;
-import org.protege.owl.codegeneration.JavaCodeGenerator;
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inference.ReasonerBasedInference;
 import org.protege.owl.codegeneration.names.IriNames;

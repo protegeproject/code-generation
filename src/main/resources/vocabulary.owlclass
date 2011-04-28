@@ -1,6 +1,6 @@
 
     /* ***************************************************
-     * Class ${propertyIri}
+     * Class ${classIri}
      */
 
-    public static final OWLClass ${OWLClass} = factory.getOWLClass(IRI.create("${propertyIri}"));
+    public static final OWLClass ${OWLClass} = factory.getOWLClass(IRI.create("${classIri}"));
