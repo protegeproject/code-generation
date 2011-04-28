@@ -15,6 +15,7 @@ import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE_IMPLEMENTATION;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_CLASS;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_PROPERTY;
+import static org.protege.owl.codegeneration.SubstitutionVariable.USER;
 
 import java.io.File;
 import java.io.IOException;
@@ -195,6 +196,7 @@ public class DefaultWorker implements Worker {
 											  OWLEntity owlProperty) {
         substitutions.put(PACKAGE, options.getPackage());
         substitutions.put(DATE, new Date().toString());
+        substitutions.put(USER, System.getProperty("user.name"));
         substitutions.put(FACTORY_CLASS_NAME, options.getFactoryClassName());
     }
 
