@@ -1,6 +1,6 @@
 
     /* ***************************************************
-     * Object Property ${iri}
+     * Object Property ${propertyIri}
      */
      
     public Collection<? extends ${propertyRange}> get${OwlProperty}() {

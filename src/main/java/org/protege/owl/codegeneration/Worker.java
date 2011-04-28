@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 
-import org.protege.owl.codegeneration.names.CodeGenerationNames;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 
@@ -38,7 +38,7 @@ public interface Worker {
 	void configureSubstitutions(CodeGenerationPhase phase,
 			                    Map<SubstitutionVariable, String> substitutions,
 			                    OWLClass owlClass,
-			                    Object owlProperty);
+			                    OWLEntity owlProperty);
 	
 	String getTemplate(CodeGenerationPhase phase, OWLClass owlClass, Object owlProperty);
 }

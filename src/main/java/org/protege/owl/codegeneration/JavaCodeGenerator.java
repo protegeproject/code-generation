@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 
 /**
@@ -192,7 +193,7 @@ public class JavaCodeGenerator {
     private void fillAndWriteTemplate(PrintWriter writer, 
     		                               CodeGenerationPhase phase, 
     		                               Map<SubstitutionVariable, String> substitutions, 
-    		                               OWLClass owlClass, Object owlProperty) {
+    		                               OWLClass owlClass, OWLEntity owlProperty) {
     	worker.configureSubstitutions(phase, substitutions, owlClass, owlProperty);
         String template = worker.getTemplate(phase, owlClass, owlProperty);
     	fillTemplate(writer, template, substitutions);

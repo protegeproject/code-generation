@@ -11,12 +11,12 @@ import java.util.Map.Entry;
 
 public enum SubstitutionVariable {
 	PACKAGE("package"),
-	JAVA_CLASS_NAME("javaClass"),
-	IMPLEMENTS_EXTENDS("extends"),
+	FACTORY_CLASS_NAME("factoryClass"),
+    INTERFACE_LIST("superInterfaces"),
 	INTERFACE_NAME("interfaceName"),
 	IMPLEMENTATION_NAME("implementationName"),
-	IRI("iri"),
-	CLASS("owlClass"), 
+	CLASS_IRI("classIri"),
+    PROPERTY_IRI("propertyIri"),
 	CAPITALIZED_CLASS("OwlClass"),
 	UPPERCASE_CLASS("OWLClass"),
 	PROPERTY("owlProperty"), 

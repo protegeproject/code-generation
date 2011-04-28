@@ -4,7 +4,7 @@
      */
 
     {
-        javaMapping.add("${iri}", ${interfaceName}.class, ${implementationName}.class);
+        javaMapping.add("${classIri}", ${interfaceName}.class, ${implementationName}.class);
     }
 
     public ${interfaceName} create${interfaceName}(String name) {

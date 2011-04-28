@@ -1,14 +1,15 @@
 package org.protege.owl.codegeneration;
 
 import static org.protege.owl.codegeneration.SubstitutionVariable.CAPITALIZED_PROPERTY;
+import static org.protege.owl.codegeneration.SubstitutionVariable.CLASS_IRI;
 import static org.protege.owl.codegeneration.SubstitutionVariable.DATE;
+import static org.protege.owl.codegeneration.SubstitutionVariable.FACTORY_CLASS_NAME;
 import static org.protege.owl.codegeneration.SubstitutionVariable.IMPLEMENTATION_NAME;
-import static org.protege.owl.codegeneration.SubstitutionVariable.IMPLEMENTS_EXTENDS;
+import static org.protege.owl.codegeneration.SubstitutionVariable.INTERFACE_LIST;
 import static org.protege.owl.codegeneration.SubstitutionVariable.INTERFACE_NAME;
-import static org.protege.owl.codegeneration.SubstitutionVariable.IRI;
-import static org.protege.owl.codegeneration.SubstitutionVariable.JAVA_CLASS_NAME;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PACKAGE;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY;
+import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_IRI;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE_FOR_CLASS;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE_IMPLEMENTATION;
@@ -30,9 +31,9 @@ import org.protege.owl.codegeneration.inference.SimpleInference;
 import org.protege.owl.codegeneration.names.CodeGenerationNames;
 import org.protege.owl.codegeneration.names.NamingUtilities;
 import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLDatatype;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 
@@ -156,154 +157,67 @@ public class DefaultWorker implements Worker {
 	public void configureSubstitutions(CodeGenerationPhase phase,
 									   Map<SubstitutionVariable, String> substitutions, 
 									   OWLClass owlClass,
-									   Object owlProperty) {
-		switch (phase) {
-		case CREATE_INTERFACE_HEADER:
-			configureInterfaceHeaderSubstitutions(substitutions, owlClass);
-			break;
-		case CREATE_OBJECT_PROPERTY_INTERFACE:
-			configureObjectPropertyInterfaceSubstitutions(substitutions, owlClass, (OWLObjectProperty) owlProperty);
-            break;
-        case CREATE_DATA_PROPERTY_INTERFACE:
-            configureDataPropertyInterfaceSubstitutions(substitutions, owlClass, (OWLDataProperty) owlProperty);
-            break;
-		case CREATE_INTERFACE_TAIL:
-			break;
-        case CREATE_IMPLEMENTATION_HEADER:
-            configureImplementationHeaderSubstitutions(substitutions, owlClass);
-            break;
-        case CREATE_OBJECT_PROPERTY_IMPLEMENTATION:
-            configureObjectPropertyImplementationSubstitutions(substitutions, owlClass, (OWLObjectProperty) owlProperty);
-            break;
-        case CREATE_DATA_PROPERTY_IMPLEMENTATION:
-            configureDataPropertyImplementationSubstitutions(substitutions, owlClass, (OWLDataProperty) owlProperty);
-            break;
-        case CREATE_IMPLEMENTATION_TAIL:
-            break;
-        case CREATE_VOCABULARY_HEADER:
-            configureVocabularyHeaderSubstitutions(substitutions);
-            break;
-        case CREATE_CLASS_VOCABULARY:
-        	configureClassVocabularySubstitutions(substitutions, owlClass);
-        	break;
-        case CREATE_OBJECT_PROPERTY_VOCABULARY:
-            configureObjectPropertyVocabularySubstitutions(substitutions, (OWLObjectProperty) owlProperty);
-            break;
-        case CREATE_DATA_PROPERTY_VOCABULARY:
-            configureDataPropertyVocabularySubstitutions(substitutions, (OWLDataProperty) owlProperty);
-            break;
-        case CREATE_FACTORY_HEADER:
-            configureFactoryHeaderSubstitutions(substitutions);
-            break;
-        case CREATE_FACTORY_CLASS:
-            configureFactoryClassSubstitutions(substitutions, owlClass);
-            break;
-        case CREATE_FACTORY_TAIL:
-            break;
-        default:
-            break; // you will create it if you need it...	
+									   OWLEntity owlProperty) {
+		if (isHeaderPhase(phase)) {
+			configureCommonSubstitutions(substitutions, owlClass, owlProperty);
 		}
 	}
 	
-	/* ******************************************************************************
-	 * 
-	 */
-	
-	private void configureInterfaceHeaderSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass) {
-		String interfaceName = names.getInterfaceName(owlClass);
-        substitutions.put(PACKAGE, options.getPackage());
-        substitutions.put(JAVA_CLASS_NAME, interfaceName);
-        substitutions.put(IMPLEMENTS_EXTENDS, getInterfaceExtendsCode(owlClass));
-        substitutions.put(DATE, new Date().toString());
-	}
-	
-	private void configureObjectPropertyInterfaceSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass, OWLObjectProperty owlObjectProperty) {
-        String propertyName = names.getObjectPropertyName(owlObjectProperty);
-        String propertyCapitalized = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
-        String propertyUpperCase = propertyName.toUpperCase();
-    	substitutions.put(IRI, owlObjectProperty.getIRI().toString());
-    	substitutions.put(PROPERTY, propertyName);
-    	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
-    	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
-    	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlObjectProperty, true));
+	private boolean isHeaderPhase(CodeGenerationPhase phase) {
+		switch (phase) {
+		case CREATE_FACTORY_HEADER:
+		case CREATE_INTERFACE_HEADER:
+		case CREATE_IMPLEMENTATION_HEADER:
+		case CREATE_VOCABULARY_HEADER:
+			return true;
+		default:
+			return false;
+		}
 	}
 
-	private void configureDataPropertyInterfaceSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass, OWLDataProperty owlDataProperty) {
-                String propertyName = names.getDataPropertyName(owlDataProperty);
-        String propertyCapitalized = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
-        String propertyUpperCase = propertyName.toUpperCase();
-    	substitutions.put(IRI, owlDataProperty.getIRI().toString());
-    	substitutions.put(PROPERTY, propertyName);
-    	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
-    	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
-    	substitutions.put(PROPERTY_RANGE, getDataPropertyRange(owlDataProperty));
-    	substitutions.put(PROPERTY_RANGE_FOR_CLASS, getDataPropertyRange(owlClass, owlDataProperty));
-    }
-
-    private void configureImplementationHeaderSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass) {
-        String implName = names.getImplementationName(owlClass);
-    	substitutions.put(PACKAGE, options.getPackage());
-    	substitutions.put(IMPLEMENTS_EXTENDS, " implements " + names.getInterfaceName(owlClass));
-    	substitutions.put(DATE, new Date().toString());
-    	substitutions.put(JAVA_CLASS_NAME, implName);
-    }
-
-    private void configureObjectPropertyImplementationSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass, OWLObjectProperty owlObjectProperty) {
-        String propertyName = names.getObjectPropertyName(owlObjectProperty);
-        String propertyCapitilized = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
-        String propertyUpperCase = propertyName.toUpperCase();
-    	substitutions.put(IRI, owlObjectProperty.getIRI().toString());
-    	substitutions.put(PROPERTY, propertyName);
-    	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitilized);
-    	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
-    	substitutions.put(PROPERTY_RANGE, getObjectPropertyRange(owlObjectProperty, true));
-    	substitutions.put(PROPERTY_RANGE_IMPLEMENTATION, getObjectPropertyRange(owlObjectProperty, false));
-    }
-
-    private void configureDataPropertyImplementationSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass, OWLDataProperty owlDataProperty) {
-        String propertyName = names.getDataPropertyName(owlDataProperty);
-        String propertyCapitalized = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
-        String propertyUpperCase = propertyName.toUpperCase();
-    	substitutions.put(IRI, owlDataProperty.getIRI().toString());
-    	substitutions.put(PROPERTY, propertyName);
-    	substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
-    	substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
-    	substitutions.put(PROPERTY_RANGE, getDataPropertyRange(owlDataProperty));
-    	substitutions.put(PROPERTY_RANGE_FOR_CLASS, getDataPropertyRange(owlClass, owlDataProperty));
-    }
-
-    private void configureVocabularyHeaderSubstitutions(Map<SubstitutionVariable, String> substitutions) {
+	private void configureCommonSubstitutions(Map<SubstitutionVariable, String> substitutions, 
+											  OWLClass owlClass,
+											  OWLEntity owlProperty) {
         substitutions.put(PACKAGE, options.getPackage());
         substitutions.put(DATE, new Date().toString());
+        substitutions.put(FACTORY_CLASS_NAME, options.getFactoryClassName());
+        if (owlClass != null) {
+            substitutions.put(INTERFACE_NAME, names.getInterfaceName(owlClass));
+            substitutions.put(IMPLEMENTATION_NAME, names.getImplementationName(owlClass));
+            substitutions.put(UPPERCASE_CLASS, names.getClassName(owlClass).toUpperCase());
+            substitutions.put(CLASS_IRI, owlClass.getIRI().toString());
+            substitutions.put(INTERFACE_LIST, getSuperInterfaceList(owlClass));
+        }
+        if (owlProperty != null) {
+            String propertyName;
+            String propertyRange;
+            if (owlProperty instanceof OWLObjectProperty) {
+                OWLObjectProperty owlObjectProperty = (OWLObjectProperty) owlProperty;
+                propertyName = names.getObjectPropertyName(owlObjectProperty);
+                propertyRange = getObjectPropertyRange(owlObjectProperty, true);
+                substitutions.put(PROPERTY_RANGE_IMPLEMENTATION, getObjectPropertyRange(owlObjectProperty, false));
+            }
+            else {
+                OWLDataProperty owlDataProperty = (OWLDataProperty) owlProperty;
+                propertyName = names.getDataPropertyName(owlDataProperty);
+                propertyRange = getDataPropertyRange(owlDataProperty);
+            }
+            String propertyCapitalized = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
+            String propertyUpperCase = propertyName.toUpperCase();
+            substitutions.put(PROPERTY, propertyName);
+            substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
+            substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
+            substitutions.put(PROPERTY_RANGE, propertyRange);
+            substitutions.put(PROPERTY_IRI, owlProperty.getIRI().toString());
+        }
+        if (owlProperty != null && owlClass != null) {
+            if (owlProperty instanceof OWLDataProperty) {
+                substitutions.put(PROPERTY_RANGE_FOR_CLASS, getDataPropertyRange(owlClass, (OWLDataProperty) owlProperty));
+            }
+        }
     }
-    
-    private void configureClassVocabularySubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass) {
-    	substitutions.put(UPPERCASE_CLASS, names.getClassName(owlClass).toUpperCase());
-    	substitutions.put(IRI, owlClass.getIRI().toString());
-    }
+	
 
-    private void configureObjectPropertyVocabularySubstitutions(Map<SubstitutionVariable, String> substitutions, OWLObjectProperty owlObjectProperty) {
-        substitutions.put(UPPERCASE_PROPERTY, names.getObjectPropertyName(owlObjectProperty).toUpperCase());
-        substitutions.put(IRI, owlObjectProperty.getIRI().toString());
-    }
-
-    private void configureDataPropertyVocabularySubstitutions(Map<SubstitutionVariable, String> substitutions, OWLDataProperty owlDataProperty) {
-        substitutions.put(UPPERCASE_PROPERTY, names.getDataPropertyName(owlDataProperty).toUpperCase());
-        substitutions.put(IRI, owlDataProperty.getIRI().toString());
-    }
-
-    private void configureFactoryHeaderSubstitutions(Map<SubstitutionVariable, String> substitutions) {
-        substitutions.put(PACKAGE, options.getPackage());
-    	substitutions.put(DATE, new Date().toString());
-    	substitutions.put(JAVA_CLASS_NAME, options.getFactoryClassName());
-    }
-
-    private void configureFactoryClassSubstitutions(Map<SubstitutionVariable, String> substitutions, OWLClass owlClass) {
-    	substitutions.put(IRI, owlClass.getIRI().toString());
-        substitutions.put(INTERFACE_NAME, names.getInterfaceName(owlClass));
-        substitutions.put(IMPLEMENTATION_NAME, names.getImplementationName(owlClass));
-        substitutions.put(UPPERCASE_CLASS, names.getClassName(owlClass).toUpperCase());
-    }
 	
 	/* ******************************************************************************
 	 * 
@@ -320,14 +234,13 @@ public class DefaultWorker implements Worker {
 	
 
 
-	private String getInterfaceExtendsCode(OWLClass owlClass) {
-	    String str = " extends ";
+	private String getSuperInterfaceList(OWLClass owlClass) {
 	    String base = getBaseInterface(owlClass);
 	    if (base == null) {
-	    	return str + Constants.UKNOWN_CODE_GENERATED_INTERFACE;
+	    	return Constants.UKNOWN_CODE_GENERATED_INTERFACE;
 	    }
 	    else {
-	    	return str + base;
+	    	return base;
 	    }
 	}
 	
