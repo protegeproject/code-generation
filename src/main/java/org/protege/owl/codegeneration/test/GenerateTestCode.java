@@ -3,10 +3,12 @@ package org.protege.owl.codegeneration.test;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.protege.owl.codegeneration.CodeGenerationOptions;
 import org.protege.owl.codegeneration.DefaultWorker;
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inference.ReasonerBasedInference;
+import org.protege.owl.codegeneration.inference.SimpleInference;
 import org.protege.owl.codegeneration.names.IriNames;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -24,6 +26,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
  *
  */
 public class GenerateTestCode {
+	public static Logger LOGGER = Logger.getLogger(GenerateTestCode.class);
 
 	/**
 	 * @param args
@@ -34,14 +37,30 @@ public class GenerateTestCode {
 	}
 	
 	private static void generateSimpleJavaCode() throws OWLOntologyCreationException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
+		generateSimpleJavaCode("CodeGeneration001.owl", "testSimple", true);
+		/*        simple inference case isn't ready yet.
+		 * generateSimpleJavaCode("CodeGeneration001.owl", "testSimple02", false);
+		 */
+		generateSimpleJavaCode("pizza.owl", "pizza", true);
+	}
+	
+	private static void generateSimpleJavaCode(String ontologyName, String packageName, boolean useInference) throws OWLOntologyCreationException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
+		String fullPackageName = "org.protege.owl.codegeneration." + packageName;
+		LOGGER.info("Generating source code for ontology " + ontologyName);
 		OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-		OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(new File("src/test/resources/CodeGeneration001.owl"));
+		OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(new File("src/test/resources/" + ontologyName));
 		CodeGenerationOptions options = new CodeGenerationOptions();
-		options.setPackage("org.protege.owl.codegeneration.testSimple");
+		options.setPackage(fullPackageName);
 		options.setOutputFolder(new File("target/generated-sources"));
-		OWLReasonerFactory rFactory = (OWLReasonerFactory) Class.forName("org.semanticweb.HermiT.Reasoner$ReasonerFactory").newInstance();
-		OWLReasoner reasoner = rFactory.createNonBufferingReasoner(owlOntology);
-        CodeGenerationInference inference = new ReasonerBasedInference(owlOntology, reasoner);
+        CodeGenerationInference inference;
+        if (useInference) {
+    		OWLReasonerFactory rFactory = (OWLReasonerFactory) Class.forName("org.semanticweb.HermiT.Reasoner$ReasonerFactory").newInstance();
+    		OWLReasoner reasoner = rFactory.createNonBufferingReasoner(owlOntology);
+        	inference = new ReasonerBasedInference(owlOntology, reasoner);
+        }
+        else {
+        	inference = new SimpleInference(owlOntology);
+        }
         DefaultWorker.generateCode(owlOntology, options, new IriNames(owlOntology, options), inference);
 	}
 

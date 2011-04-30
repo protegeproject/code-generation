@@ -6,6 +6,7 @@ import java.util.Collection;
 
 import org.protege.owl.codegeneration.FactoryHelper;
 import org.protege.owl.codegeneration.ProtegeJavaMapping;
+import org.protege.owl.codegeneration.WrappedIndividual;
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inference.SimpleInference;
 
@@ -33,4 +34,12 @@ public class ${factoryClass} {
 
     public OWLOntology getOwlOntology() {
         return ontology;
+    }
+
+    public boolean canAs(WrappedIndividual resource, Class<? extends WrappedIndividual> javaInterface) {
+    	return javaMapping.canAs(resource, javaInterface);
+    }
+    
+    public  <X extends WrappedIndividual> X as(WrappedIndividual resource, Class<? extends X> javaInterface) {
+    	return javaMapping.as(resource, javaInterface);
     }

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
-import org.protege.owl.codegeneration.inference.SimpleInference;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
@@ -48,19 +47,19 @@ public class ProtegeJavaMapping {
         return constructImplementation((Class<? extends X>) entry.getJavaImplementation(), individual.getIRI());
     }
     
-    public boolean canAs(OWLNamedIndividual resource, Class<? extends OWLNamedIndividual> javaInterface) {
+    public boolean canAs(WrappedIndividual resource, Class<? extends WrappedIndividual> javaInterface) {
         if (javaInterface.isAssignableFrom(resource.getClass())) {
             return true;
         }
-        return getJavaImplementation(resource, javaInterface) != null;
+        return getJavaImplementation(resource.getOwlIndividual(), javaInterface) != null;
     }
     
-    public  <X extends OWLNamedIndividual> X as(OWLNamedIndividual resource, Class<? extends X> javaInterface) {
+    public  <X extends WrappedIndividual> X as(WrappedIndividual resource, Class<? extends X> javaInterface) {
         if (javaInterface.isAssignableFrom(resource.getClass())) {
             return javaInterface.cast(resource);
         }
-        Class<? extends X> type = getJavaImplementation(resource, javaInterface);
-        return constructImplementation(type, resource.getIRI());
+        Class<? extends X> type = getJavaImplementation(resource.getOwlIndividual(), javaInterface);
+        return constructImplementation(type, resource.getOwlIndividual().getIRI());
     }
     
     private <X> X constructImplementation(Class<? extends X> implType, IRI id) {
