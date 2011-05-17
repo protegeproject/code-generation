@@ -14,6 +14,7 @@ import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLDatatype;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -118,11 +119,11 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 			Collection<OWLClass> classes;
 			classes = reasoner.getEquivalentClasses(possibleValues).getEntities();
 			if (classes != null && !classes.isEmpty()) {
-				objectRangeMap.put(p, SimpleInference.asSingleton(classes, ontology));
+				objectRangeMap.put(p, asSingleton(classes, ontology));
 			}
 			else {
 				classes = reasoner.getSuperClasses(possibleValues, true).getFlattened();
-				objectRangeMap.put(p, SimpleInference.asSingleton(classes, ontology));
+				objectRangeMap.put(p, asSingleton(classes, ontology));
 			}
 		}
 		LOGGER.info("Took " + (System.currentTimeMillis() - startTime) + "ms.");
@@ -196,7 +197,7 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 	
 	public OWLClass getRange(OWLClass cls, OWLObjectProperty p) {
 		OWLClassExpression values = factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectInverseOf(p), cls);
-		return SimpleInference.asSingleton(reasoner.getSuperClasses(values, true).getFlattened(), ontology);
+		return asSingleton(reasoner.getSuperClasses(values, true).getFlattened(), ontology);
 	}
 	
 	public Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass cls) {
@@ -227,6 +228,21 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 			}
 		}
 		return null;
+	}
+
+	private static <X extends OWLEntity> X asSingleton(Collection<X> xs, OWLOntology owlOntology) {
+		X result = null;
+		for (X x : xs) {
+			if (owlOntology.containsEntityInSignature(x, true)) {
+				if (result == null) {
+					result = x;
+				}
+				else {
+					return null;
+				}
+			}
+		}
+		return result;
 	}
 
 

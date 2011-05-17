@@ -38,9 +38,8 @@ public class GenerateTestCode {
 	
 	private static void generateSimpleJavaCode() throws OWLOntologyCreationException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
 		generateSimpleJavaCode("CodeGeneration001.owl", "testSimple", true);
-		/*        simple inference case isn't ready yet.
-		 * generateSimpleJavaCode("CodeGeneration001.owl", "testSimple02", false);
-		 */
+		/*        simple inference case isn't ready yet. */
+		generateSimpleJavaCode("CodeGeneration001.owl", "testSimple02", false);
 		generateSimpleJavaCode("pizza.owl", "pizza", true);
 	}
 	
