@@ -37,10 +37,9 @@ public class GenerateTestCode {
 	}
 	
 	private static void generateSimpleJavaCode() throws OWLOntologyCreationException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
-		generateSimpleJavaCode("CodeGeneration001.owl", "testSimple", true);
-		/*        simple inference case isn't ready yet. */
-		generateSimpleJavaCode("CodeGeneration001.owl", "testSimple02", false);
-		generateSimpleJavaCode("pizza.owl", "pizza", true);
+		generateSimpleJavaCode("CodeGeneration001.owl", "inferred.testSimple", true);
+		generateSimpleJavaCode("CodeGeneration001.owl", "std.testSimple02", false);
+		generateSimpleJavaCode("pizza.owl", "inferred.pizza", true);
 	}
 	
 	private static void generateSimpleJavaCode(String ontologyName, String packageName, boolean useInference) throws OWLOntologyCreationException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
