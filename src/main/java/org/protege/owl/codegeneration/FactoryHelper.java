@@ -36,9 +36,11 @@ public class FactoryHelper {
 			}
 		}
 		if (!inSignature) {
+			manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(type, i));
+		}
+		else if (!inference.canAs(i, type)) {
 			return null;
 		}
-		manager.addAxiom(ontology, factory.getOWLDeclarationAxiom(i));
 		return getWrappedIndividual(name, c);
 	}
 	
