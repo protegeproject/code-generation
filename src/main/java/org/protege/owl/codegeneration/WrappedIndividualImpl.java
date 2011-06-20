@@ -64,5 +64,19 @@ public class WrappedIndividualImpl implements WrappedIndividual {
         getOwlOntology().getOWLOntologyManager().applyChanges(remover.getChanges());
     }
     
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if (!(obj instanceof WrappedIndividual)) {
+    		return false;
+    	}
+    	WrappedIndividual other = (WrappedIndividual) obj;
+    	return other.getOwlOntology().equals(owlOntology) && other.getOwlIndividual().equals(owlIndividual);
+    }
+    
+    @Override
+    public int hashCode() {
+    	return owlOntology.hashCode() + 42 * owlIndividual.hashCode();
+    }
 
 }
