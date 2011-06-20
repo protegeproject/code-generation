@@ -8,19 +8,20 @@ import static org.testng.Assert.fail;
 
 import java.util.Collection;
 
-import org.protege.owl.codegeneration.testSimple.A1;
-import org.protege.owl.codegeneration.testSimple.A2;
-import org.protege.owl.codegeneration.testSimple.B1;
-import org.protege.owl.codegeneration.testSimple.B2;
-import org.protege.owl.codegeneration.testSimple.IriA;
-import org.protege.owl.codegeneration.testSimple.IriB;
-import org.protege.owl.codegeneration.testSimple.MyFactory;
+import org.protege.owl.codegeneration.inferred.testSimple.A1;
+import org.protege.owl.codegeneration.inferred.testSimple.A2;
+import org.protege.owl.codegeneration.inferred.testSimple.B1;
+import org.protege.owl.codegeneration.inferred.testSimple.B2;
+import org.protege.owl.codegeneration.inferred.testSimple.IriA;
+import org.protege.owl.codegeneration.inferred.testSimple.IriB;
+import org.protege.owl.codegeneration.inferred.testSimple.MyFactory;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import org.testng.annotations.Test;
 
-public class TestCodeGeneration {
+public class TestInferredCodeGeneration {
 	public static String NS01="http://protege.org/ontologies/CodeGeneration001.owl";
+	public static String ONTOLOGY01="CodeGeneration001.owl";
 
 	@Test
 	public void testPropertyByDomain() throws SecurityException, NoSuchMethodException {
@@ -47,7 +48,7 @@ public class TestCodeGeneration {
 
 	@Test
 	public void testDataValues01() throws Exception {
-		MyFactory factory = TestUtilities.openFactory("CodeGeneration001.owl", MyFactory.class);
+		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, true);
 		IriB y = factory.getIriB(NS01 + "#y");
 		boolean hasBoolean = false;
 		boolean hasRational = false;
@@ -73,7 +74,7 @@ public class TestCodeGeneration {
 	
 	@Test
 	public void testDataValues02() throws Exception {
-		MyFactory factory = TestUtilities.openFactory("CodeGeneration001.owl", MyFactory.class);
+		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, true);
 		B1 y1 = factory.getB1(NS01 + "#y1");
 		Collection<? extends String> values = y1.getIriQ();
 		assertTrue(values.size() == 1);
@@ -82,7 +83,7 @@ public class TestCodeGeneration {
 	
 	@Test
 	public void testDataValues03() throws Exception {
-		MyFactory factory = TestUtilities.openFactory("CodeGeneration001.owl", MyFactory.class);
+		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, true);
 		B2 y2 = factory.getB2(NS01 + "#y2");
 		Collection<? extends Integer> values = y2.getIriQ();
 		assertTrue(values.size() == 1);
@@ -91,7 +92,7 @@ public class TestCodeGeneration {
 	
 	@Test
 	public void testObjectValues() throws Exception {
-		MyFactory factory = TestUtilities.openFactory("CodeGeneration001.owl", MyFactory.class);
+		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, true);
 		IriA x = factory.getIriA(NS01 + "#x");
 		Collection<? extends WrappedIndividual> values = x.getIriP();
 		assertTrue(values.size() == 1);
@@ -100,7 +101,7 @@ public class TestCodeGeneration {
 	
 	@Test
 	public void testBadType() throws Exception {
-		MyFactory factory = TestUtilities.openFactory("CodeGeneration001.owl", MyFactory.class);
+		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, true);
 		IriB x = factory.getIriB(NS01 + "#x");
 		assertNull(x);
 	}

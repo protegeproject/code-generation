@@ -13,6 +13,7 @@ import java.util.Collection;
 
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inference.ReasonerBasedInference;
+import org.protege.owl.codegeneration.inference.SimpleInference;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -48,13 +49,20 @@ public class TestUtilities {
 		assertTrue(upperBounds[0].equals(c));
 	}
 	
-	public static <X> X openFactory(String ontologyName, Class<X> factoryClass) throws Exception {
+	public static <X> X openFactory(String ontologyName, Class<X> factoryClass, boolean useInference) throws Exception {
 		Constructor<? extends X> constructor = factoryClass.getConstructor(OWLOntology.class, CodeGenerationInference.class);
 		OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 		OWLOntology ontology = manager.loadOntologyFromOntologyDocument(new File("src/test/resources/" + ontologyName));
-		OWLReasonerFactory rFactory = (OWLReasonerFactory) Class.forName("org.semanticweb.HermiT.Reasoner$ReasonerFactory").newInstance();
-		OWLReasoner reasoner = rFactory.createNonBufferingReasoner(ontology);
-        CodeGenerationInference inference = new ReasonerBasedInference(ontology, reasoner);
+		
+		CodeGenerationInference inference;
+		if (useInference) {
+			OWLReasonerFactory rFactory = (OWLReasonerFactory) Class.forName("org.semanticweb.HermiT.Reasoner$ReasonerFactory").newInstance();
+			OWLReasoner reasoner = rFactory.createNonBufferingReasoner(ontology);
+			inference = new ReasonerBasedInference(ontology, reasoner);
+		}
+		else {
+			inference = new SimpleInference(ontology);
+		}
         return constructor.newInstance(ontology, inference);
 	}
 }
