@@ -4,7 +4,8 @@
 
     <test name="Code Generation Tests">
         <classes>
-            <class name="org.protege.owl.codegeneration.TestCodeGeneration"/>
+            <class name="org.protege.owl.codegeneration.TestInferredCodeGeneration"/>
+            <class name="org.protege.owl.codegeneration.TestStdCodeGeneration"/>
         </classes>
     </test>
 
