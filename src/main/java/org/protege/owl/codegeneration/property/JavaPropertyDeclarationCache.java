@@ -43,17 +43,19 @@ public class JavaPropertyDeclarationCache {
 	private void generateCache() {
 		OWLDataFactory factory = inference.getOWLOntology().getOWLOntologyManager().getOWLDataFactory();
 		Set<OWLClass> explored = new HashSet<OWLClass>();
-		for (OWLClass parent : inference.getSubClasses(factory.getOWLThing())) {
-			for (JavaPropertyDeclarations declarations : inference.getJavaPropertyDeclarations(parent, names)) {
-				add(parent, declarations.getOwlProperty(), declarations);
-			}
-			explored.add(parent);
-			generateChildren(parent, explored);
+		OWLClass thing = factory.getOWLThing();
+		for (JavaPropertyDeclarations declarations : inference.getJavaPropertyDeclarations(thing, names)) {
+			add(thing, declarations.getOwlProperty(), declarations);
 		}
+		explored.add(thing);
+		generateChildren(thing, explored);
 	}
 	
 	private void generateChildren(OWLClass parent, Set<OWLClass> explored) {
 		Map<OWLEntity, JavaPropertyDeclarations> parentProperty2DeclarationMap = class2Property2DeclarationMap.get(parent);
+		if (parentProperty2DeclarationMap == null) {
+			parentProperty2DeclarationMap = Collections.emptyMap();
+		}
 		for (OWLClass child : inference.getSubClasses(parent)) {
 			if (explored.contains(child)) {
 				continue;

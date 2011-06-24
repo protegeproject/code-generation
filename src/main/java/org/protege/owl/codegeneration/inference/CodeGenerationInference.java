@@ -15,6 +15,8 @@ import org.semanticweb.owlapi.model.OWLOntology;
 public interface CodeGenerationInference {
 	
 	OWLOntology getOWLOntology();
+	
+	void preCompute();
 
 	Collection<OWLClass> getOwlClasses();
 		

@@ -18,8 +18,10 @@ import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
 import org.protege.owl.codegeneration.CodeGenerationOptions;
 import org.protege.owl.codegeneration.DefaultWorker;
+import org.protege.owl.codegeneration.DeleteFolder;
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inference.ReasonerBasedInference;
+import org.protege.owl.codegeneration.inference.SimpleInference;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
@@ -39,7 +41,7 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
 
     private static final long serialVersionUID = 1L;
 
-    CodeGenerationOptions options;
+    private CodeGenerationOptions options;
 
     private JFrame codeGenOptionFrame;
 
@@ -105,16 +107,22 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
      * @see org.protege.editor.owl.codegeneration.GenerateCodeWithOptions#okClicked()
      */
     public void okClicked() {
-        
         codeGenOptionFrame.setVisible(false);
         codeGenerationPreferences.putString(FACTORY_PREFS_KEY, options.getFactoryClassName());
         codeGenerationPreferences.putString(PACKAGE_PREFS_KEY, options.getPackage());
         codeGenerationPreferences.putString(FOLDER_PREFS_KEY, options.getOutputFolder().toString());
         OWLModelManager owlModelManager = getOWLModelManager();
         OWLOntology owlOntology = owlModelManager.getActiveOntology();
-        OWLReasoner reasoner = owlModelManager.getOWLReasonerManager().getCurrentReasoner();
-        CodeGenerationInference inference = new ReasonerBasedInference(owlOntology, reasoner);
+        CodeGenerationInference inference;
+        if (options.useReasoner()) {
+        	OWLReasoner reasoner = owlModelManager.getOWLReasonerManager().getCurrentReasoner();
+        	inference = new ReasonerBasedInference(owlOntology, reasoner);
+        }
+        else {
+        	inference = new SimpleInference(owlOntology);
+        }
         try {
+        	DeleteFolder.deleteFolder(options.getOutputFolder());
             DefaultWorker.generateCode(owlOntology, options, new ProtegeNames(owlModelManager, options), inference);
             JOptionPane.showMessageDialog(null, "Java code successfully generated.", "Information",
                     JOptionPane.INFORMATION_MESSAGE);

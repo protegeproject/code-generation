@@ -51,7 +51,7 @@ public class JavaObjectPropertyDeclarations implements JavaPropertyDeclarations 
 
 	private String getObjectPropertyRange(boolean isInterface) {
 		OWLClass range = inference.getRange(property);
-		if (range == null) {
+		if (range == null || !inference.getOwlClasses().contains(range)) {
 			return isInterface ? Constants.UKNOWN_CODE_GENERATED_INTERFACE : Constants.ABSTRACT_CODE_GENERATOR_INDIVIDUAL_CLASS;
 		}
 		return isInterface ? names.getInterfaceName(range) : names.getImplementationName(range);

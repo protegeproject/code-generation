@@ -1,15 +1,14 @@
 package org.protege.owl.codegeneration.inference;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.protege.owl.codegeneration.HandledDatatypes;
-import org.protege.owl.codegeneration.SubstitutionVariable;
 import org.protege.owl.codegeneration.names.CodeGenerationNames;
 import org.protege.owl.codegeneration.property.JavaDataPropertyDeclarations;
 import org.protege.owl.codegeneration.property.JavaObjectPropertyDeclarations;
@@ -23,6 +22,7 @@ import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.reasoner.InferenceType;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 public class ReasonerBasedInference implements CodeGenerationInference {
@@ -32,6 +32,7 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 	private OWLReasoner reasoner;
 	private OWLDataFactory factory;
 	private Set<OWLClass> allClasses;
+	private Map<OWLClass, Set<OWLEntity>> domainMap;
 	private Map<OWLClass, Map<OWLObjectProperty, OWLClass>> objectRangeMap = new HashMap<OWLClass, Map<OWLObjectProperty, OWLClass>>();
 	private Map<OWLClass, Map<OWLDataProperty, OWLDatatype>> dataRangeMap = new HashMap<OWLClass, Map<OWLDataProperty,OWLDatatype>>();
 
@@ -46,11 +47,15 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		return ontology;
 	}
 	
+	public void preCompute() {
+		reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY, InferenceType.CLASS_ASSERTIONS);
+	}
+	
 	public Collection<OWLClass> getOwlClasses() {
 		if (allClasses == null) {
 			allClasses = new HashSet<OWLClass>(ontology.getClassesInSignature());
 			allClasses.removeAll(reasoner.getUnsatisfiableClasses().getEntities());
-			allClasses.remove(reasoner.getEquivalentClasses(factory.getOWLThing()).getEntities());
+			allClasses.removeAll(reasoner.getEquivalentClasses(factory.getOWLThing()).getEntities());
 		}
 		return allClasses;
 	}
@@ -64,17 +69,18 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 	}
 	
 	public Set<JavaPropertyDeclarations> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names) {
-		Set<JavaPropertyDeclarations> declarations = new HashSet<JavaPropertyDeclarations>();
-		for (OWLObjectProperty p : ontology.getObjectPropertiesInSignature()) {
-			OWLClassExpression hasPropertyValue = factory.getOWLObjectIntersectionOf(cls, factory.getOWLObjectSomeValuesFrom(p, factory.getOWLThing()));
-			if (reasoner.isSatisfiable(hasPropertyValue)) {
-				declarations.add(new JavaObjectPropertyDeclarations(this, names, p));
-			}
+		if (domainMap == null) {
+			initializeDomainMap();
 		}
-		for (OWLDataProperty p : ontology.getDataPropertiesInSignature()) {
-			OWLClassExpression hasPropertyValue = factory.getOWLObjectIntersectionOf(cls, factory.getOWLDataSomeValuesFrom(p, factory.getTopDatatype()));
-			if (reasoner.isSatisfiable(hasPropertyValue)) {
-				declarations.add(new JavaDataPropertyDeclarations(this, cls, p));
+		Set<JavaPropertyDeclarations> declarations = new HashSet<JavaPropertyDeclarations>();
+		if (domainMap.get(cls) != null) {
+			for (OWLEntity p : domainMap.get(cls)) {
+				if (p instanceof OWLObjectProperty) {
+					declarations.add(new JavaObjectPropertyDeclarations(this, names, (OWLObjectProperty) p));
+				}
+				else if (p instanceof OWLDataProperty) {
+					declarations.add(new JavaDataPropertyDeclarations(this, cls, (OWLDataProperty) p));
+				}
 			}
 		}
 		return declarations;
@@ -148,6 +154,9 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		return reasoner.getTypes(i, true).getFlattened();
 	}
 
+	/* *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+	 * 
+	 */
 	private static <X extends OWLEntity> X asSingleton(Collection<X> xs, OWLOntology owlOntology) {
 		X result = null;
 		for (X x : xs) {
@@ -163,5 +172,39 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		return result;
 	}
 
+	private void initializeDomainMap() {
+		domainMap = new HashMap<OWLClass, Set<OWLEntity>>();
+		for (OWLObjectProperty p : ontology.getObjectPropertiesInSignature()) {
+			OWLClassExpression mustHavePropertyValue = factory.getOWLObjectSomeValuesFrom(p, factory.getOWLThing());
+			addPropertyToDomainMap(p, mustHavePropertyValue);
+		}
+		for (OWLDataProperty p : ontology.getDataPropertiesInSignature()) {
+			OWLClassExpression mustHavePropertyValue = factory.getOWLDataSomeValuesFrom(p, factory.getTopDatatype());
+			addPropertyToDomainMap(p, mustHavePropertyValue);
+		}
+	}
+	
+	private void addPropertyToDomainMap(OWLEntity p, OWLClassExpression mustHavePropertyValue) {
+		Set<OWLClass> equivalents = reasoner.getEquivalentClasses(mustHavePropertyValue).getEntities();
+		if (!equivalents.isEmpty()) {
+			for (OWLClass domain : equivalents) {
+				addToDomainMap(domain, p);
+			}
+		}
+		else {
+			for (OWLClass domain : reasoner.getSuperClasses(mustHavePropertyValue, true).getFlattened()) {
+				addToDomainMap(domain, p);
+			}
+		}
+	}
+	
+	private void addToDomainMap(OWLClass domain, OWLEntity property) {
+		Set<OWLEntity> properties = domainMap.get(domain);
+		if (properties == null) {
+			properties = new TreeSet<OWLEntity>();
+			domainMap.put(domain, properties);
+		}
+		properties.add(property);
+	}
 
 }
