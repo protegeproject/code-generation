@@ -9,11 +9,23 @@ import org.protege.owl.codegeneration.Constants;
 import org.protege.owl.codegeneration.HandledDatatypes;
 import org.protege.owl.codegeneration.SubstitutionVariable;
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
-import org.protege.owl.codegeneration.names.CodeGenerationNames;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLDatatype;
 
+/**
+ * This class represents the following java methods that are associated with an OWL dataproperty:
+ * <pre>
+ *       Collection<? extends ${propertyRangeForClass}> get${OwlProperty}();
+ *       boolean has${OwlProperty}();
+ *       void add${OwlProperty}(${propertyRange} new${OwlProperty});
+ *       void remove${OwlProperty}(${propertyRange} old${OwlProperty});
+ * </pre>
+ * Note that these methods do get specialized as we move to subclasses.
+ * <p/>
+ * @author tredmond
+ *
+ */
 public class JavaDataPropertyDeclarations implements JavaPropertyDeclarations {
 	private CodeGenerationInference inference;
 	private OWLClass owlClass;
