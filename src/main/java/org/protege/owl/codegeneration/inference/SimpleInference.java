@@ -1,27 +1,263 @@
 package org.protege.owl.codegeneration.inference;
 
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLNamedIndividual;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.reasoner.OWLReasoner;
-import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
-public class SimpleInference extends ReasonerBasedInference {
+import org.protege.owl.codegeneration.names.CodeGenerationNames;
+import org.protege.owl.codegeneration.property.JavaDataPropertyDeclarations;
+import org.protege.owl.codegeneration.property.JavaObjectPropertyDeclarations;
+import org.protege.owl.codegeneration.property.JavaPropertyDeclarations;
+import org.semanticweb.owlapi.model.AxiomType;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLClassExpression;
+import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataPropertyDomainAxiom;
+import org.semanticweb.owlapi.model.OWLDataPropertyRangeAxiom;
+import org.semanticweb.owlapi.model.OWLDataRange;
+import org.semanticweb.owlapi.model.OWLDatatype;
+import org.semanticweb.owlapi.model.OWLDatatypeRestriction;
+import org.semanticweb.owlapi.model.OWLEntity;
+import org.semanticweb.owlapi.model.OWLIndividual;
+import org.semanticweb.owlapi.model.OWLNamedIndividual;
+import org.semanticweb.owlapi.model.OWLObjectIntersectionOf;
+import org.semanticweb.owlapi.model.OWLObjectProperty;
+import org.semanticweb.owlapi.model.OWLObjectPropertyDomainAxiom;
+import org.semanticweb.owlapi.model.OWLObjectPropertyRangeAxiom;
+import org.semanticweb.owlapi.model.OWLOntology;
+
+public class SimpleInference implements CodeGenerationInference {
 	private OWLOntology ontology;
+	private OWLDataFactory factory;
+	private Set<OWLClass> topLevelClasses;
+	private Map<OWLClass, Set<OWLClass>> inferredSubclassMap = new TreeMap<OWLClass, Set<OWLClass>>();
+	private Map<OWLClass, Set<OWLEntity>> domainMap;
+	private Map<OWLObjectProperty, OWLClass> objectRangeMap;
+	private Map<OWLDataProperty, OWLDatatype> dataRangeMap;
 	
 	public SimpleInference(OWLOntology ontology) {
-		super(ontology, getSimpleReasoner(ontology));
 		this.ontology = ontology;
+		factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 	}
 	
-	private static OWLReasoner getSimpleReasoner(OWLOntology ontology) {
-		StructuralReasonerFactory factory = new StructuralReasonerFactory();
-		return factory.createReasoner(ontology);
+	public OWLOntology getOWLOntology() {
+		return ontology;
 	}
 	
-	@Override
+	public Collection<OWLClass> getOwlClasses() {
+		Set<OWLClass> classes = new HashSet<OWLClass>(ontology.getClassesInSignature());
+		classes.remove(factory.getOWLThing());
+		return classes;
+	}
+	
+	public Collection<OWLClass> getSubClasses(OWLClass owlClass) {
+		if (topLevelClasses == null) {
+			initializeInferredSubclasses();
+		}
+		if (owlClass.equals(factory.getOWLThing())) {
+			return Collections.unmodifiableCollection(topLevelClasses);
+		}
+		else {
+			Set<OWLClass> subClasses = new TreeSet<OWLClass>();
+			for (OWLClassExpression ce : owlClass.getSubClasses(ontology)) {
+				if (!ce.isAnonymous()) {
+					subClasses.add(ce.asOWLClass());
+				}
+			}
+			Set<OWLClass> inferredSubclasses = inferredSubclassMap.get(owlClass);
+			if (inferredSubclasses != null) {
+				subClasses.addAll(inferredSubclasses);
+			}
+			return subClasses;
+		}
+	}
+	
+	public Collection<OWLClass> getSuperClasses(OWLClass owlClass) {
+		Set<OWLClass> superClasses = new HashSet<OWLClass>();
+		for (OWLClassExpression ce : owlClass.getSuperClasses(ontology)) {
+			if (!ce.isAnonymous()) {
+				superClasses.add(ce.asOWLClass());
+			}
+		}
+		superClasses.remove(factory.getOWLThing());
+		return superClasses;
+	}
+	
+	public Set<JavaPropertyDeclarations> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names) {
+		if (domainMap == null) {
+			initializeDomainMap();
+		}
+		Set<JavaPropertyDeclarations> declarations = new HashSet<JavaPropertyDeclarations>();
+		Set<OWLEntity> domains = domainMap.get(cls);
+		if (domains != null) {
+			for (OWLEntity property : domains) {
+				if (property instanceof OWLObjectProperty) {
+					declarations.add(new JavaObjectPropertyDeclarations(this, names, (OWLObjectProperty) property));
+				}
+				else {
+					declarations.add(new JavaDataPropertyDeclarations(this, cls, (OWLDataProperty) property));
+				}
+			}
+		}
+		return declarations;
+	}
+	
+	public OWLClass getRange(OWLObjectProperty p) {
+		if (objectRangeMap == null) {
+			intializeObjectRangeMap();
+		}
+		return objectRangeMap.get(p);
+	}
+	
+	public OWLClass getRange(OWLClass owlClass, OWLObjectProperty p) {
+		return getRange(p);
+	}
+	
+	public OWLDatatype getRange(OWLDataProperty p) {
+		if (dataRangeMap == null) {
+			intializeDataRangeMap();
+		}
+		return dataRangeMap.get(p);
+	}
+	
+	public OWLDatatype getRange(OWLClass owlClass, OWLDataProperty p) {
+		return getRange(p);
+	}
+	
+	public Collection<OWLNamedIndividual> getIndividuals(OWLClass owlClass) {
+		Set<OWLNamedIndividual> individuals = new HashSet<OWLNamedIndividual>();
+		for (OWLIndividual i : owlClass.getIndividuals(ontology)) {
+			if (!i.isAnonymous()) {
+				individuals.add(i.asOWLNamedIndividual());
+			}
+		}
+		return individuals;
+	}
+	
 	public boolean canAs(OWLNamedIndividual i, OWLClass c) {
 		return i.getTypes(ontology.getImportsClosure()).contains(c);
+	}
+	
+	public Collection<OWLClass> getTypes(OWLNamedIndividual i) {
+		Set<OWLClass> types = new HashSet<OWLClass>();
+		for (OWLClassExpression ce : i.getTypes(ontology)) {
+			if (!ce.isAnonymous()) {
+				types.add(ce.asOWLClass());
+			}
+		}
+		return types;
+	}
+	
+	/* *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+	 * 
+	 */
+	private void initializeInferredSubclasses() {
+		topLevelClasses = new TreeSet<OWLClass>();
+		for (OWLClass owlClass : ontology.getClassesInSignature()) {
+			boolean foundParent = false;
+			for (OWLClassExpression parent : owlClass.getSuperClasses(ontology)) {
+				if (initializeDirectSuperClasses(owlClass, parent)
+						|| initializeInferredSuperClasses(owlClass, parent)) {
+					foundParent = true;
+				}
+			}
+			for (OWLClassExpression parent : owlClass.getEquivalentClasses(ontology)) {
+				if (initializeInferredSuperClasses(owlClass, parent)) {
+					foundParent = true;
+				}
+			}			
+			if (!foundParent) {
+				topLevelClasses.add(owlClass);
+			}
+		}
+	}
+	
+	private boolean initializeDirectSuperClasses(OWLClass child, OWLClassExpression parent) {
+		return !parent.isAnonymous() && !parent.equals(factory.getOWLThing());
+	}
+
+	private boolean initializeInferredSuperClasses(OWLClass child, OWLClassExpression parent) {
+		if (parent instanceof OWLObjectIntersectionOf) {
+			for (OWLClassExpression conjunct : ((OWLObjectIntersectionOf) parent).getOperands()) {
+				if (!conjunct.isAnonymous() && !conjunct.equals(factory.getOWLThing())) {
+					Set<OWLClass> inferredSubclasses = inferredSubclassMap.get(conjunct);
+					if (inferredSubclasses == null) {
+						inferredSubclasses = new TreeSet<OWLClass>();
+						inferredSubclassMap.put(conjunct.asOWLClass(), inferredSubclasses);
+					}
+					inferredSubclasses.add(child);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private void initializeDomainMap() {
+		domainMap = new HashMap<OWLClass, Set<OWLEntity>>();
+		for (OWLObjectPropertyDomainAxiom axiom : ontology.getAxioms(AxiomType.OBJECT_PROPERTY_DOMAIN)) {
+			if (!axiom.getDomain().isAnonymous() && !axiom.getProperty().isAnonymous()) {
+				OWLClass owlClass = axiom.getDomain().asOWLClass();
+				Set<OWLEntity> domains = domainMap.get(owlClass);
+				if (domains == null) {
+					domains = new HashSet<OWLEntity>();
+					domainMap.put(owlClass, domains);
+				}
+				domains.add(axiom.getProperty().asOWLObjectProperty());
+			}
+		}
+		for (OWLDataPropertyDomainAxiom axiom : ontology.getAxioms(AxiomType.DATA_PROPERTY_DOMAIN)) {
+			if (!axiom.getDomain().isAnonymous() && !axiom.getProperty().isAnonymous()) {
+				OWLClass owlClass = axiom.getDomain().asOWLClass();
+				Set<OWLEntity> domains = domainMap.get(owlClass);
+				if (domains == null) {
+					domains = new HashSet<OWLEntity>();
+					domainMap.put(owlClass, domains);
+				}
+				domains.add(axiom.getProperty().asOWLDataProperty());
+			}
+		}
+	}
+	
+	private void intializeObjectRangeMap() {
+		objectRangeMap = new HashMap<OWLObjectProperty, OWLClass>();
+		for (OWLObjectPropertyRangeAxiom axiom : ontology.getAxioms(AxiomType.OBJECT_PROPERTY_RANGE)) {
+			if (!axiom.getRange().isAnonymous() && !axiom.getProperty().isAnonymous()) {
+				OWLObjectProperty property = axiom.getProperty().asOWLObjectProperty();
+				if (objectRangeMap.get(property) == null) {
+					objectRangeMap.put(property, axiom.getRange().asOWLClass());
+				}
+			}
+		}
+	}
+	
+	private void intializeDataRangeMap() {
+		dataRangeMap = new HashMap<OWLDataProperty, OWLDatatype>();
+		for (OWLDataPropertyRangeAxiom axiom : ontology.getAxioms(AxiomType.DATA_PROPERTY_RANGE)) {
+			if (!axiom.getProperty().isAnonymous()) {
+				OWLDataProperty property = axiom.getProperty().asOWLDataProperty();
+				OWLDatatype dt = getContainingDatatype(axiom.getRange());
+				if (dataRangeMap.get(property) == null && dt != null) {
+					dataRangeMap.put(property, dt);
+				}
+			}
+		}
+	}
+	
+	private OWLDatatype getContainingDatatype(OWLDataRange range) {
+		if (range instanceof OWLDatatype) {
+			return (OWLDatatype) range;
+		}
+		else if (range instanceof OWLDatatypeRestriction) {
+			return ((OWLDatatypeRestriction) range).getDatatype();
+		}
+		return null;
 	}
 	
 }

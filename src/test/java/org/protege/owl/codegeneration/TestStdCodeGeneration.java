@@ -29,9 +29,7 @@ public class TestStdCodeGeneration {
 		
 		assertEquals(a1.getIriP().size(), 1);
 		assertTrue(a1.getIriP().contains(b1));
-		assertTrue(a1.getIriQ().isEmpty());
 		
-		assertTrue(b1.getIriP().isEmpty());
 		assertEquals(b1.getIriQ().size(), 1);
 		assertTrue(b1.getIriQ().contains(b1Value));
 	}

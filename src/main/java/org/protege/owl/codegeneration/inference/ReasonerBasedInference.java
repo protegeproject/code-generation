@@ -9,6 +9,11 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.protege.owl.codegeneration.HandledDatatypes;
+import org.protege.owl.codegeneration.SubstitutionVariable;
+import org.protege.owl.codegeneration.names.CodeGenerationNames;
+import org.protege.owl.codegeneration.property.JavaDataPropertyDeclarations;
+import org.protege.owl.codegeneration.property.JavaObjectPropertyDeclarations;
+import org.protege.owl.codegeneration.property.JavaPropertyDeclarations;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
@@ -26,208 +31,121 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 	private OWLOntology ontology;
 	private OWLReasoner reasoner;
 	private OWLDataFactory factory;
-	private Map<OWLClass, Set<OWLObjectProperty>> class2ObjectPropertyMap  = new HashMap<OWLClass, Set<OWLObjectProperty>>();
-	private Map<OWLClass, Set<OWLDataProperty>>   class2DataPropertyMap    = new HashMap<OWLClass, Set<OWLDataProperty>>();
-	private Map<OWLObjectProperty, OWLClass> objectRangeMap = new HashMap<OWLObjectProperty, OWLClass>();
-	private Map<OWLDataProperty, OWLDatatype> dataRangeMap = new HashMap<OWLDataProperty,OWLDatatype>();
+	private Set<OWLClass> allClasses;
+	private Map<OWLClass, Map<OWLObjectProperty, OWLClass>> objectRangeMap = new HashMap<OWLClass, Map<OWLObjectProperty, OWLClass>>();
+	private Map<OWLClass, Map<OWLDataProperty, OWLDatatype>> dataRangeMap = new HashMap<OWLClass, Map<OWLDataProperty,OWLDatatype>>();
+
 
 	public ReasonerBasedInference(OWLOntology ontology, OWLReasoner reasoner) {
 		this.ontology = ontology;
 		this.reasoner = reasoner;
 		factory = ontology.getOWLOntologyManager().getOWLDataFactory();
-		
-		analyzeProperties();
 	}
 	
-	private void analyzeProperties() {
-		Set<OWLObjectProperty> objectProperties = ontology.getObjectPropertiesInSignature(true);
-		Set<OWLDataProperty> dataProperties = ontology.getDataPropertiesInSignature(true);
-
-        analyzeClassObjectPropertyAssociations(objectProperties);
-        analyzeClassDataPropertyAssociations(dataProperties);
-        analyzeObjectPropertyRanges(objectProperties);
-        analyzeDataPropertyRanges(dataProperties); 
-	}
-
-	/*
-	 * The javaizeMap may be slow.  If this is a problem consider reverting this implementation back to svn revision 22612.
-	 */
-    private void analyzeClassObjectPropertyAssociations(Set<OWLObjectProperty> objectProperties) {
-		LOGGER.info("Calculating class/object property associations...");
-		long startTime = System.currentTimeMillis();
-		for (OWLObjectProperty p : objectProperties) {
-			OWLClassExpression noValues = factory.getOWLObjectComplementOf(factory.getOWLObjectSomeValuesFrom(p, factory.getOWLThing()));
-			Set<OWLClass> couldHaveValues = new HashSet<OWLClass>(ontology.getClassesInSignature(true));
-			couldHaveValues.removeAll(reasoner.getSubClasses(noValues, false).getFlattened());
-			couldHaveValues.removeAll(reasoner.getEquivalentClasses(noValues).getEntities());
-			for (OWLClass owlClass : couldHaveValues) {
-				if (ontology.containsEntityInSignature(owlClass, true)) {
-					addToMap(class2ObjectPropertyMap, owlClass, p);
-				}
-			}
-		}
-		javaizeMap(class2ObjectPropertyMap);
-		LOGGER.info("Took " + (System.currentTimeMillis() - startTime) + "ms.");
-    }
-
-	/*
-	 * The javaizeMap may be slow.  If this is a problem consider reverting this implementation back to svn revision 22612.
-	 */
-    private void analyzeClassDataPropertyAssociations(Set<OWLDataProperty> dataProperties) {
-		LOGGER.info("Calculating class/data property associations...");
-		long startTime = System.currentTimeMillis();
-		for (OWLDataProperty p : dataProperties) {
-			OWLClassExpression noValues = factory.getOWLObjectComplementOf(factory.getOWLDataSomeValuesFrom(p, factory.getTopDatatype()));
-			Set<OWLClass> couldHaveValues = new HashSet<OWLClass>(ontology.getClassesInSignature(true));
-			couldHaveValues.removeAll(reasoner.getSubClasses(noValues, false).getFlattened());
-			couldHaveValues.removeAll(reasoner.getEquivalentClasses(noValues).getEntities());
-			for (OWLClass owlClass : couldHaveValues) {
-				if (ontology.containsEntityInSignature(owlClass, true)) {
-					addToMap(class2DataPropertyMap, owlClass, p);
-				}
-			}
-		}
-		javaizeMap(class2DataPropertyMap);
-		LOGGER.info("Took " + (System.currentTimeMillis() - startTime) + "ms.");
-    }
-    
-    private <X> void javaizeMap(Map<OWLClass, Set<X>> map) {
-    	javaizeMap(factory.getOWLThing(), map);
-    }
-    
-    private <X> void javaizeMap(OWLClass parent, Map<OWLClass, Set<X>> map) {
-    	Set<X> parentValues = map.get(parent);
-    	for (OWLClass subClass : reasoner.getSubClasses(parent, true).getFlattened()) {
-    		if (parentValues != null) {
-    			Set<X> childValues = map.get(subClass);
-    			if (childValues != null) {
-    				childValues.addAll(parentValues);
-    			}
-    			else {
-    				map.put(subClass, new HashSet<X>(parentValues));
-    			}
-    		}
-    		javaizeMap(subClass, map);
-    	}
-    }    
-
-    private void analyzeObjectPropertyRanges(Set<OWLObjectProperty> objectProperties) {
-		LOGGER.info("Calculating object property ranges...");
-		long startTime = System.currentTimeMillis();
-		for (OWLObjectProperty p : objectProperties) {
-			OWLClassExpression possibleValues = factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectInverseOf(p), factory.getOWLThing());
-			Collection<OWLClass> classes;
-			classes = reasoner.getEquivalentClasses(possibleValues).getEntities();
-			if (classes != null && !classes.isEmpty()) {
-				objectRangeMap.put(p, asSingleton(classes, ontology));
-			}
-			else {
-				classes = reasoner.getSuperClasses(possibleValues, true).getFlattened();
-				objectRangeMap.put(p, asSingleton(classes, ontology));
-			}
-		}
-		LOGGER.info("Took " + (System.currentTimeMillis() - startTime) + "ms.");
-    }
-
-    private void analyzeDataPropertyRanges(Set<OWLDataProperty> dataProperties) {
-		LOGGER.info("Calculating object property ranges...");
-		long startTime = System.currentTimeMillis();
-        for (OWLDataProperty p : dataProperties) {
-    		OWLDatatype range = null;
-            for (HandledDatatypes handled : HandledDatatypes.values()) {
-            	OWLDatatype dt = factory.getOWLDatatype(handled.getIri());
-                OWLClassExpression couldHaveOtherValues = factory.getOWLObjectComplementOf(factory.getOWLDataAllValuesFrom(p, dt));
-                if (!reasoner.isSatisfiable(couldHaveOtherValues)) {
-                	range = dt;
-                	break;
-                }
-            }
-            if (range != null) {
-            	dataRangeMap.put(p, range);
-            }
-        }        
-		LOGGER.info("Took " + (System.currentTimeMillis() - startTime) + "ms.");
-    }
-	
-	private <X, Y> void addToMap(Map<X, Set<Y>> map, X x, Y y) {
-		Set<Y> ys = map.get(x);
-		if (ys == null) {
-			ys = new HashSet<Y>();
-			map.put(x, ys);
-		}
-		ys.add(y);
+	public OWLOntology getOWLOntology() {
+		return ontology;
 	}
 	
 	public Collection<OWLClass> getOwlClasses() {
-		Set<OWLClass> classes = new HashSet<OWLClass>(ontology.getClassesInSignature());
-		classes.removeAll(reasoner.getUnsatisfiableClasses().getEntities());
-		return classes;
+		if (allClasses == null) {
+			allClasses = new HashSet<OWLClass>(ontology.getClassesInSignature());
+			allClasses.removeAll(reasoner.getUnsatisfiableClasses().getEntities());
+			allClasses.remove(reasoner.getEquivalentClasses(factory.getOWLThing()).getEntities());
+		}
+		return allClasses;
 	}
 	
-	public Collection<OWLNamedIndividual> getIndividuals(OWLClass owlClass) {
-		return reasoner.getInstances(owlClass, false).getFlattened();
-	}
-	
-	public boolean canAs(OWLNamedIndividual i, OWLClass c) {
-		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
-		return reasoner.isSatisfiable(factory.getOWLObjectIntersectionOf(c, factory.getOWLObjectOneOf(i)));
+	public Collection<OWLClass> getSubClasses(OWLClass owlClass) {
+		return reasoner.getSubClasses(owlClass, true).getFlattened();
 	}
 	
 	public Collection<OWLClass> getSuperClasses(OWLClass owlClass) {
 		return reasoner.getSuperClasses(owlClass, true).getFlattened();
 	}
 	
-	public Collection<OWLClass> getTypes(OWLNamedIndividual i) {
-		return reasoner.getTypes(i, true).getFlattened();
-	}
-
-	public Collection<OWLObjectProperty> getObjectPropertiesForClass(OWLClass cls) {
-		Set<OWLObjectProperty> properties = class2ObjectPropertyMap.get(cls);
-		if (properties == null) {
-			return Collections.emptySet();
+	public Set<JavaPropertyDeclarations> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names) {
+		Set<JavaPropertyDeclarations> declarations = new HashSet<JavaPropertyDeclarations>();
+		for (OWLObjectProperty p : ontology.getObjectPropertiesInSignature()) {
+			OWLClassExpression hasPropertyValue = factory.getOWLObjectIntersectionOf(cls, factory.getOWLObjectSomeValuesFrom(p, factory.getOWLThing()));
+			if (reasoner.isSatisfiable(hasPropertyValue)) {
+				declarations.add(new JavaObjectPropertyDeclarations(this, names, p));
+			}
 		}
-		else {
-			return Collections.unmodifiableSet(properties);
+		for (OWLDataProperty p : ontology.getDataPropertiesInSignature()) {
+			OWLClassExpression hasPropertyValue = factory.getOWLObjectIntersectionOf(cls, factory.getOWLDataSomeValuesFrom(p, factory.getTopDatatype()));
+			if (reasoner.isSatisfiable(hasPropertyValue)) {
+				declarations.add(new JavaDataPropertyDeclarations(this, cls, p));
+			}
 		}
+		return declarations;
 	}
 	
 	public OWLClass getRange(OWLObjectProperty p) {
-		return objectRangeMap.get(p);
+		return getRange(factory.getOWLThing(), p);
 	}
 	
-	public OWLClass getRange(OWLClass cls, OWLObjectProperty p) {
-		OWLClassExpression values = factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectInverseOf(p), cls);
-		return asSingleton(reasoner.getSuperClasses(values, true).getFlattened(), ontology);
-	}
-	
-	public Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass cls) {
-		Set<OWLDataProperty> properties = class2DataPropertyMap.get(cls);
-		if (properties == null) {
-			return Collections.emptySet();
+	public OWLClass getRange(OWLClass owlClass, OWLObjectProperty p) {
+		Map<OWLObjectProperty, OWLClass> property2RangeMap = objectRangeMap.get(owlClass);
+		if (property2RangeMap == null) {
+			property2RangeMap = new HashMap<OWLObjectProperty, OWLClass>();
+			objectRangeMap.put(owlClass, property2RangeMap);
 		}
-		else {
-			return Collections.unmodifiableSet(properties);
+		OWLClass cls = property2RangeMap.get(p);
+		if (cls == null) {
+			OWLClassExpression possibleValues = factory.getOWLObjectSomeValuesFrom(factory.getOWLObjectInverseOf(p), owlClass);
+			Collection<OWLClass> classes;
+			classes = reasoner.getEquivalentClasses(possibleValues).getEntities();
+			if (classes != null && !classes.isEmpty()) {
+				cls =  asSingleton(classes, ontology);
+			}
+			else {
+				classes = reasoner.getSuperClasses(possibleValues, true).getFlattened();
+				cls = asSingleton(classes, ontology);
+			}
+			property2RangeMap.put(p, cls);
 		}
+		return cls;
 	}
 	
 	public OWLDatatype getRange(OWLDataProperty p) {
-		return dataRangeMap.get(p);
+		return getRange(factory.getOWLThing(), p);
 	}
 	
-	public OWLDatatype getRange(OWLClass cls, OWLDataProperty p) {
-		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
-		for (HandledDatatypes handled : HandledDatatypes.values()) {
-			OWLDatatype dt = factory.getOWLDatatype(handled.getIri());
-			OWLClassExpression hasValueOfSomeOtherType 
-			              = factory.getOWLObjectIntersectionOf(
-			            		            cls,
-											factory.getOWLObjectComplementOf(factory.getOWLDataAllValuesFrom(p, dt))
-											);
-			if (!reasoner.isSatisfiable(hasValueOfSomeOtherType)) {
-				return dt;
-			}
+	public OWLDatatype getRange(OWLClass owlClass, OWLDataProperty p) {
+		Map<OWLDataProperty, OWLDatatype> property2RangeMap = dataRangeMap.get(owlClass);
+		if (property2RangeMap == null) {
+			property2RangeMap = new HashMap<OWLDataProperty, OWLDatatype>();
+			dataRangeMap.put(owlClass, property2RangeMap);
 		}
-		return null;
+		OWLDatatype range = property2RangeMap.get(p);
+		if (range == null) {
+            for (HandledDatatypes handled : HandledDatatypes.values()) {
+            	OWLDatatype dt = factory.getOWLDatatype(handled.getIri());
+                OWLClassExpression couldHaveOtherValues = factory.getOWLObjectComplementOf(factory.getOWLDataAllValuesFrom(p, dt));
+                OWLClassExpression classCouldHaveOtherValues = factory.getOWLObjectIntersectionOf(owlClass, couldHaveOtherValues);
+                if (!reasoner.isSatisfiable(classCouldHaveOtherValues)) {
+                	range = dt;
+                	break;
+                }
+            }
+            if (range != null) {
+            	property2RangeMap.put(p, range);
+            }
+		}
+		return range;
+	}
+
+	public Collection<OWLNamedIndividual> getIndividuals(OWLClass owlClass) {
+		return reasoner.getInstances(owlClass, false).getFlattened();
+	}
+
+	public boolean canAs(OWLNamedIndividual i, OWLClass c) {
+		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
+		return reasoner.isSatisfiable(factory.getOWLObjectIntersectionOf(c, factory.getOWLObjectOneOf(i)));
+	}
+
+	public Collection<OWLClass> getTypes(OWLNamedIndividual i) {
+		return reasoner.getTypes(i, true).getFlattened();
 	}
 
 	private static <X extends OWLEntity> X asSingleton(Collection<X> xs, OWLOntology owlOntology) {
