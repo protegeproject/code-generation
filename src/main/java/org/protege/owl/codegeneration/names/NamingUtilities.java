@@ -6,6 +6,7 @@ public class NamingUtilities {
 	}
 
 	public static String convertToJavaIdentifier(String s) {
+		s = s.replace(' ', '_').replace('-', '_').replaceAll("\'","");
 		return s;
 	}
 	
