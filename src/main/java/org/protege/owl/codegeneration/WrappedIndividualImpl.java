@@ -1,18 +1,13 @@
 package org.protege.owl.codegeneration;
 
 import java.util.Collections;
-import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
-import org.semanticweb.owlapi.model.OWLDataProperty;
-import org.semanticweb.owlapi.model.OWLDataPropertyAssertionAxiom;
-import org.semanticweb.owlapi.model.OWLIndividual;
-import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
-import org.semanticweb.owlapi.model.OWLObjectProperty;
-import org.semanticweb.owlapi.model.OWLObjectPropertyAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.util.OWLEntityRemover;
 
 /**
@@ -50,9 +45,19 @@ public class WrappedIndividualImpl implements WrappedIndividual {
 		return owlIndividual;
 	}
     
-    public CodeGenerationHelper getDelegate() {
+    protected CodeGenerationHelper getDelegate() {
 		return delegate;
 	}
+    
+    /**
+     * Asserts that the individual has a particular OWL type.
+     */
+    
+    public void assertOwlType(OWLClassExpression type) {
+        OWLOntologyManager manager = owlOntology.getOWLOntologyManager();
+        OWLDataFactory factory = manager.getOWLDataFactory();
+        manager.addAxiom(owlOntology, factory.getOWLClassAssertionAxiom(type, owlIndividual));
+    }
     
     /**
      * Deletes the individual from Ontology 
