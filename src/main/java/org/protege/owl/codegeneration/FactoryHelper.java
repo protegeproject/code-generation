@@ -26,6 +26,10 @@ public class FactoryHelper {
 		factory = manager.getOWLDataFactory();
 	}
 	
+	public void flushOwlReasoner() {
+	    inference.flush();
+	}
+	
 	public <X extends WrappedIndividualImpl> X createWrappedIndividual(String name, OWLClass type, Class<X> c) {
 		OWLNamedIndividual i = factory.getOWLNamedIndividual(IRI.create(name));
 		boolean inSignature = false;
