@@ -12,14 +12,12 @@ import org.protege.owl.codegeneration.std.testSimple02.MyFactory;
 import org.testng.annotations.Test;
 
 public class TestStdCodeGeneration {
-	public static final String NS01 = TestInferredCodeGeneration.NS01;
-	public static final String ONTOLOGY01 = TestInferredCodeGeneration.ONTOLOGY01;
 	
 	@Test
 	public void testSimpleCreate() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, false);
-		String newA1 = NS01 + "#aNewA1";
-		String newB1 = NS01 + "#aNewB1";
+		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, false);
+		String newA1 = TestUtilities.NS01 + "#aNewA1";
+		String newB1 = TestUtilities.NS01 + "#aNewB1";
 		String b1Value = "hello";
 		A1 a1 = factory.createA1(newA1);
 		assertEquals(factory.getA1(newA1), a1);
@@ -36,9 +34,9 @@ public class TestStdCodeGeneration {
 	
 	@Test
 	public void testSimpleGet() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, false);
-		IriA x = factory.getIriA(NS01 + "#x");
-		IriB y = factory.getIriB(NS01 + "#y");
+		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, false);
+		IriA x = factory.getIriA(TestUtilities.NS01 + "#x");
+		IriB y = factory.getIriB(TestUtilities.NS01 + "#y");
 		assertNotNull(x);
 		assertEquals(x.getIriP().size(), 1);
 		assertTrue(x.getIriP().contains(y));

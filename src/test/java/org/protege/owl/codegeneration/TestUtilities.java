@@ -4,7 +4,6 @@ import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -16,7 +15,6 @@ import org.protege.owl.codegeneration.inference.ReasonerBasedInference;
 import org.protege.owl.codegeneration.inference.SimpleInference;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
@@ -24,7 +22,12 @@ import org.testng.Assert;
 
 public class TestUtilities {
 
-	private TestUtilities() { }
+	public static String NS01="http://protege.org/ontologies/CodeGeneration001.owl";
+    public static String ONTOLOGY01="CodeGeneration001.owl";
+    
+    public static String PIZZA_ONTOLOGY = "pizza.owl";
+
+    private TestUtilities() { }
 	
 	public static void assertMethodNotFound(Class<?> c, String method, Class<?>...arguments) {
 		boolean success = false;

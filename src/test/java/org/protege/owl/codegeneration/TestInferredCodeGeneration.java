@@ -20,9 +20,7 @@ import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import org.testng.annotations.Test;
 
 public class TestInferredCodeGeneration {
-	public static String NS01="http://protege.org/ontologies/CodeGeneration001.owl";
-	public static String ONTOLOGY01="CodeGeneration001.owl";
-
+    
 	@Test
 	public void testPropertyByDomain() throws SecurityException, NoSuchMethodException {
 		Class<IriA> interfaceA = IriA.class;
@@ -48,8 +46,8 @@ public class TestInferredCodeGeneration {
 
 	@Test
 	public void testDataValues01() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, true);
-		IriB y = factory.getIriB(NS01 + "#y");
+		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, true);
+		IriB y = factory.getIriB(TestUtilities.NS01 + "#y");
 		boolean hasBoolean = false;
 		boolean hasRational = false;
 		boolean hasFloat = false;
@@ -74,8 +72,8 @@ public class TestInferredCodeGeneration {
 	
 	@Test
 	public void testDataValues02() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, true);
-		B1 y1 = factory.getB1(NS01 + "#y1");
+		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, true);
+		B1 y1 = factory.getB1(TestUtilities.NS01 + "#y1");
 		Collection<? extends String> values = y1.getIriQ();
 		assertTrue(values.size() == 1);
 		assertEquals(values.iterator().next(), "xyzzy");
@@ -83,8 +81,8 @@ public class TestInferredCodeGeneration {
 	
 	@Test
 	public void testDataValues03() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, true);
-		B2 y2 = factory.getB2(NS01 + "#y2");
+		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, true);
+		B2 y2 = factory.getB2(TestUtilities.NS01 + "#y2");
 		Collection<? extends Integer> values = y2.getIriQ();
 		assertTrue(values.size() == 1);
 		assertEquals(values.iterator().next(), new Integer(8));
@@ -92,17 +90,17 @@ public class TestInferredCodeGeneration {
 	
 	@Test
 	public void testObjectValues() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, true);
-		IriA x = factory.getIriA(NS01 + "#x");
+		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, true);
+		IriA x = factory.getIriA(TestUtilities.NS01 + "#x");
 		Collection<? extends WrappedIndividual> values = x.getIriP();
 		assertTrue(values.size() == 1);
-		assertEquals(values.iterator().next().getOwlIndividual().getIRI().toString(), NS01 + "#y");
+		assertEquals(values.iterator().next().getOwlIndividual().getIRI().toString(), TestUtilities.NS01 + "#y");
 	}
 	
 	@Test
 	public void testBadType() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(ONTOLOGY01, MyFactory.class, true);
-		IriB x = factory.getIriB(NS01 + "#x");
+		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, true);
+		IriB x = factory.getIriB(TestUtilities.NS01 + "#x");
 		assertNull(x);
 	}
 }
