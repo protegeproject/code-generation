@@ -17,6 +17,8 @@ public interface CodeGenerationInference {
 	OWLOntology getOWLOntology();
 	
 	void preCompute();
+	
+	void flush();
 
 	Collection<OWLClass> getOwlClasses();
 		

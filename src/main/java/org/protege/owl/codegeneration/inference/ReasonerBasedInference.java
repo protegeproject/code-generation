@@ -51,6 +51,10 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY, InferenceType.CLASS_ASSERTIONS);
 	}
 	
+	public void flush() {
+	    reasoner.flush();
+	}
+	
 	public Collection<OWLClass> getOwlClasses() {
 		if (allClasses == null) {
 			allClasses = new HashSet<OWLClass>(ontology.getClassesInSignature());

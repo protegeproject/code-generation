@@ -54,6 +54,10 @@ public class SimpleInference implements CodeGenerationInference {
 		;
 	}
 	
+	public void flush() {
+	    ;
+	}
+	
 	public Collection<OWLClass> getOwlClasses() {
 		Set<OWLClass> classes = new HashSet<OWLClass>(ontology.getClassesInSignature());
 		classes.remove(factory.getOWLThing());
