@@ -59,7 +59,7 @@ public class ProtegeJavaMapping {
             return javaInterface.cast(resource);
         }
         Class<? extends X> type = getJavaImplementation(resource.getOwlIndividual(), javaInterface);
-        return constructImplementation(type, resource.getOwlIndividual().getIRI());
+        return type != null ? constructImplementation(type, resource.getOwlIndividual().getIRI()) : null;
     }
     
     private <X> X constructImplementation(Class<? extends X> implType, IRI id) {
@@ -112,7 +112,12 @@ public class ProtegeJavaMapping {
 
         public Class<? extends WrappedIndividualImpl> getJavaImplementation() {
             return javaImplementation;
-        }        
+        }
+        
+        @Override
+        public String toString() {
+            return "<Class: " + protegeClass + ">";
+        }
     }
     
 }
