@@ -4,26 +4,30 @@
      */
      
     /**
-     * Gets all property values for the ${OwlProperty} property.
+     * Gets all property values for the ${OwlProperty} property.<p>
      * ${javadoc}
+     * @returns a collection of values for the ${OwlProperty} property.
      */
     Collection<? extends ${propertyRange}> get${OwlProperty}();
 
     /**
-     * Checks if the class has a ${OwlProperty} property value.
+     * Checks if the class has a ${OwlProperty} property value.<p>
      * ${javadoc}
+     * @return true if there is a ${OwlProperty} property value.
      */
     boolean has${OwlProperty}();
 
     /**
-     * Adds a ${OwlProperty} property value.
+     * Adds a ${OwlProperty} property value.<p>
      * ${javadoc}
+     * @param new${OwlProperty} the ${OwlProperty} property value to be added
      */
     void add${OwlProperty}(${propertyRange} new${OwlProperty});
 
     /**
-     * Removes a ${OwlProperty} property value.
+     * Removes a ${OwlProperty} property value.<p>
      * ${javadoc}
+     * @param old${OwlProperty} the ${OwlProperty} property value to be removed.
      */
     void remove${OwlProperty}(${propertyRange} old${OwlProperty});
 
