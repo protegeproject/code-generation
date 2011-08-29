@@ -1,13 +1,7 @@
 package org.protege.owl.codegeneration;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public enum SubstitutionVariable {
 	PACKAGE("package"),
@@ -25,10 +19,10 @@ public enum SubstitutionVariable {
 	PROPERTY_RANGE("propertyRange"),
 	PROPERTY_RANGE_FOR_CLASS("propertyRangeForClass"),
 	PROPERTY_RANGE_IMPLEMENTATION("propertyRangeImplementation"),
+	JAVADOC("javadoc"),
 	DATE("date"),
 	USER("user");
 	
-	private static Map<String, String> templateMap = new HashMap<String, String>();
 	private String name;
 	
 	private SubstitutionVariable(String name) {

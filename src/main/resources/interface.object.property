@@ -3,11 +3,27 @@
      * Property ${propertyIri}
      */
      
+    /**
+     * Gets all property values for the ${OwlProperty} property.
+     * ${javadoc}
+     */
     Collection<? extends ${propertyRange}> get${OwlProperty}();
 
+    /**
+     * Checks if the class has a ${OwlProperty} property value.
+     * ${javadoc}
+     */
     boolean has${OwlProperty}();
 
+    /**
+     * Adds a ${OwlProperty} property value.
+     * ${javadoc}
+     */
     void add${OwlProperty}(${propertyRange} new${OwlProperty});
 
+    /**
+     * Removes a ${OwlProperty} property value.
+     * ${javadoc}
+     */
     void remove${OwlProperty}(${propertyRange} old${OwlProperty});
 

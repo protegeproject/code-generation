@@ -7,6 +7,7 @@ import static org.protege.owl.codegeneration.SubstitutionVariable.FACTORY_CLASS_
 import static org.protege.owl.codegeneration.SubstitutionVariable.IMPLEMENTATION_NAME;
 import static org.protege.owl.codegeneration.SubstitutionVariable.INTERFACE_LIST;
 import static org.protege.owl.codegeneration.SubstitutionVariable.INTERFACE_NAME;
+import static org.protege.owl.codegeneration.SubstitutionVariable.JAVADOC;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PACKAGE;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_IRI;
@@ -23,6 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
@@ -30,11 +32,14 @@ import org.protege.owl.codegeneration.inference.SimpleInference;
 import org.protege.owl.codegeneration.names.CodeGenerationNames;
 import org.protege.owl.codegeneration.names.NamingUtilities;
 import org.protege.owl.codegeneration.property.JavaPropertyDeclarationCache;
+import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLEntity;
+import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.vocab.OWL2Datatype;
 
 public class DefaultWorker implements Worker {
 	private EnumMap<CodeGenerationPhase, String> templateMap = new EnumMap<CodeGenerationPhase, String>(CodeGenerationPhase.class);
@@ -203,6 +208,7 @@ public class DefaultWorker implements Worker {
 											  OWLClass owlClass) {
         substitutions.put(INTERFACE_NAME, names.getInterfaceName(owlClass));
         substitutions.put(IMPLEMENTATION_NAME, names.getImplementationName(owlClass));
+        substitutions.put(JAVADOC, getJavadoc(owlClass));
         substitutions.put(UPPERCASE_CLASS, names.getClassName(owlClass).toUpperCase());
         substitutions.put(CLASS_IRI, owlClass.getIRI().toString());
         substitutions.put(INTERFACE_LIST, getSuperInterfaceList(owlClass));
@@ -221,6 +227,7 @@ public class DefaultWorker implements Worker {
         }
         String propertyCapitalized = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
         String propertyUpperCase = propertyName.toUpperCase();
+        substitutions.put(JAVADOC, getJavadoc(owlProperty));
         substitutions.put(PROPERTY, propertyName);
         substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);
         substitutions.put(UPPERCASE_PROPERTY, propertyUpperCase);
@@ -280,6 +287,19 @@ public class DefaultWorker implements Worker {
 	        pack = "";
 	    }
 	    return new File(options.getOutputFolder(), pack + "impl/" + implName + ".java");
+	}
+	
+	private String getJavadoc(OWLEntity e) {
+	    StringBuffer sb = new StringBuffer();
+	    Set<OWLAnnotation> annotations = e.getAnnotations(owlOntology, Constants.JAVADOC);
+	    if (annotations.size() == 1) {
+	        OWLAnnotation javadocAnnotation = annotations.iterator().next();
+	        if (javadocAnnotation.getValue() instanceof OWLLiteral) {
+	            sb.append('\n');
+	            sb.append(((OWLLiteral) javadocAnnotation.getValue()).getLiteral());
+	        }
+	    }
+	    return sb.toString();
 	}
 
 
