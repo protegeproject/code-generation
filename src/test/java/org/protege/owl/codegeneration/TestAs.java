@@ -14,7 +14,7 @@ public class TestAs {
     @Test
     public void testCanAsNoCast() throws Exception {
         MyFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyFactory.class, false);
-        CheeseyPizza myPizza = factory.createCheeseyPizza("myPizza");
+        CheeseyPizza myPizza = factory.createCheeseyPizza(TestUtilities.PIZZA_NS + "#myPizza");
         Assert.assertFalse(factory.canAs(myPizza, InterestingPizza.class));
         InterestingPizza myInterestingPizza = factory.as(myPizza, InterestingPizza.class);
         Assert.assertNull(myInterestingPizza);
@@ -29,15 +29,16 @@ public class TestAs {
     
 
     /* something is wrong here but it doesn't look like the code generation. This requires investigation. */
+    @Test
     public void testInferredCanAs() throws Exception {
         MyFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyFactory.class, true);
-        CheeseyPizza myPizza = factory.createCheeseyPizza("myPizza");
+        CheeseyPizza myPizza = factory.createCheeseyPizza(TestUtilities.PIZZA_NS + "#myPizza");
         factory.flushOwlReasoner();
         Assert.assertFalse(factory.canAs(myPizza, InterestingPizza.class));
         
-        FruitTopping myPineapple = factory.createFruitTopping("myPineappleTopping");
+        FruitTopping myPineapple = factory.createFruitTopping(TestUtilities.PIZZA_NS + "#myPineappleTopping");
         myPizza.addHasTopping(myPineapple);
-        HamTopping myHamTopping = factory.createHamTopping("myHamTopping");
+        HamTopping myHamTopping = factory.createHamTopping(TestUtilities.PIZZA_NS + "#myHamTopping");
         myPizza.addHasTopping(myHamTopping);
         factory.flushOwlReasoner();
         
