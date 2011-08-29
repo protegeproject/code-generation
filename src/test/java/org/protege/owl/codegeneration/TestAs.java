@@ -27,8 +27,6 @@ public class TestAs {
         Assert.assertEquals(myPizza.getOwlOntology(), myInterestingPizza.getOwlOntology());
     }
     
-
-    /* something is wrong here but it doesn't look like the code generation. This requires investigation. */
     @Test
     public void testInferredCanAs() throws Exception {
         MyFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyFactory.class, true);
