@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.names.CodeGenerationNames;
@@ -13,6 +14,7 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLEntity;
+import org.semanticweb.owlapi.model.OWLObject;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 
 /**
@@ -110,12 +112,12 @@ public class JavaPropertyDeclarationCache {
 		return getPropertiesForClass(owlClass, OWLDataProperty.class);
 	}
 	
-	private <X> Set<X> getPropertiesForClass(OWLClass owlClass, Class<? extends X> javaClass) {
+	private <X extends Comparable<OWLObject>> Set<X> getPropertiesForClass(OWLClass owlClass, Class<? extends X> javaClass) {
 		Map<OWLEntity, JavaPropertyDeclarations> property2DeclarationMap = class2Property2DeclarationMap.get(owlClass);
 		if (property2DeclarationMap == null) {
 			return Collections.emptySet();
 		}
-		Set<X> properties = new HashSet<X>();
+		Set<X> properties = new TreeSet<X>();
 		for (OWLEntity property : property2DeclarationMap.keySet()) {
 			if (javaClass.isAssignableFrom(property.getClass())) {
 				properties.add(javaClass.cast(property));

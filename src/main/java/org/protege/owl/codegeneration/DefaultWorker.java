@@ -10,9 +10,6 @@ import static org.protege.owl.codegeneration.SubstitutionVariable.INTERFACE_NAME
 import static org.protege.owl.codegeneration.SubstitutionVariable.PACKAGE;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY;
 import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_IRI;
-import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE;
-import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE_FOR_CLASS;
-import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_RANGE_IMPLEMENTATION;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_CLASS;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_PROPERTY;
 import static org.protege.owl.codegeneration.SubstitutionVariable.USER;
@@ -26,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inference.SimpleInference;
@@ -34,7 +32,6 @@ import org.protege.owl.codegeneration.names.NamingUtilities;
 import org.protege.owl.codegeneration.property.JavaPropertyDeclarationCache;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
-import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -74,15 +71,15 @@ public class DefaultWorker implements Worker {
 	}
     
     public Collection<OWLClass> getOwlClasses() {
-    	return inference.getOwlClasses();
+    	return new TreeSet<OWLClass>(inference.getOwlClasses());
     }
     
     public Collection<OWLObjectProperty> getOwlObjectProperties() {
-    	return owlOntology.getObjectPropertiesInSignature(true);
+    	return new TreeSet<OWLObjectProperty>(owlOntology.getObjectPropertiesInSignature(true));
     }
     
     public Collection<OWLDataProperty> getOwlDataProperties() {
-    	return owlOntology.getDataPropertiesInSignature(true);
+    	return new TreeSet<OWLDataProperty>(owlOntology.getDataPropertiesInSignature(true));
     }
 
     public void initialize() {
