@@ -9,6 +9,10 @@ import org.protege.owl.codegeneration.std.testSimple02.B1;
 import org.protege.owl.codegeneration.std.testSimple02.IriA;
 import org.protege.owl.codegeneration.std.testSimple02.IriB;
 import org.protege.owl.codegeneration.std.testSimple02.MyFactory;
+import org.protege.owl.codegeneration.std.testSimple02.Vocabulary;
+import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.testng.annotations.Test;
 
 public class TestStdCodeGeneration {
@@ -41,4 +45,45 @@ public class TestStdCodeGeneration {
 		assertEquals(x.getIriP().size(), 1);
 		assertTrue(x.getIriP().contains(y));
 	}
+	
+	@Test
+	public void testStringBasic() throws Exception {
+	       MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, false);
+	        String newA1 = TestUtilities.NS01 + "#aNewA1";
+	        String newB1 = TestUtilities.NS01 + "#aNewB1";
+	        String b1Value = "hello";
+	        A1 a1 = factory.createA1(newA1);
+	        assertEquals(factory.getA1(newA1), a1);
+	        B1 b1 = factory.createB1(newB1);
+	        a1.addIriP(b1);
+	        b1.addIriQ(b1Value);
+	        
+	        assertTrue(a1.toString().contains("iriP: aNewB1;"));
+	        assertTrue(a1.toString().startsWith("A1("));
+	        assertTrue(b1.toString().contains("iriQ: hello;"));
+	        assertTrue(b1.toString().startsWith("B1("));
+	}
+	
+	@Test
+	public void testStringMultipleTypes() throws Exception {
+        MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, false);
+        String newA1 = TestUtilities.NS01 + "#aNewA1";
+        A1 a1 = factory.createA1(newA1);
+        a1.assertOwlType(Vocabulary.B1);
+        assertTrue(a1.toString().startsWith("[A1, B1]("));
+	}
+	
+	@Test
+	public void testStringNoTypes() throws Exception {
+        MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, false);
+        String newA1 = TestUtilities.NS01 + "#aNewA1";
+        A1 a1 = factory.createA1(newA1);
+        OWLOntologyManager manager = a1.getOwlOntology().getOWLOntologyManager();
+        OWLDataFactory owlApiFactory = manager.getOWLDataFactory();
+        OWLAxiom typeAxiom = owlApiFactory.getOWLClassAssertionAxiom(Vocabulary.A1, a1.getOwlIndividual());
+        manager.removeAxiom(a1.getOwlOntology(), typeAxiom);
+        
+        assertTrue(a1.toString().startsWith("Untyped("));
+	}
+	
 }
