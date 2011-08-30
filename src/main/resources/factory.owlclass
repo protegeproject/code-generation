@@ -7,14 +7,24 @@
         javaMapping.add("${classIri}", ${interfaceName}.class, ${implementationName}.class);
     }
 
+    /**
+     * Creates an instance of type ${interfaceName}.  Modifies the underlying ontology.
+     */
     public ${interfaceName} create${interfaceName}(String name) {
 		return delegate.createWrappedIndividual(name, Vocabulary.${OWLClass}, ${implementationName}.class);
     }
 
+    /**
+     * Gets an instance of type ${interfaceName} with the given name.  Does not modify the underlying ontology.
+     * @param name the name of the OWL named individual to be retrieved.
+     */
     public ${interfaceName} get${interfaceName}(String name) {
 		return delegate.getWrappedIndividual(name, Vocabulary.${OWLClass}, ${implementationName}.class);
     }
 
+    /**
+     * Gets all instances of ${interfaceName} from the ontology.
+     */
     public Collection<? extends ${interfaceName}> getAll${interfaceName}Instances() {
 		return delegate.getWrappedIndividuals(Vocabulary.${OWLClass}, ${implementationName}.class);
     }

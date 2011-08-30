@@ -3,4 +3,8 @@
      * Class ${classIri}
      */
 
+    /**
+     * A constant to give access to the Manchester OWL api representation of the class ${OWLClass}.<p>
+     * ${javadoc}
+     */
     public static final OWLClass ${OWLClass} = factory.getOWLClass(IRI.create("${classIri}"));

@@ -2,4 +2,9 @@
     /* ***************************************************
      * Data Property ${propertyIri}
      */
+     
+    /**
+     * A constant to give access to the Manchester OWL API representation of the data property ${OWLProperty}.<p>
+     * ${javadoc}
+     */
     public static final OWLDataProperty ${OWLProperty} = factory.getOWLDataProperty(IRI.create("${propertyIri}"));
