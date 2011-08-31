@@ -5,7 +5,7 @@ import ${package}.*;
 import java.util.Collection;
 
 import org.protege.owl.codegeneration.WrappedIndividual;
-import org.protege.owl.codegeneration.WrappedIndividualImpl;
+import org.protege.owl.codegeneration.impl.WrappedIndividualImpl;
 
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
