@@ -4,12 +4,14 @@ import ${package}.impl.*;
 
 import java.util.Collection;
 
-import org.protege.owl.codegeneration.FactoryHelper;
-import org.protege.owl.codegeneration.ProtegeJavaMapping;
+import org.protege.owl.codegeneration.CodeGenerationFactory;
 import org.protege.owl.codegeneration.WrappedIndividual;
+import org.protege.owl.codegeneration.impl.FactoryHelper;
+import org.protege.owl.codegeneration.impl.ProtegeJavaMapping;
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inference.SimpleInference;
 
+import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 
@@ -21,10 +23,11 @@ import org.semanticweb.owlapi.model.OWLOntologyStorageException;
  * Source Class: ${factoryClass}<br>
  * @version generated on ${date} by ${user}
  */
-public class ${factoryClass} {
+public class ${factoryClass} implements CodeGenerationFactory {
     private OWLOntology ontology;
     private ProtegeJavaMapping javaMapping = new ProtegeJavaMapping();
     private FactoryHelper delegate;
+    private CodeGenerationInference inference;
 
     public ${factoryClass}(OWLOntology ontology) {
 	    this(ontology, new SimpleInference(ontology));
@@ -32,26 +35,47 @@ public class ${factoryClass} {
     
     public ${factoryClass}(OWLOntology ontology, CodeGenerationInference inference) {
         this.ontology = ontology;
+        this.inference = inference;
         javaMapping.initialize(ontology, inference);
         delegate = new FactoryHelper(ontology, inference);
     }
 
+    @Override
     public OWLOntology getOwlOntology() {
         return ontology;
     }
-        
+    
+    @Override
     public void saveOwlOntology() throws OWLOntologyStorageException {
         ontology.getOWLOntologyManager().saveOntology(ontology);
     }
     
+    @Override
     public void flushOwlReasoner() {
         delegate.flushOwlReasoner();
     }
     
+    @Override
     public boolean canAs(WrappedIndividual resource, Class<? extends WrappedIndividual> javaInterface) {
     	return javaMapping.canAs(resource, javaInterface);
     }
     
+    @Override
     public  <X extends WrappedIndividual> X as(WrappedIndividual resource, Class<? extends X> javaInterface) {
     	return javaMapping.as(resource, javaInterface);
+    }
+    
+    @Override
+    public Class<?> getJavaInterfaceFromOwlClass(OWLClass cls) {
+        return javaMapping.getJavaInterfaceFromOwlClass(cls);
+    }
+    
+    @Override
+    public OWLClass getOwlClassFromJavaInterface(Class<?> javaInterface) {
+	    return javaMapping.getOwlClassFromJavaInterface(javaInterface);
+    }
+    
+    @Override
+    public CodeGenerationInference getInference() {
+        return inference;
     }
