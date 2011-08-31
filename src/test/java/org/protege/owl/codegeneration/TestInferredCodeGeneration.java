@@ -14,7 +14,7 @@ import org.protege.owl.codegeneration.inferred.testSimple.B1;
 import org.protege.owl.codegeneration.inferred.testSimple.B2;
 import org.protege.owl.codegeneration.inferred.testSimple.IriA;
 import org.protege.owl.codegeneration.inferred.testSimple.IriB;
-import org.protege.owl.codegeneration.inferred.testSimple.MyFactory;
+import org.protege.owl.codegeneration.inferred.testSimple.MySimpleFactory;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import org.testng.annotations.Test;
@@ -46,7 +46,7 @@ public class TestInferredCodeGeneration {
 
 	@Test
 	public void testDataValues01() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, true);
+		MySimpleFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MySimpleFactory.class, true);
 		IriB y = factory.getIriB(TestUtilities.NS01 + "#y");
 		boolean hasBoolean = false;
 		boolean hasRational = false;
@@ -72,7 +72,7 @@ public class TestInferredCodeGeneration {
 	
 	@Test
 	public void testDataValues02() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, true);
+		MySimpleFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MySimpleFactory.class, true);
 		B1 y1 = factory.getB1(TestUtilities.NS01 + "#y1");
 		Collection<? extends String> values = y1.getIriQ();
 		assertTrue(values.size() == 1);
@@ -81,7 +81,7 @@ public class TestInferredCodeGeneration {
 	
 	@Test
 	public void testDataValues03() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, true);
+		MySimpleFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MySimpleFactory.class, true);
 		B2 y2 = factory.getB2(TestUtilities.NS01 + "#y2");
 		Collection<? extends Integer> values = y2.getIriQ();
 		assertTrue(values.size() == 1);
@@ -90,7 +90,7 @@ public class TestInferredCodeGeneration {
 	
 	@Test
 	public void testObjectValues() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, true);
+		MySimpleFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MySimpleFactory.class, true);
 		IriA x = factory.getIriA(TestUtilities.NS01 + "#x");
 		Collection<? extends WrappedIndividual> values = x.getIriP();
 		assertTrue(values.size() == 1);
@@ -99,7 +99,7 @@ public class TestInferredCodeGeneration {
 	
 	@Test
 	public void testBadType() throws Exception {
-		MyFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyFactory.class, true);
+		MySimpleFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MySimpleFactory.class, true);
 		IriB x = factory.getIriB(TestUtilities.NS01 + "#x");
 		assertNull(x);
 	}
