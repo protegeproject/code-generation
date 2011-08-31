@@ -2,7 +2,9 @@ package org.protege.owl.codegeneration;
 
 import java.io.File;
 
-public class DeleteFolder {
+public class Utilities {
+    private Utilities() { }
+    
 	public static void deleteFolder(File folder) {
 		if (folder.exists() && folder.isDirectory()) {
 			for (File toDelete : folder.listFiles()) {
