@@ -8,7 +8,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
  * @author z.khan
  * 
  */
-public interface WrappedIndividual {
+public interface WrappedIndividual extends Comparable<WrappedIndividual> {
  
 	OWLOntology getOwlOntology();
 	
