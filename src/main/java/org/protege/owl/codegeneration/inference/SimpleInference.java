@@ -37,6 +37,7 @@ public class SimpleInference implements CodeGenerationInference {
 	private OWLDataFactory factory;
 	private Set<OWLClass> topLevelClasses;
 	private Map<OWLClass, Set<OWLClass>> inferredSubclassMap = new TreeMap<OWLClass, Set<OWLClass>>();
+	private Map<OWLClass, Set<OWLClass>> indirectSuperclassMap = new HashMap<OWLClass, Set<OWLClass>>();
 	private Map<OWLClass, Set<OWLEntity>> domainMap;
 	private Map<OWLObjectProperty, OWLClass> objectRangeMap;
 	private Map<OWLDataProperty, OWLDatatype> dataRangeMap;
@@ -88,13 +89,31 @@ public class SimpleInference implements CodeGenerationInference {
 	
 	public Collection<OWLClass> getSuperClasses(OWLClass owlClass) {
 		Set<OWLClass> superClasses = new HashSet<OWLClass>();
-		for (OWLClassExpression ce : owlClass.getSuperClasses(ontology)) {
+		for (OWLClassExpression ce : owlClass.getSuperClasses(ontology.getImportsClosure())) {
 			if (!ce.isAnonymous()) {
 				superClasses.add(ce.asOWLClass());
 			}
+			else if (ce instanceof OWLObjectIntersectionOf) {
+			    superClasses.addAll(getNamedConjuncts((OWLObjectIntersectionOf) ce));
+			}
+		}
+		for (OWLClassExpression ce : owlClass.getEquivalentClasses(ontology.getImportsClosure())) {
+		    if (ce instanceof OWLObjectIntersectionOf) {
+                superClasses.addAll(getNamedConjuncts((OWLObjectIntersectionOf) ce));
+            }
 		}
 		superClasses.remove(factory.getOWLThing());
 		return superClasses;
+	}
+	
+	private Collection<OWLClass> getNamedConjuncts(OWLObjectIntersectionOf ce) {
+	    Set<OWLClass> conjuncts = new HashSet<OWLClass>();
+	    for (OWLClassExpression conjunct : ce.getOperands()) {
+	        if (!conjunct.isAnonymous()) {
+	            conjuncts.add(conjunct.asOWLClass());
+	        }
+	    }
+	    return conjuncts;
 	}
 	
 	public Set<JavaPropertyDeclarations> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names) {
@@ -149,12 +168,21 @@ public class SimpleInference implements CodeGenerationInference {
 	}
 	
 	public boolean canAs(OWLNamedIndividual i, OWLClass c) {
-		return i.getTypes(ontology.getImportsClosure()).contains(c);
+	    Collection<OWLClass> types = getTypes(i);
+	    if (types.contains(c)) {
+	        return true;
+	    }
+	    for (OWLClass type : types) {
+	        if (getIndirectSuperClasses(type).contains(c)) {
+	            return true;
+	        }
+	    }
+		return false;
 	}
 	
 	public Collection<OWLClass> getTypes(OWLNamedIndividual i) {
 		Set<OWLClass> types = new HashSet<OWLClass>();
-		for (OWLClassExpression ce : i.getTypes(ontology)) {
+		for (OWLClassExpression ce : i.getTypes(ontology.getImportsClosure())) {
 			if (!ce.isAnonymous()) {
 				types.add(ce.asOWLClass());
 			}
@@ -165,18 +193,19 @@ public class SimpleInference implements CodeGenerationInference {
 	/* *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	 * 
 	 */
+	
 	private void initializeInferredSubclasses() {
 		topLevelClasses = new TreeSet<OWLClass>();
 		for (OWLClass owlClass : ontology.getClassesInSignature()) {
 			boolean foundParent = false;
 			for (OWLClassExpression parent : owlClass.getSuperClasses(ontology)) {
-				if (initializeDirectSuperClasses(owlClass, parent)
-						|| initializeInferredSuperClasses(owlClass, parent)) {
+				if (hasGoodDirectSuperClass(owlClass, parent)
+						|| searchForSuperclassesFromIntersection(owlClass, parent)) {
 					foundParent = true;
 				}
 			}
 			for (OWLClassExpression parent : owlClass.getEquivalentClasses(ontology)) {
-				if (initializeInferredSuperClasses(owlClass, parent)) {
+				if (searchForSuperclassesFromIntersection(owlClass, parent)) {
 					foundParent = true;
 				}
 			}			
@@ -186,11 +215,11 @@ public class SimpleInference implements CodeGenerationInference {
 		}
 	}
 	
-	private boolean initializeDirectSuperClasses(OWLClass child, OWLClassExpression parent) {
+	private boolean hasGoodDirectSuperClass(OWLClass child, OWLClassExpression parent) {
 		return !parent.isAnonymous() && !parent.equals(factory.getOWLThing());
 	}
 
-	private boolean initializeInferredSuperClasses(OWLClass child, OWLClassExpression parent) {
+	private boolean searchForSuperclassesFromIntersection(OWLClass child, OWLClassExpression parent) {
 		if (parent instanceof OWLObjectIntersectionOf) {
 			for (OWLClassExpression conjunct : ((OWLObjectIntersectionOf) parent).getOperands()) {
 				if (!conjunct.isAnonymous() && !conjunct.equals(factory.getOWLThing())) {
@@ -266,6 +295,25 @@ public class SimpleInference implements CodeGenerationInference {
 			return ((OWLDatatypeRestriction) range).getDatatype();
 		}
 		return null;
+	}
+	
+	private Set<OWLClass> getIndirectSuperClasses(OWLClass cls) {
+	    Set<OWLClass> superClasses = indirectSuperclassMap.get(cls);
+	    if (superClasses == null) {
+	        superClasses = new HashSet<OWLClass>();
+	        addIndirectSuperClasses(superClasses, cls);
+	        indirectSuperclassMap.put(cls, superClasses);
+	    }
+	    return superClasses;
+	}
+	
+	private void addIndirectSuperClasses(Set<OWLClass> superClasses, OWLClass cls) {
+	    Collection<OWLClass> newSuperClasses = getSuperClasses(cls);
+	    newSuperClasses.removeAll(superClasses);
+	    superClasses.addAll(newSuperClasses);
+	    for (OWLClass newSuperClass : newSuperClasses) {
+	        addIndirectSuperClasses(superClasses, newSuperClass);
+	    }
 	}
 	
 }
