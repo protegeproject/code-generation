@@ -20,6 +20,7 @@ Import-Package: javax.swing,
  javax.swing.tree,
  javax.swing.undo,
  javax.xml.parsers,
+ org.apache.commons.cli;version="1.2.0",
  org.apache.log4j,
  org.osgi.framework,
  org.protege.editor.core;resolution:=optional,
@@ -42,7 +43,9 @@ Import-Package: javax.swing,
  org.xml.sax.ext,
  org.xml.sax.helpers
 Bundle-ClassPath: .,
- lib/org.semanticweb.HermiT.jar
+ lib/org.semanticweb.HermiT.jar,
+ lib/commons-cli-1.2.jar
 Bundle-Version: 1.0.0
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.apache.commons.cli;version="1.2.0"
