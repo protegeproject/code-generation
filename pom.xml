@@ -7,7 +7,7 @@
 	<packaging>bundle</packaging>
 	<name>OWL Code Generation Plugin</name>
 	<version>1.0.0.SNAPSHOT</version>
-    <!-- <version>1.0.0.2011_09_29_1149</version> -->
+    <!-- <version>1.0.0.2011_09_29_1226</version> -->
 
 	<parent>
 		<groupId>protege4</groupId>
@@ -103,15 +103,16 @@
               <extensions>true</extensions>
               <configuration>
                 <instructions>
-                  <Bundle-SymbolicName>org.coode.dlquery;singleton:=true</Bundle-SymbolicName>
+                  <Bundle-SymbolicName>org.protege.editor.owl.codegeneration;singleton:=true</Bundle-SymbolicName>
                   <Bundle-Vendor>The Protege Development Team</Bundle-Vendor>
-                  <Export-Package/>
+                  <Export-Package>
+                    org.protege.owl.codegeneration.*
+                  </Export-Package>
                   <Import-Package>
                       *
                   </Import-Package>
-                  <Private-Package>org.coode.dlquery</Private-Package>
-                  <Bundle-Activator>org.protege.editor.owl.ProtegeOWL</Bundle-Activator>
                   <Bundle-ClassPath>.</Bundle-ClassPath>
+                  <Embed-Dependency>commons-cli</Embed-Dependency>
                   <Include-Resource>plugin.xml,{maven-resources}</Include-Resource>
                 </instructions>
                 <executions>
