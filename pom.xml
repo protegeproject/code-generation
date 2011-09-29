@@ -6,8 +6,8 @@
 	<artifactId>org.protege.editor.owl.codegeneration</artifactId>
 	<packaging>bundle</packaging>
 	<name>OWL Code Generation Plugin</name>
-	<!-- <version>1.0.0.SNAPSHOT</version> -->
-    <version>1.0.0.2011_09_29_1229</version>
+	<version>1.0.0.SNAPSHOT</version>
+    <!-- <version>1.0.0.2011_09_29_1229</version> -->
 
 	<parent>
 		<groupId>protege4</groupId>
