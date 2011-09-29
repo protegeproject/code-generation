@@ -100,6 +100,7 @@
        <pathelement location="${equinox.registry}"/>
        <pathelement location="${owl.editor.jar}"/>
        <pathelement location="${owl.lib}"/>
+       <fileset dir="${lib}"/>
        <fileset dir="${genlib}"/>
      </path>
    </target>
@@ -142,6 +143,7 @@
            <exclude name="build.xml"/>
        </fileset>
      </copy>
+     <copy todir="${classes}/lib" file="${lib}/commons-cli-1.2.jar"/>
    	 <!-- the manifest doesn't belong here but this is good for IDE's -->
      <mkdir dir="${classes}/META-INF"/>  
      <copy todir="${classes}/META-INF"   
