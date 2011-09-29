@@ -7,4 +7,4 @@
      * A constant to give access to the Manchester OWL API representation of the object property ${OWLProperty}.<p>
      * ${javadoc}
      */
-    public static final OWLObjectProperty ${OWLProperty} = factory.getOWLObjectProperty(IRI.create("${propertyIri}"));
+    public static final OWLObjectProperty ${VocabProperty} = factory.getOWLObjectProperty(IRI.create("${propertyIri}"));

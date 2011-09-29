@@ -14,6 +14,8 @@ import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_IRI;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_CLASS;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_PROPERTY;
 import static org.protege.owl.codegeneration.SubstitutionVariable.USER;
+import static org.protege.owl.codegeneration.SubstitutionVariable.VOCABULARY_CLASS;
+import static org.protege.owl.codegeneration.SubstitutionVariable.VOCABULARY_PROPERTY;
 
 import java.io.File;
 import java.io.IOException;
@@ -206,10 +208,12 @@ public class DefaultWorker implements Worker {
 
 	private void configureClassSubstitutions(Map<SubstitutionVariable, String> substitutions, 
 											  OWLClass owlClass) {
+		String upperCaseClassName = names.getClassName(owlClass).toUpperCase();
         substitutions.put(INTERFACE_NAME, names.getInterfaceName(owlClass));
         substitutions.put(IMPLEMENTATION_NAME, names.getImplementationName(owlClass));
         substitutions.put(JAVADOC, getJavadoc(owlClass));
-        substitutions.put(UPPERCASE_CLASS, names.getClassName(owlClass).toUpperCase());
+        substitutions.put(UPPERCASE_CLASS, upperCaseClassName);
+        substitutions.put(SubstitutionVariable.VOCABULARY_CLASS, "CLASS_" + upperCaseClassName);
         substitutions.put(CLASS_IRI, owlClass.getIRI().toString());
         substitutions.put(INTERFACE_LIST, getSuperInterfaceList(owlClass));
     }
@@ -227,6 +231,12 @@ public class DefaultWorker implements Worker {
         }
         String propertyCapitalized = NamingUtilities.convertInitialLetterToUpperCase(propertyName);
         String propertyUpperCase = propertyName.toUpperCase();
+        if (owlProperty instanceof OWLObjectProperty) {
+            substitutions.put(SubstitutionVariable.VOCABULARY_PROPERTY, "OBJECT_PROPERTY_" + propertyUpperCase);
+        }
+        else {
+            substitutions.put(SubstitutionVariable.VOCABULARY_PROPERTY, "DATA_PROPERTY_" + propertyUpperCase);
+        }
         substitutions.put(JAVADOC, getJavadoc(owlProperty));
         substitutions.put(PROPERTY, propertyName);
         substitutions.put(CAPITALIZED_PROPERTY, propertyCapitalized);

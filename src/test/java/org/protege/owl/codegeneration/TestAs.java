@@ -18,7 +18,7 @@ public class TestAs {
         InterestingPizza myInterestingPizza = factory.as(myPizza, InterestingPizza.class);
         Assert.assertNull(myInterestingPizza);
         
-        myPizza.assertOwlType(org.protege.owl.codegeneration.inferred.pizza.Vocabulary.INTERESTINGPIZZA);
+        myPizza.assertOwlType(org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CLASS_INTERESTINGPIZZA);
         Assert.assertTrue(factory.canAs(myPizza, InterestingPizza.class));
         myInterestingPizza = factory.as(myPizza, InterestingPizza.class);
         Assert.assertNotNull(myInterestingPizza);

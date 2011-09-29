@@ -68,7 +68,7 @@ public class TestStdCodeGeneration {
         MySimpleStdFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MySimpleStdFactory.class, false);
         String newA1 = TestUtilities.NS01 + "#aNewA1";
         A1 a1 = factory.createA1(newA1);
-        a1.assertOwlType(org.protege.owl.codegeneration.std.testSimple02.Vocabulary.B1);
+        a1.assertOwlType(org.protege.owl.codegeneration.std.testSimple02.Vocabulary.CLASS_B1);
         assertTrue(a1.toString().startsWith("[A1, B1]("));
 	}
 	
@@ -79,7 +79,7 @@ public class TestStdCodeGeneration {
         A1 a1 = factory.createA1(newA1);
         OWLOntologyManager manager = a1.getOwlOntology().getOWLOntologyManager();
         OWLDataFactory owlApiFactory = manager.getOWLDataFactory();
-        OWLAxiom typeAxiom = owlApiFactory.getOWLClassAssertionAxiom(org.protege.owl.codegeneration.std.testSimple02.Vocabulary.A1, a1.getOwlIndividual());
+        OWLAxiom typeAxiom = owlApiFactory.getOWLClassAssertionAxiom(org.protege.owl.codegeneration.std.testSimple02.Vocabulary.CLASS_A1, a1.getOwlIndividual());
         manager.removeAxiom(a1.getOwlOntology(), typeAxiom);
         
         assertTrue(a1.toString().startsWith("Untyped("));

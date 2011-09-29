@@ -33,12 +33,12 @@ public class GenerateSimpleJavaCode {
 
 	public static void main(String [] args) throws Exception {
 		CommandLine parsedOptions = parseArguments(args);
-		System.out.println("options = " + parsedOptions);
 
 		String outputFolderName = parsedOptions.getOptionValue(OUTPUT_OPT);
 		File outputFolder = outputFolderName != null ? new File(outputFolderName) : new File("");
 		if (parsedOptions.getArgList().size() != 1) {
 		    help();
+		    System.exit(-1);
 		}
 		if (parsedOptions.hasOption(DELETE_OPT) && outputFolder.exists()) {
 		    delete(outputFolder);
@@ -81,11 +81,10 @@ public class GenerateSimpleJavaCode {
 											   File outputFolder) throws OWLOntologyCreationException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
 		long startTime = System.currentTimeMillis();
 		boolean useInference = (reasonerFactoryName != null);
-		String fullPackageName = "org.protege.owl.codegeneration." + packageName;
 		OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 		OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(ontologyLocation);
 		CodeGenerationOptions options = new CodeGenerationOptions();
-		options.setPackage(fullPackageName);
+		options.setPackage(packageName);
 		options.setFactoryClassName(factoryName);
 		options.setOutputFolder(outputFolder);
 		CodeGenerationInference inference;
@@ -99,8 +98,8 @@ public class GenerateSimpleJavaCode {
 		}
 		// inference.preCompute();
 		DefaultWorker.generateCode(owlOntology, options, new IriNames(owlOntology, options), inference);
-		LOGGER.info("Generating source code for ontology " + ontologyLocation 
-				+ " (" + (useInference ? "inferred - " : "asserted -") + (System.currentTimeMillis() - startTime) + "ms).");
+		LOGGER.info("Generated source code for ontology " + ontologyLocation 
+				+ " (" + (useInference ? "inferred " : "asserted.") + "  Total time = " + (System.currentTimeMillis() - startTime) + "ms).");
 	}
 	
 	private static void delete(File file) {
@@ -109,7 +108,7 @@ public class GenerateSimpleJavaCode {
 	            delete(child);
 	        }
 	    }
-	    delete(file);
+	    file.delete();
 	}
 
 }

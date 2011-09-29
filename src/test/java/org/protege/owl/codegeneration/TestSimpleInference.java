@@ -16,8 +16,8 @@ public class TestSimpleInference {
     public void testInferredSubclasses() throws Exception {
         MyPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyPizzaFactory.class, false);
         CodeGenerationInference inference = factory.getInference();
-        OWLClass pizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.PIZZA;
-        OWLClass cheeseyPizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CHEESEYPIZZA;
+        OWLClass pizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CLASS_PIZZA;
+        OWLClass cheeseyPizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CLASS_CHEESEYPIZZA;
         
         Assert.assertTrue(inference.getSubClasses(pizza).contains(cheeseyPizza));
         OWLOntology ontology = factory.getOwlOntology();
@@ -30,8 +30,8 @@ public class TestSimpleInference {
     public void testInferredSuperclasses() throws Exception {
         MyPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyPizzaFactory.class, false);
         CodeGenerationInference inference = factory.getInference();
-        OWLClass pizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.PIZZA;
-        OWLClass cheeseyPizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CHEESEYPIZZA;
+        OWLClass pizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CLASS_PIZZA;
+        OWLClass cheeseyPizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CLASS_CHEESEYPIZZA;
         
         Assert.assertTrue(inference.getSuperClasses(cheeseyPizza).contains(pizza));
         OWLOntology ontology = factory.getOwlOntology();
@@ -45,7 +45,7 @@ public class TestSimpleInference {
         MyPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyPizzaFactory.class, false);
         CodeGenerationInference inference = factory.getInference();
         CheeseyPizza cp = factory.createCheeseyPizza(TestUtilities.PIZZA_NS + "#myVeryCheeseyPizza");
-        OWLClass domain = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.DOMAINCONCEPT;
+        OWLClass domain = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CLASS_DOMAINCONCEPT;
         Assert.assertTrue(inference.canAs(cp.getOwlIndividual(), domain));
     }
     

@@ -43,9 +43,14 @@ Import-Package: javax.swing,
  org.xml.sax.ext,
  org.xml.sax.helpers
 Bundle-ClassPath: .,
- lib/org.semanticweb.HermiT.jar,
  lib/commons-cli-1.2.jar
 Bundle-Version: 1.0.0
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Export-Package: org.apache.commons.cli;version="1.2.0"
+Export-Package: org.apache.commons.cli;version="1.2.0",
+ org.protege.owl.codegeneration,
+ org.protege.owl.codegeneration.impl,
+ org.protege.owl.codegeneration.inference,
+ org.protege.owl.codegeneration.listener,
+ org.protege.owl.codegeneration.names,
+ org.protege.owl.codegeneration.property
