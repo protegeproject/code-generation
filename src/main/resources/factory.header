@@ -40,42 +40,34 @@ public class ${factoryClass} implements CodeGenerationFactory {
         delegate = new FactoryHelper(ontology, inference);
     }
 
-    @Override
     public OWLOntology getOwlOntology() {
         return ontology;
     }
     
-    @Override
     public void saveOwlOntology() throws OWLOntologyStorageException {
         ontology.getOWLOntologyManager().saveOntology(ontology);
     }
     
-    @Override
     public void flushOwlReasoner() {
         delegate.flushOwlReasoner();
     }
     
-    @Override
     public boolean canAs(WrappedIndividual resource, Class<? extends WrappedIndividual> javaInterface) {
     	return javaMapping.canAs(resource, javaInterface);
     }
     
-    @Override
     public  <X extends WrappedIndividual> X as(WrappedIndividual resource, Class<? extends X> javaInterface) {
     	return javaMapping.as(resource, javaInterface);
     }
     
-    @Override
     public Class<?> getJavaInterfaceFromOwlClass(OWLClass cls) {
         return javaMapping.getJavaInterfaceFromOwlClass(cls);
     }
     
-    @Override
     public OWLClass getOwlClassFromJavaInterface(Class<?> javaInterface) {
 	    return javaMapping.getOwlClassFromJavaInterface(javaInterface);
     }
     
-    @Override
     public CodeGenerationInference getInference() {
         return inference;
     }
