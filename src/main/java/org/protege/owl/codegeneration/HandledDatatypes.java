@@ -4,6 +4,7 @@ import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLLiteral;
+import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
 public enum HandledDatatypes {
@@ -70,6 +71,26 @@ public enum HandledDatatypes {
 		@Override
 		public boolean isMatch(OWLDatatype dt) {
 			return dt.getIRI().equals(XSDVocabulary.INT.getIRI()) || dt.getIRI().equals(XSDVocabulary.INTEGER.getIRI());
+		}
+	},
+	LONG(XSDVocabulary.LONG.getIRI(), "long", "Long") {
+		
+		public Object getObject(OWLLiteral literal) {
+			return Long.parseLong(literal.getLiteral());
+		}
+		
+		public OWLLiteral getLiteral(OWLDataFactory factory, Object o) {
+			if (o instanceof Long) {
+				return factory.getOWLLiteral(o.toString(), OWL2Datatype.XSD_LONG);
+			}
+			else {
+				return null;
+			}
+		}
+		
+		@Override
+		public boolean isMatch(OWLDatatype dt) {
+			return dt.getIRI().equals(XSDVocabulary.LONG.getIRI());
 		}
 	}
 	;
