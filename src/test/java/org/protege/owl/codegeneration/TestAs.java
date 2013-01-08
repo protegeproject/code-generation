@@ -4,7 +4,7 @@ import org.protege.owl.codegeneration.inferred.pizza.CheeseyPizza;
 import org.protege.owl.codegeneration.inferred.pizza.FruitTopping;
 import org.protege.owl.codegeneration.inferred.pizza.HamTopping;
 import org.protege.owl.codegeneration.inferred.pizza.InterestingPizza;
-import org.protege.owl.codegeneration.inferred.pizza.MyPizzaFactory;
+import org.protege.owl.codegeneration.inferred.pizza.MyInferredPizzaFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -12,7 +12,7 @@ public class TestAs {
 
     @Test
     public void testCanAsNoCast() throws Exception {
-        MyPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyPizzaFactory.class, false);
+        MyInferredPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyInferredPizzaFactory.class, false);
         CheeseyPizza myPizza = factory.createCheeseyPizza(TestUtilities.PIZZA_NS + "#myPizza");
         Assert.assertFalse(factory.canAs(myPizza, InterestingPizza.class));
         InterestingPizza myInterestingPizza = factory.as(myPizza, InterestingPizza.class);
@@ -28,7 +28,7 @@ public class TestAs {
     
     @Test
     public void testInferredCanAs() throws Exception {
-        MyPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyPizzaFactory.class, true);
+        MyInferredPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyInferredPizzaFactory.class, true);
         CheeseyPizza myPizza = factory.createCheeseyPizza(TestUtilities.PIZZA_NS + "#myPizza");
         factory.flushOwlReasoner();
         Assert.assertFalse(factory.canAs(myPizza, InterestingPizza.class));

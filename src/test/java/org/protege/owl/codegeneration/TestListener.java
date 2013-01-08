@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.protege.owl.codegeneration.inferred.pizza.CheeseyPizza;
-import org.protege.owl.codegeneration.inferred.pizza.MyPizzaFactory;
+import org.protege.owl.codegeneration.inferred.pizza.MyInferredPizzaFactory;
 import org.protege.owl.codegeneration.inferred.pizza.Pizza;
 import org.protege.owl.codegeneration.listener.CodeGenerationListener;
 import org.testng.Assert;
@@ -14,7 +14,7 @@ public class TestListener {
 
     @Test
     public void testListener() throws Exception {
-        MyPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyPizzaFactory.class, false);
+        MyInferredPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyInferredPizzaFactory.class, false);
         TestCodeGenerationListener listener = new TestCodeGenerationListener(factory);
         factory.getOwlOntology().getOWLOntologyManager().addOntologyChangeListener(listener);
         
@@ -31,7 +31,7 @@ public class TestListener {
         private Set<Pizza> modified = new TreeSet<Pizza>();
 
 
-        public TestCodeGenerationListener(MyPizzaFactory factory) {
+        public TestCodeGenerationListener(MyInferredPizzaFactory factory) {
             super(factory, Pizza.class);
         }
         

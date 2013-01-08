@@ -40,9 +40,9 @@ public class GenerateTestCode {
 	private static void generateSimpleJavaCode() throws OWLOntologyCreationException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
 		File outputFolder = new File("target/generated-sources");
 		Utilities.deleteFolder(outputFolder);
-		generateSimpleJavaCode("CodeGeneration001.owl", "inferred.testSimple", "MySimpleFactory", true, outputFolder);
+		generateSimpleJavaCode("CodeGeneration001.owl", "inferred.testSimple", "MyInferredFactory", true, outputFolder);
 		generateSimpleJavaCode("CodeGeneration001.owl", "std.testSimple02", "MySimpleStdFactory", false, outputFolder);
-		generateSimpleJavaCode("pizza.owl", "inferred.pizza", "MyPizzaFactory", true, outputFolder);
+		generateSimpleJavaCode("pizza.owl", "inferred.pizza", "MyInferredPizzaFactory", true, outputFolder);
 	}
 	
 	private static void generateSimpleJavaCode(String ontologyName, 

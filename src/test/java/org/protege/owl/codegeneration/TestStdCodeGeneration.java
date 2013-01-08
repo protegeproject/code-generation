@@ -33,6 +33,9 @@ public class TestStdCodeGeneration {
 		
 		assertEquals(b1.getIriQ().size(), 1);
 		assertTrue(b1.getIriQ().contains(b1Value));
+		
+		assertTrue(factory.getAllA1Instances().contains(a1));
+		assertTrue(factory.getAllB1Instances().contains(b1));
 	}
 	
 	@Test

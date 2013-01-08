@@ -6,6 +6,7 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
 import org.protege.owl.codegeneration.inferred.testSimple.A1;
@@ -14,13 +15,14 @@ import org.protege.owl.codegeneration.inferred.testSimple.B1;
 import org.protege.owl.codegeneration.inferred.testSimple.B2;
 import org.protege.owl.codegeneration.inferred.testSimple.IriA;
 import org.protege.owl.codegeneration.inferred.testSimple.IriB;
-import org.protege.owl.codegeneration.inferred.testSimple.MySimpleFactory;
+import org.protege.owl.codegeneration.inferred.testSimple.MyInferredFactory;
 import org.semanticweb.owlapi.model.OWLLiteral;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import org.testng.annotations.Test;
 
 public class TestInferredCodeGeneration {
-    
+	
 	@Test
 	public void testPropertyByDomain() throws SecurityException, NoSuchMethodException {
 		Class<IriA> interfaceA = IriA.class;
@@ -46,7 +48,7 @@ public class TestInferredCodeGeneration {
 
 	@Test
 	public void testDataValues01() throws Exception {
-		MySimpleFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MySimpleFactory.class, true);
+		MyInferredFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyInferredFactory.class, true);
 		IriB y = factory.getIriB(TestUtilities.NS01 + "#y");
 		boolean hasBoolean = false;
 		boolean hasRational = false;
@@ -72,7 +74,7 @@ public class TestInferredCodeGeneration {
 	
 	@Test
 	public void testDataValues02() throws Exception {
-		MySimpleFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MySimpleFactory.class, true);
+		MyInferredFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyInferredFactory.class, true);
 		B1 y1 = factory.getB1(TestUtilities.NS01 + "#y1");
 		Collection<? extends String> values = y1.getIriQ();
 		assertTrue(values.size() == 1);
@@ -81,7 +83,7 @@ public class TestInferredCodeGeneration {
 	
 	@Test
 	public void testDataValues03() throws Exception {
-		MySimpleFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MySimpleFactory.class, true);
+		MyInferredFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyInferredFactory.class, true);
 		B2 y2 = factory.getB2(TestUtilities.NS01 + "#y2");
 		Collection<? extends Integer> values = y2.getIriQ();
 		assertTrue(values.size() == 1);
@@ -90,7 +92,7 @@ public class TestInferredCodeGeneration {
 	
 	@Test
 	public void testObjectValues() throws Exception {
-		MySimpleFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MySimpleFactory.class, true);
+		MyInferredFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyInferredFactory.class, true);
 		IriA x = factory.getIriA(TestUtilities.NS01 + "#x");
 		Collection<? extends WrappedIndividual> values = x.getIriP();
 		assertTrue(values.size() == 1);
@@ -99,8 +101,16 @@ public class TestInferredCodeGeneration {
 	
 	@Test
 	public void testBadType() throws Exception {
-		MySimpleFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MySimpleFactory.class, true);
+		MyInferredFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyInferredFactory.class, true);
 		IriB x = factory.getIriB(TestUtilities.NS01 + "#x");
 		assertNull(x);
+	}
+
+	@Test
+	public void testCreate() throws SecurityException, NoSuchMethodException, OWLOntologyCreationException, InstantiationException, IllegalAccessException, ClassNotFoundException, IllegalArgumentException, InvocationTargetException {
+		MyInferredFactory factory = TestUtilities.openFactory(TestUtilities.ONTOLOGY01, MyInferredFactory.class, true);
+		A1 a1 = factory.createA1("newA1");
+		factory.flushOwlReasoner();
+		assertTrue(factory.getAllA1Instances().contains(a1));
 	}
 }

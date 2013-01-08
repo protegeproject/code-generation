@@ -2,7 +2,7 @@ package org.protege.owl.codegeneration;
 
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inferred.pizza.CheeseyPizza;
-import org.protege.owl.codegeneration.inferred.pizza.MyPizzaFactory;
+import org.protege.owl.codegeneration.inferred.pizza.MyInferredPizzaFactory;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
@@ -14,7 +14,7 @@ public class TestSimpleInference {
 
     @Test
     public void testInferredSubclasses() throws Exception {
-        MyPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyPizzaFactory.class, false);
+        MyInferredPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyInferredPizzaFactory.class, false);
         CodeGenerationInference inference = factory.getInference();
         OWLClass pizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CLASS_PIZZA;
         OWLClass cheeseyPizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CLASS_CHEESEYPIZZA;
@@ -28,7 +28,7 @@ public class TestSimpleInference {
     
     @Test
     public void testInferredSuperclasses() throws Exception {
-        MyPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyPizzaFactory.class, false);
+        MyInferredPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyInferredPizzaFactory.class, false);
         CodeGenerationInference inference = factory.getInference();
         OWLClass pizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CLASS_PIZZA;
         OWLClass cheeseyPizza = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CLASS_CHEESEYPIZZA;
@@ -42,7 +42,7 @@ public class TestSimpleInference {
     
     @Test
     public void testIndirectTypes() throws Exception {
-        MyPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyPizzaFactory.class, false);
+        MyInferredPizzaFactory factory = TestUtilities.openFactory(TestUtilities.PIZZA_ONTOLOGY, MyInferredPizzaFactory.class, false);
         CodeGenerationInference inference = factory.getInference();
         CheeseyPizza cp = factory.createCheeseyPizza(TestUtilities.PIZZA_NS + "#myVeryCheeseyPizza");
         OWLClass domain = org.protege.owl.codegeneration.inferred.pizza.Vocabulary.CLASS_DOMAINCONCEPT;

@@ -33,17 +33,8 @@ public class FactoryHelper {
 	
 	public <X extends WrappedIndividualImpl> X createWrappedIndividual(String name, OWLClass type, Class<X> c) {
 		OWLNamedIndividual i = factory.getOWLNamedIndividual(IRI.create(name));
-		boolean inSignature = false;
-		for (OWLOntology inImportClosure : ontology.getImportsClosure()) {
-			if (inImportClosure.containsEntityInSignature(i)) {
-				inSignature = true;
-				break;
-			}
-		}
-		if (!inSignature) {
-			manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(type, i));
-		}
-		else if (!inference.canAs(i, type)) {
+		manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(type, i));
+		if (!inference.canAs(i, type)) {
 			return null;
 		}
 		return getWrappedIndividual(name, c);
