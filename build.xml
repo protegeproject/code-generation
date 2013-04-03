@@ -16,7 +16,7 @@
 
    <property file="version.properties"/>
    <property name="major.version" value="1"/>
-   <property name="minor.version" value="0"/>
+   <property name="minor.version" value="1"/>
    <property name="micro.version" value="0"/>
 
    <property name = "plugin"          value = "org.protege.editor.owl.codegeneration"/>
@@ -195,7 +195,7 @@
 
    <property name="update.properties.file" value="${svn.root}/etc/update.properties"/>
    <property name="readme.file"            value="${svn.root}/etc/version-readme.html"/>
-   <property name="download"               value="http://smi-protege.stanford.edu/protege4/plugins/4.1r/${plugin}.jar"/>
+   <property name="download"               value="http://protege.stanford.edu/fileshare/tredmond/${plugin}.jar"/>
 
    <target name = "dist" depends="jar">
        <echo file="./etc/update.properties" append="false">
