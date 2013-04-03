@@ -122,7 +122,7 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
         	inference = new SimpleInference(owlOntology);
         }
         try {
-        	Utilities.deleteFolder(options.getOutputFolder());
+        	// deleting stuff can in some cases be very bad here.  If it is reinstated then at least warn the user.
             DefaultWorker.generateCode(owlOntology, options, new ProtegeNames(owlModelManager, options), inference);
             JOptionPane.showMessageDialog(null, "Java code successfully generated.", "Information",
                     JOptionPane.INFORMATION_MESSAGE);
