@@ -69,7 +69,8 @@ public class GenerateTestCode {
 		options.setOutputFolder(outputFolder);
         CodeGenerationInference inference;
         if (useInference) {
-    		OWLReasonerFactory rFactory = (OWLReasonerFactory) Class.forName("org.semanticweb.HermiT.Reasoner$ReasonerFactory").newInstance();
+    		OWLReasonerFactory rFactory = (OWLReasonerFactory) Class.forName("uk.ac.manchester.cs.jfact.JFactFactory").newInstance();
+    		//OWLReasonerFactory rFactory = (OWLReasonerFactory) Class.forName("org.semanticweb.HermiT.Reasoner$ReasonerFactory").newInstance();
 			// OWLReasonerFactory rFactory = (OWLReasonerFactory) Class.forName("com.clarkparsia.pellet.owlapiv3.PelletReasonerFactory").newInstance();
     		OWLReasoner reasoner = rFactory.createNonBufferingReasoner(owlOntology);
         	inference = new ReasonerBasedInference(owlOntology, reasoner);
