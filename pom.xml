@@ -57,6 +57,13 @@
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+   <repositories>
+     <repository>
+       <id>phillord</id>
+       <url>http://homepages.cs.ncl.ac.uk/phillip.lord/maven</url>
+     </repository>
+   </repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>net.sourceforge.cobertura</groupId>
@@ -99,6 +106,12 @@
 			<artifactId>owlapi-distribution</artifactId>
 			<version>3.4.3</version>
 		</dependency>
+
+        <dependency>
+          <groupId>org.semanticweb.hermit</groupId>
+          <artifactId>HermiT</artifactId>
+          <version>1.3.7.1</version>
+        </dependency>
 
         <dependency>
           <groupId>net.sourceforge.owlapi</groupId>
