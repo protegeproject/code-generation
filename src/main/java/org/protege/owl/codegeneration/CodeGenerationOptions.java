@@ -1,11 +1,6 @@
 package org.protege.owl.codegeneration;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.util.EnumMap;
 
 /**This class stores the data required for owl code generator.
  * @author z.khan
