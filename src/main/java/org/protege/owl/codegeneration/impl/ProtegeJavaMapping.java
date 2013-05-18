@@ -84,8 +84,8 @@ public class ProtegeJavaMapping {
     
     private <X> X constructImplementation(Class<? extends X> implType, IRI id) {
         try {
-            Constructor<? extends X> con = implType.getConstructor(new Class[] { OWLOntology.class, IRI.class});
-            return con.newInstance(new Object[] { ontology, id });
+            Constructor<? extends X> con = implType.getConstructor(new Class[] { CodeGenerationInference.class, IRI.class});
+            return con.newInstance(new Object[] { inference, id });
         }
         catch (Throwable t) {
             ClassCastException classcast = new ClassCastException("Resource " + id.toString() + " could not be cast to type " + implType);
