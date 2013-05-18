@@ -1,7 +1,5 @@
 package org.protege.owl.codegeneration;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public enum SubstitutionVariable {
 	PACKAGE("package"),
