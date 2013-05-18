@@ -7,6 +7,8 @@ import java.util.Collection;
 import org.protege.owl.codegeneration.WrappedIndividual;
 import org.protege.owl.codegeneration.impl.WrappedIndividualImpl;
 
+import org.protege.owl.codegeneration.inference.CodeGenerationInference;
+
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
 
@@ -18,8 +20,8 @@ import org.semanticweb.owlapi.model.OWLOntology;
  */
 public class ${implementationName} extends WrappedIndividualImpl implements ${interfaceName} {
 
-    public ${implementationName}(OWLOntology ontology, IRI iri) {
-        super(ontology, iri);
+    public ${implementationName}(CodeGenerationInference inference, IRI iri) {
+        super(inference, iri);
     }
 
 
