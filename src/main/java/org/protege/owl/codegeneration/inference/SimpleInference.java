@@ -25,6 +25,7 @@ import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLDatatypeRestriction;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLIndividual;
+import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectIntersectionOf;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
@@ -114,6 +115,28 @@ public class SimpleInference implements CodeGenerationInference {
 	        }
 	    }
 	    return conjuncts;
+	}
+	
+	@Override
+	public Collection<OWLNamedIndividual> getPropertyValues(OWLNamedIndividual i, OWLObjectProperty p) {
+	    Collection<OWLNamedIndividual> results = new HashSet<OWLNamedIndividual>();
+	    for (OWLOntology imported : ontology.getImportsClosure()) {
+	        for (OWLIndividual j : i.getObjectPropertyValues(p, imported)) {
+	            if (!j.isAnonymous()) {
+	                results.add(j.asOWLNamedIndividual());
+	            }
+	        }
+	    }
+	    return results;
+	}
+	
+	@Override
+	public Collection<OWLLiteral> getPropertyValues(OWLNamedIndividual i, OWLDataProperty p) {
+        Set<OWLLiteral> results = new HashSet<OWLLiteral>();
+        for (OWLOntology imported : ontology.getImportsClosure()) {
+            results.addAll(i.getDataPropertyValues(p, imported));
+        }
+        return results;
 	}
 	
 	public Set<JavaPropertyDeclarations> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names) {

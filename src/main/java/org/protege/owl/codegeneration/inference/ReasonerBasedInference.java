@@ -19,6 +19,7 @@ import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLEntity;
+import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -43,18 +44,22 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 	}
 	
+    @Override
 	public OWLOntology getOWLOntology() {
 		return ontology;
 	}
 	
+    @Override
 	public void preCompute() {
 		reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY, InferenceType.CLASS_ASSERTIONS);
 	}
 	
+    @Override
 	public void flush() {
 	    reasoner.flush();
 	}
 	
+    @Override
 	public Collection<OWLClass> getOwlClasses() {
 		if (allClasses == null) {
 			allClasses = new HashSet<OWLClass>(ontology.getClassesInSignature());
@@ -64,14 +69,17 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		return allClasses;
 	}
 	
+    @Override
 	public Collection<OWLClass> getSubClasses(OWLClass owlClass) {
 		return reasoner.getSubClasses(owlClass, true).getFlattened();
 	}
 	
+    @Override
 	public Collection<OWLClass> getSuperClasses(OWLClass owlClass) {
 		return reasoner.getSuperClasses(owlClass, true).getFlattened();
 	}
 	
+    @Override
 	public Set<JavaPropertyDeclarations> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names) {
 		if (domainMap == null) {
 			initializeDomainMap();
@@ -90,10 +98,12 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		return declarations;
 	}
 	
+    @Override
 	public OWLClass getRange(OWLObjectProperty p) {
 		return getRange(factory.getOWLThing(), p);
 	}
 	
+    @Override
 	public OWLClass getRange(OWLClass owlClass, OWLObjectProperty p) {
 		Map<OWLObjectProperty, OWLClass> property2RangeMap = objectRangeMap.get(owlClass);
 		if (property2RangeMap == null) {
@@ -117,10 +127,12 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		return cls;
 	}
 	
+    @Override
 	public OWLDatatype getRange(OWLDataProperty p) {
 		return getRange(factory.getOWLThing(), p);
 	}
 	
+    @Override
 	public OWLDatatype getRange(OWLClass owlClass, OWLDataProperty p) {
 		Map<OWLDataProperty, OWLDatatype> property2RangeMap = dataRangeMap.get(owlClass);
 		if (property2RangeMap == null) {
@@ -145,17 +157,37 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 		return range;
 	}
 
-	public Collection<OWLNamedIndividual> getIndividuals(OWLClass owlClass) {
+    @Override
+    public Collection<OWLNamedIndividual> getIndividuals(OWLClass owlClass) {
 		return reasoner.getInstances(owlClass, false).getFlattened();
 	}
 
+    @Override
 	public boolean canAs(OWLNamedIndividual i, OWLClass c) {
 		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 		return reasoner.isSatisfiable(factory.getOWLObjectIntersectionOf(c, factory.getOWLObjectOneOf(i)));
 	}
 
+	@Override
 	public Collection<OWLClass> getTypes(OWLNamedIndividual i) {
 		return reasoner.getTypes(i, true).getFlattened();
+	}
+	
+	@Override
+	public Collection<OWLNamedIndividual> getPropertyValues(OWLNamedIndividual i, OWLObjectProperty p) {
+	    return reasoner.getObjectPropertyValues(i, p).getFlattened();
+	}
+	
+	@Override
+	public Collection<OWLLiteral> getPropertyValues(OWLNamedIndividual i, OWLDataProperty p) {
+        Set<OWLLiteral> results = new HashSet<OWLLiteral>();
+        results.addAll(reasoner.getDataPropertyValues(i, p));
+        // the behavior of getDataPropertyValues is somewhat undefined
+        // so make sure that the asserted ones are included.
+        for (OWLOntology imported : ontology.getImportsClosure()) {
+            results.addAll(i.getDataPropertyValues(p, imported));
+        }
+        return results;
 	}
 
 	/* *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
