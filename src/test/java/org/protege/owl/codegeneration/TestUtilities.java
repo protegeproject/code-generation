@@ -33,6 +33,10 @@ public class TestUtilities {
 
     public static String FEB_INDIVIDUALS_ONTOLOGY = "2013-02-12-issue" + File.separator + "Tempxxx.owl";
     
+    public static String PROPERTY_VALUES_ONTOLOGY = "CodeGeneration002.owl";
+    public static String PROPERTY_VALUES_NS       = "http://protege.stanford.edu/fileshare/tredmond/CodeGenerationPropertyValues.owl#";
+
+    
     private TestUtilities() { }
 	
 	public static void assertMethodNotFound(Class<?> c, String method, Class<?>...arguments) {
@@ -68,7 +72,7 @@ public class TestUtilities {
 		if (useInference) {
 			OWLReasonerFactory rFactory = (OWLReasonerFactory) Class.forName("org.semanticweb.HermiT.Reasoner$ReasonerFactory").newInstance();
 			// OWLReasonerFactory rFactory = (OWLReasonerFactory) Class.forName("com.clarkparsia.pellet.owlapiv3.PelletReasonerFactory").newInstance();
-			OWLReasoner reasoner = rFactory.createNonBufferingReasoner(ontology);
+			OWLReasoner reasoner = rFactory.createReasoner(ontology);
 			inference = new ReasonerBasedInference(ontology, reasoner);
 		}
 		else {
