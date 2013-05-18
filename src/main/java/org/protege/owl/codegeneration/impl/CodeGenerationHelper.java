@@ -8,6 +8,7 @@ import java.util.Set;
 import org.protege.owl.codegeneration.CodeGenerationRuntimeException;
 import org.protege.owl.codegeneration.HandledDatatypes;
 import org.protege.owl.codegeneration.WrappedIndividual;
+import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLDataFactory;
@@ -20,17 +21,15 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 public class CodeGenerationHelper {
-    private OWLOntology owlOntology;
-    private OWLNamedIndividual owlIndividual;
-    
+    private OWLOntology owlOntology;    
     private OWLDataFactory owlDataFactory;
     private OWLOntologyManager manager;
+    private CodeGenerationInference inference;
     
     
-    public CodeGenerationHelper(OWLOntology owlOntology, OWLNamedIndividual individual) {
-        this.owlOntology = owlOntology;
-        owlIndividual = individual;
-        
+    public CodeGenerationHelper(CodeGenerationInference inference) {
+        this.inference = inference;
+        this.owlOntology = inference.getOWLOntology();        
         manager = owlOntology.getOWLOntologyManager();
         owlDataFactory = manager.getOWLDataFactory();
     }
@@ -39,26 +38,18 @@ public class CodeGenerationHelper {
         return owlOntology;
     }
     
-    public OWLNamedIndividual getOwlIndividual() {
-		return owlIndividual;
-	}
-    
     public <X> Collection<X> getPropertyValues(OWLNamedIndividual i, OWLObjectProperty p, Class<X> c) {
-    	try {
-    		Constructor<X> constructor = c.getConstructor(OWLOntology.class, IRI.class);
-    		Set<X> results = new HashSet<X>();
-    		for (OWLOntology imported : owlOntology.getImportsClosure()) {
-    			for (OWLIndividual j : i.getObjectPropertyValues(p, imported)) {
-    				if (!j.isAnonymous()) {
-    					results.add(constructor.newInstance(owlOntology, j.asOWLNamedIndividual().getIRI()));
-    				}
-    			}
-    		}
-    		return results;
-    	}
-    	catch (Exception e) {
-    		throw new CodeGenerationRuntimeException(e);
-    	}
+        try {
+            Constructor<X> constructor = c.getConstructor(CodeGenerationInference.class, IRI.class);
+            Set<X> results = new HashSet<X>();
+            for (OWLNamedIndividual j : inference.getPropertyValues(i, p)) {
+                results.add(constructor.newInstance(inference, j.getIRI()));
+            }
+            return results;
+        }
+        catch (Exception e) {
+            throw new CodeGenerationRuntimeException(e);
+        }
     }
  
     public void addPropertyValue(OWLNamedIndividual i, OWLObjectProperty p, WrappedIndividual j) {
@@ -74,13 +65,11 @@ public class CodeGenerationHelper {
     }
     
     public <X> Collection<X> getPropertyValues(OWLNamedIndividual i, OWLDataProperty p, Class<X> c) {
-    	Set<X> results = new HashSet<X>();
-    	for (OWLOntology imported : owlOntology.getImportsClosure()) {
-    		for (OWLLiteral l : i.getDataPropertyValues(p, imported)) {
-    			results.add(c.cast(getObjectFromLiteral(l)));
-    		}
-    	}
-    	return results;
+        Set<X> results = new HashSet<X>();
+        for (OWLLiteral l : inference.getPropertyValues(i, p)) {
+            results.add(c.cast(getObjectFromLiteral(l)));
+        }
+        return results;
     }
     
     public void addPropertyValue(OWLNamedIndividual i, OWLDataProperty p, Object o) {
