@@ -49,6 +49,7 @@ public class GenerateTestCode {
 		Utilities.deleteFolder(outputFolder);
 		generateSimpleJavaCode("CodeGeneration001.owl", "inferred.testSimple", "MyInferredFactory", true, outputFolder);
 		generateSimpleJavaCode("CodeGeneration001.owl", "std.testSimple02", "MySimpleStdFactory", false, outputFolder);
+		generateSimpleJavaCode("CodeGeneration002.owl", "inferred.propertyValues", "InferredPropertyValuesFactory", true, outputFolder);
 		generateSimpleJavaCode("pizza.owl", "inferred.pizza", "MyInferredPizzaFactory", true, outputFolder);
 		generateSimpleJavaCode(GenerateTestCode.FEB_TBOX_ONTOLOGY, "inferred.febissue", "FebIssueFactory", true, outputFolder);
 	}
