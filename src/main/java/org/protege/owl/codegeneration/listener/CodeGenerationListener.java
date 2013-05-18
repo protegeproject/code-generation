@@ -66,13 +66,13 @@ public abstract class CodeGenerationListener<X extends WrappedIndividual> implem
     }
     
     private void handleCreationEvent(AddAxiom change) {
-        for (OWLEntity e : change.getEntities()) {
+        for (OWLEntity e : change.getSignature()) {
             if (e instanceof OWLNamedIndividual 
                     && !handledForCreation.contains(e)
                     && !signature.contains(e)) {
                 handledForCreation.add((OWLNamedIndividual) e);
                 if (inference.canAs((OWLNamedIndividual) e, type)) {
-                    WrappedIndividual wrapped = new WrappedIndividualImpl(factory.getOwlOntology(), (OWLNamedIndividual) e);
+                    WrappedIndividual wrapped = new WrappedIndividualImpl(inference, (OWLNamedIndividual) e);
                     individualCreated(factory.as(wrapped, javaInterface));
                 }
             }
@@ -94,7 +94,7 @@ public abstract class CodeGenerationListener<X extends WrappedIndividual> implem
                 && ((OWLPropertyAssertionAxiom) axiom).getSubject().isNamed()) {
             OWLNamedIndividual i = ((OWLPropertyAssertionAxiom) change.getAxiom()).getSubject().asOWLNamedIndividual();
             if (!handledForModification.contains(i) && inference.canAs((OWLNamedIndividual) i, type)) {
-                WrappedIndividual wrapped = new WrappedIndividualImpl(factory.getOwlOntology(), i);
+                WrappedIndividual wrapped = new WrappedIndividualImpl(inference, i);
                 individualModified(factory.as(wrapped, javaInterface));
             }
         }
