@@ -14,8 +14,6 @@ import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_IRI;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_CLASS;
 import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_PROPERTY;
 import static org.protege.owl.codegeneration.SubstitutionVariable.USER;
-import static org.protege.owl.codegeneration.SubstitutionVariable.VOCABULARY_CLASS;
-import static org.protege.owl.codegeneration.SubstitutionVariable.VOCABULARY_PROPERTY;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +39,6 @@ import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.vocab.OWL2Datatype;
 
 public class DefaultWorker implements Worker {
 	private EnumMap<CodeGenerationPhase, String> templateMap = new EnumMap<CodeGenerationPhase, String>(CodeGenerationPhase.class);
