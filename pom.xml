@@ -59,8 +59,8 @@
 
    <repositories>
      <repository>
-       <id>phillord</id>
-       <url>http://homepages.cs.ncl.ac.uk/phillip.lord/maven</url>
+       <id>nexus</id>
+       <url>http://bmir-hudson1.stanford.edu/nexus/content/repositories/thirdparty/</url>
      </repository>
    </repositories>
 
@@ -108,9 +108,9 @@
 		</dependency>
 
         <dependency>
-          <groupId>org.semanticweb.hermit</groupId>
-          <artifactId>HermiT</artifactId>
-          <version>1.3.7.1</version>
+          <groupId>HermiT</groupId>
+          <artifactId>org.semanticweb.HermiT</artifactId>
+          <version>1.3.5.23807</version>
         </dependency>
 
         <dependency>
