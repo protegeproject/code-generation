@@ -176,7 +176,13 @@
 						<Bundle-SymbolicName>org.protege.editor.owl.codegeneration;singleton:=true</Bundle-SymbolicName>
 						<Bundle-Vendor>The Protege Development Team</Bundle-Vendor>
 						<Export-Package>org.protege.owl.codegeneration.*</Export-Package>
-						<Import-Package>*</Import-Package>
+                        <Private-Package>org.protege.editor.owl.codegeneration.*</Private-Package>
+						<Import-Package>org.apache.log4j.*;version=1.2,
+                                        org.protege.editor.*;version=4.2,
+                                        org.semanticweb.owlapi.*;version=3.4,
+                                        *
+                        </Import-Package>
+                        <Excluded-Import>org.protege.owl.codegeneration</Excluded-Import>
 						<Embed-Dependency>commons-cli</Embed-Dependency>
 						<Include-Resource>plugin.xml, {maven-resources}</Include-Resource>
 					</instructions>

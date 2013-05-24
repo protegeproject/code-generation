@@ -105,7 +105,7 @@ public class JavaCodeGeneratorPanel extends JPanel {
 
             }
         });
-        URL url = JavaCodeGeneratorPanel.class.getResource("select_folder.gif");
+        URL url = JavaCodeGeneratorPanel.class.getResource("/select_folder.gif");
         selectFolder.setIcon(new ImageIcon(url));
 
         okButton = new JButton("Ok");
