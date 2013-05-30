@@ -37,9 +37,8 @@ public class WrappedIndividualImpl implements WrappedIndividual {
     private CodeGenerationHelper delegate;
     
     /**Constructor
-     * @param owlDataFactory
+     * @param inference
      * @param iri
-     * @param owlOntology
      */
     public WrappedIndividualImpl(CodeGenerationInference inference, IRI iri) {
         this(inference, inference.getOWLOntology().getOWLOntologyManager().getOWLDataFactory().getOWLNamedIndividual(iri));

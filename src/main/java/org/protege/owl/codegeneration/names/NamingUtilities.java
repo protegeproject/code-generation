@@ -12,7 +12,6 @@ public class NamingUtilities {
 	
     /** Returns the provided string with initial letter as capital
      * @param name
-     * @return
      */
     public static String convertInitialLetterToUpperCase(String name) {
         if (name == null) {

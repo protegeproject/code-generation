@@ -43,17 +43,17 @@ public class JavaCodeGenerator {
 
     private Worker worker;
 
-    /**Constructor
-     * @param owlOntology
-     * @param options
+    /**
+     * Constructor
      */
     public JavaCodeGenerator(Worker worker) {
     	this.worker = worker;
         worker.initialize();
     }
 
-    /**Initiates the code generation
-     * @param reasoner
+    /**
+     * Initiates the code generation
+     * 
      * @throws IOException
      */
     public void createAll() throws IOException {
