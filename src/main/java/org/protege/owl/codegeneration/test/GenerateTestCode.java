@@ -18,7 +18,6 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
-import org.semanticweb.owlapi.util.AutoIRIMapper;
 import org.semanticweb.owlapi.util.SimpleIRIMapper;
 
 /**
@@ -49,13 +48,24 @@ public class GenerateTestCode {
 	}
 	
 	private static void generateSimpleJavaCode() throws OWLOntologyCreationException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
-		File outputFolder = new File("target/generated-sources");
+		File outputFolder = getOutputFolder();
 		Utilities.deleteFolder(outputFolder);
 		generateSimpleJavaCode("CodeGeneration001.owl", "inferred.testSimple", "MyInferredFactory", true, outputFolder);
 		generateSimpleJavaCode("CodeGeneration001.owl", "std.testSimple02", "MySimpleStdFactory", false, outputFolder);
 		generateSimpleJavaCode("CodeGeneration002.owl", "inferred.propertyValues", "InferredPropertyValuesFactory", true, outputFolder);
 		generateSimpleJavaCode("pizza.owl", "inferred.pizza", "MyInferredPizzaFactory", true, outputFolder);
 		generateSimpleJavaCode(GenerateTestCode.FEB_TBOX_ONTOLOGY, "inferred.febissue", "FebIssueFactory", true, outputFolder);
+	}
+	
+	private static File getOutputFolder() {
+		File aggregator_dir = new File("org.protege.editor.owl.codegeneration");
+		String relative_path = "target/generated-sources";
+		if (aggregator_dir.exists()) {
+			return new File(aggregator_dir, relative_path);
+		}
+		else {
+			return new File(relative_path);
+		}
 	}
 	
 	private static void generateSimpleJavaCode(String ontologyLocation, 
