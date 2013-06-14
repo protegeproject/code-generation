@@ -34,7 +34,7 @@ public class GenerateTestCode {
 	
 	public final static File ONTOLOGY_ROOT;
 	static {
-		File aggregator_ontology_root = new File("org.protege.owl.codegeneration/src/test/resources");
+		File aggregator_ontology_root = new File("org.protege.editor.owl.codegeneration/src/test/resources");
 		ONTOLOGY_ROOT = aggregator_ontology_root.exists() ? aggregator_ontology_root : new File("src/test/resources");
 	}
 	public final static String FEB_PATH           = "2013-02-12-issue";
