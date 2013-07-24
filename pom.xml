@@ -10,7 +10,7 @@
 	
 	<groupId>edu.stanford.protege</groupId>
 	<artifactId>org.protege.editor.owl.codegeneration</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 
 	<name>OWL Code Generation Plug-in</name>
@@ -35,9 +35,9 @@
 	</developers>
 	
 	<scm>
-		<connection>scm:svn:http://smi-protege.stanford.edu/repos/protege/protege4/plugins/org.protege.editor.owl.codegeneration/tags/org.protege.editor.owl.codegeneration-1.0.0</connection>
-		<developerConnection>scm:svn:https://smi-protege.stanford.edu/repos/protege/protege4/plugins/org.protege.editor.owl.codegeneration/tags/org.protege.editor.owl.codegeneration-1.0.0</developerConnection>
-		<url>http://smi-protege.stanford.edu/svn/protege4/plugins/org.protege.editor.owl.codegeneration/tags/org.protege.editor.owl.codegeneration-1.0.0</url>
+		<connection>scm:svn:http://smi-protege.stanford.edu/repos/protege/protege4/plugins/org.protege.editor.owl.codegeneration/trunk/</connection>
+		<developerConnection>scm:svn:https://smi-protege.stanford.edu/repos/protege/protege4/plugins/org.protege.editor.owl.codegeneration/trunk/</developerConnection>
+		<url>http://smi-protege.stanford.edu/svn/protege4/plugins/org.protege.editor.owl.codegeneration/</url>
 	</scm>
 
 	<repositories>
