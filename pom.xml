@@ -40,13 +40,6 @@
 		<url>http://smi-protege.stanford.edu/svn/protege4/plugins/org.protege.editor.owl.codegeneration/</url>
 	</scm>
 
-	<repositories>
-		<repository>
-			<id>github</id>
-			<url>https://github.com/protegeproject/mvn-repo/raw/master/releases</url>
-		</repository>
-	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>net.sourceforge.cobertura</groupId>
