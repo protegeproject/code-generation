@@ -39,6 +39,11 @@
 		<developerConnection>scm:git:git@github.com:protegeproject/code-generation.git</developerConnection>
 		<url>https://github.com/protegeproject/code-generation</url>
 	</scm>
+	
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/protegeproject/code-generation/issues</url>
+	</issueManagement>
 
 	<dependencies>
 		<dependency>
