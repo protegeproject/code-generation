@@ -27,6 +27,14 @@ public class TestUtilities {
 	
 	public static String NS01="http://protege.org/ontologies/CodeGeneration001.owl";
     public static String ONTOLOGY01="CodeGeneration001.owl";
+    public static String ONTOLOGY01X = NS01 + "#x";
+    public static String ONTOLOGY01Y = NS01 + "#y";
+    public static String ONTOLOGY_NEW_A1 = NS01 + "#aNewA1";
+    public static String ONTOLOGY_NEW_B1 = NS01 + "#aNewB1";
+    
+    
+    
+    
     
     public static String PIZZA_ONTOLOGY = "pizza.owl";
     public static String PIZZA_NS = "http://www.co-ode.org/ontologies/pizza/pizza.owl";
