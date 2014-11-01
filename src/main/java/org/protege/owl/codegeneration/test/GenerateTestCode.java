@@ -53,6 +53,7 @@ public class GenerateTestCode {
 		generateSimpleJavaCode("CodeGeneration001.owl", "inferred.testSimple", "MyInferredFactory", true, outputFolder);
 		generateSimpleJavaCode("CodeGeneration001.owl", "std.testSimple02", "MySimpleStdFactory", false, outputFolder);
 		generateSimpleJavaCode("CodeGeneration002.owl", "inferred.propertyValues", "InferredPropertyValuesFactory", true, outputFolder);
+		generateSimpleJavaCode("CodeGeneration003.owl", "inferred.generate03", "InferredGenerate03Factory",true, outputFolder);
 		generateSimpleJavaCode("pizza.owl", "inferred.pizza", "MyInferredPizzaFactory", true, outputFolder);
 		generateSimpleJavaCode(GenerateTestCode.FEB_TBOX_ONTOLOGY, "inferred.febissue", "FebIssueFactory", true, outputFolder);
 	}
