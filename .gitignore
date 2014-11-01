@@ -2,5 +2,8 @@
 .project
 .settings/
 build.properties
+classes.eclipse/
 META-INF/
+src/test/resources/catalog-v001.xml
 target/
+test-output/

@@ -15,16 +15,6 @@ public class CodeGenerationOptions {
     private File outputFolder;
 
     private boolean useReasoner;
-    
-    public final static String FACTORY_CLASS_NAME = "JavaCodeFactoryClassName";
-
-    public final static String FILE_NAME = "JavaCodeFileName";
-
-    public final static String PACKAGE = "JavaCodePackage";
-
-    public final static String SET_MODE = "JavaCodeSet";
-
-    public final static String PREFIX_MODE = "JavaCodeUsePrefix";
 
     public final static String FACTORY_CLASS_NAME_DEFAULT = "MyFactory";
 

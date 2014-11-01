@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?eclipse version="3.0"?>
 
-<plugin>
-    <extension id="menu.code.generateowlcode" point="org.protege.editor.core.application.EditorKitMenuAction">
+<plugin version="1.0.3" name="CodeGenerationPlugin" id="menu.code.geenerateowlcode">
+    <extension
+    	id="menu.code.generateowlcode" 
+    	point="org.protege.editor.core.application.EditorKitMenuAction">
         <name value="Generate Java code..."/>
         <class value="org.protege.editor.owl.codegeneration.GenerateProtegeOwlJavaCodeAction"/>
         <toolTip value="Generate Java code from the active ontology"/>
