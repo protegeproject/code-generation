@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 
+import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLEntity;
@@ -16,6 +17,8 @@ public interface Worker {
 	OWLOntology getOwlOntology();
 	
 	void initialize();
+	
+	CodeGenerationInference getInference();
 	
 	Collection<OWLClass> getOwlClasses();
 	

@@ -2,7 +2,9 @@ package org.protege.owl.codegeneration;
 
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_CLASS_VOCABULARY;
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_DATA_PROPERTY_IMPLEMENTATION;
+import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_FUNCTIONAL_DATA_PROPERTY_IMPLEMENTATION;
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_DATA_PROPERTY_INTERFACE;
+import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_FUNCTIONAL_DATA_PROPERTY_INTERFACE;
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_DATA_PROPERTY_VOCABULARY;
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_FACTORY_CLASS;
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_FACTORY_HEADER;
@@ -12,7 +14,9 @@ import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_IMPLEMEN
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_INTERFACE_HEADER;
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_INTERFACE_TAIL;
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_OBJECT_PROPERTY_IMPLEMENTATION;
+import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_FUNCTIONAL_OBJECT_PROPERTY_IMPLEMENTATION;
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_OBJECT_PROPERTY_INTERFACE;
+import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_FUNCTIONAL_OBJECT_PROPERTY_INTERFACE;
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_OBJECT_PROPERTY_VOCABULARY;
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_VOCABULARY_HEADER;
 import static org.protege.owl.codegeneration.CodeGenerationPhase.CREATE_VOCABULARY_TAIL;
@@ -27,6 +31,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
+import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLEntity;
@@ -42,6 +47,7 @@ public class JavaCodeGenerator {
 	public static final Logger LOGGER = Logger.getLogger(JavaCodeGenerator.class);
 
     private Worker worker;
+    private CodeGenerationInference inference;
 
     /**
      * Constructor
@@ -49,6 +55,7 @@ public class JavaCodeGenerator {
     public JavaCodeGenerator(Worker worker) {
     	this.worker = worker;
         worker.initialize();
+        inference = worker.getInference();
     }
 
     /**
@@ -98,11 +105,21 @@ public class JavaCodeGenerator {
     	fillAndWriteTemplate(printWriter, CREATE_INTERFACE_HEADER, substitutions, owlClass, null);
 
         for (OWLObjectProperty owlObjectProperty : owlObjectProperties) {
-        	fillAndWriteTemplate(printWriter, CREATE_OBJECT_PROPERTY_INTERFACE, substitutions, owlClass, owlObjectProperty);
+        	if (inference.isFunctional(owlObjectProperty)) {
+        		fillAndWriteTemplate(printWriter, CREATE_FUNCTIONAL_OBJECT_PROPERTY_INTERFACE, substitutions, owlClass, owlObjectProperty);        		
+        	}
+        	else {
+        		fillAndWriteTemplate(printWriter, CREATE_OBJECT_PROPERTY_INTERFACE, substitutions, owlClass, owlObjectProperty);
+        	}
         }
         
         for (OWLDataProperty owlDataProperty :owlDataProperties) {
-            fillAndWriteTemplate(printWriter, CREATE_DATA_PROPERTY_INTERFACE, substitutions, owlClass, owlDataProperty);
+        	if (inference.isFunctional(owlDataProperty)) {
+        		fillAndWriteTemplate(printWriter, CREATE_FUNCTIONAL_DATA_PROPERTY_INTERFACE, substitutions, owlClass, owlDataProperty);
+        	}
+        	else {
+        		fillAndWriteTemplate(printWriter, CREATE_DATA_PROPERTY_INTERFACE, substitutions, owlClass, owlDataProperty);
+        	}
         }
     	
         fillAndWriteTemplate(printWriter, CREATE_INTERFACE_TAIL, substitutions, owlClass, null);
@@ -126,11 +143,21 @@ public class JavaCodeGenerator {
     	fillAndWriteTemplate(printWriter, CREATE_IMPLEMENTATION_HEADER, substitutions, owlClass, null);
         
     	for (OWLObjectProperty owlObjectProperty : owlObjectProperties) {
-            fillAndWriteTemplate(printWriter, CREATE_OBJECT_PROPERTY_IMPLEMENTATION, substitutions, owlClass, owlObjectProperty);
+    		if (inference.isFunctional(owlObjectProperty)) {
+                fillAndWriteTemplate(printWriter, CREATE_FUNCTIONAL_OBJECT_PROPERTY_IMPLEMENTATION, substitutions, owlClass, owlObjectProperty);    		
+    		}
+    		else {
+    			fillAndWriteTemplate(printWriter, CREATE_OBJECT_PROPERTY_IMPLEMENTATION, substitutions, owlClass, owlObjectProperty);
+    		}
         }
         
         for (OWLDataProperty owlDataProperty :owlDataProperties) {
-            fillAndWriteTemplate(printWriter, CREATE_DATA_PROPERTY_IMPLEMENTATION, substitutions, owlClass, owlDataProperty);
+        	if (inference.isFunctional(owlDataProperty)) {
+                fillAndWriteTemplate(printWriter, CREATE_FUNCTIONAL_DATA_PROPERTY_IMPLEMENTATION, substitutions, owlClass, owlDataProperty);        		
+        	}
+        	else {
+        		fillAndWriteTemplate(printWriter, CREATE_DATA_PROPERTY_IMPLEMENTATION, substitutions, owlClass, owlDataProperty);
+        	}
         }
         
         fillAndWriteTemplate(printWriter, CREATE_IMPLEMENTATION_TAIL, substitutions, owlClass, null);

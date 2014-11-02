@@ -1,0 +1,27 @@
+
+    /* ***************************************************
+     * Object Property ${propertyIri}
+     */
+     
+    public Collection<? extends ${propertyRange}> get${OwlProperty}() {
+        return getDelegate().getPropertyValues(getOwlIndividual(),
+                                               Vocabulary.${VocabProperty},
+                                               ${propertyRangeImplementation}.class);
+    }
+
+    public boolean has${OwlProperty}() {
+	   return !get${OwlProperty}().isEmpty();
+    }
+
+    public void add${OwlProperty}(${propertyRange} new${OwlProperty}) {
+        getDelegate().addPropertyValue(getOwlIndividual(),
+                                       Vocabulary.${VocabProperty},
+                                       new${OwlProperty});
+    }
+
+    public void remove${OwlProperty}(${propertyRange} old${OwlProperty}) {
+        getDelegate().removePropertyValue(getOwlIndividual(),
+                                          Vocabulary.${VocabProperty},
+                                          old${OwlProperty});
+    }
+

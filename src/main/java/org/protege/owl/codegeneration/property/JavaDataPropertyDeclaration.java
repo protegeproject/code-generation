@@ -26,12 +26,12 @@ import org.semanticweb.owlapi.model.OWLDatatype;
  * @author tredmond
  *
  */
-public class JavaDataPropertyDeclarations implements JavaPropertyDeclarations {
+public class JavaDataPropertyDeclaration implements JavaPropertyDeclaration {
 	private CodeGenerationInference inference;
 	private OWLClass owlClass;
 	private OWLDataProperty property;
 	
-	public JavaDataPropertyDeclarations(CodeGenerationInference inference, 
+	public JavaDataPropertyDeclaration(CodeGenerationInference inference, 
 			                            OWLClass owlClass, OWLDataProperty property) {
 		this.inference = inference;
 		this.owlClass  = owlClass;
@@ -42,8 +42,8 @@ public class JavaDataPropertyDeclarations implements JavaPropertyDeclarations {
 		return property;
 	}
 
-	public JavaPropertyDeclarations specializeTo(OWLClass subclass) {
-		return new JavaDataPropertyDeclarations(inference, subclass, property);
+	public JavaPropertyDeclaration specializeTo(OWLClass subclass) {
+		return new JavaDataPropertyDeclaration(inference, subclass, property);
 	}
 
 	public void configureSubstitutions(Map<SubstitutionVariable, String> substitutions) {

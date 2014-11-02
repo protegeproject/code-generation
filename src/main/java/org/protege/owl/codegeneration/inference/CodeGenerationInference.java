@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.protege.owl.codegeneration.names.CodeGenerationNames;
-import org.protege.owl.codegeneration.property.JavaPropertyDeclarations;
+import org.protege.owl.codegeneration.property.JavaPropertyDeclaration;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLDatatype;
@@ -27,11 +27,15 @@ public interface CodeGenerationInference {
 	
 	Collection<OWLClass> getSuperClasses(OWLClass owlClass);
 	
-	Set<JavaPropertyDeclarations> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names);
+	Set<JavaPropertyDeclaration> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names);
+	
+	boolean isFunctional(OWLObjectProperty p);
 
 	OWLClass getRange(OWLObjectProperty p);
 	
 	OWLClass getRange(OWLClass owlClass, OWLObjectProperty p);
+	
+	boolean isFunctional(OWLDataProperty p);
 	
 	OWLDatatype getRange(OWLDataProperty p);
 	

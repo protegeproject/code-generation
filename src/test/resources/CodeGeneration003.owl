@@ -17,7 +17,9 @@
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <owl:Ontology rdf:about="http://protege.org/codegeneration/test"/>
+    <owl:Ontology rdf:about="http://protege.org/codegeneration/test">
+        <rdfs:comment xml:lang="en">This ontology is intended to test some of Rob Challen&apos;s improvements to the protege code generator. Right now it includes tests for ignoring properties.</rdfs:comment>
+    </owl:Ontology>
     
 
 
@@ -92,8 +94,8 @@
         <rdfs:subClassOf rdf:resource="http://protege.org/codegeneration/test#A"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://protege.org/codegeneration/test#q"/>
-                <owl:someValuesFrom rdf:resource="http://protege.org/codegeneration/test#A"/>
+                <owl:onProperty rdf:resource="http://protege.org/codegeneration/test#r"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
@@ -104,8 +106,8 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://protege.org/codegeneration/test#r"/>
-                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+                <owl:onProperty rdf:resource="http://protege.org/codegeneration/test#q"/>
+                <owl:someValuesFrom rdf:resource="http://protege.org/codegeneration/test#A"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>

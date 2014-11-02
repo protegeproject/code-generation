@@ -74,6 +74,11 @@ public class DefaultWorker implements Worker {
 		return owlOntology;
 	}
     
+    @Override
+    public CodeGenerationInference getInference() {
+    	return inference;
+    }
+    
     public Collection<OWLClass> getOwlClasses() {
     	return new TreeSet<OWLClass>(inference.getOwlClasses());
     }
@@ -182,9 +187,13 @@ public class DefaultWorker implements Worker {
 			configureClassSubstitutions(substitutions, owlClass);
 			break;
 		case CREATE_DATA_PROPERTY_INTERFACE:
+		case CREATE_FUNCTIONAL_DATA_PROPERTY_INTERFACE:
 		case CREATE_DATA_PROPERTY_IMPLEMENTATION:
+		case CREATE_FUNCTIONAL_DATA_PROPERTY_IMPLEMENTATION:
 		case CREATE_OBJECT_PROPERTY_INTERFACE:
+		case CREATE_FUNCTIONAL_OBJECT_PROPERTY_INTERFACE:
 		case CREATE_OBJECT_PROPERTY_IMPLEMENTATION:
+		case CREATE_FUNCTIONAL_OBJECT_PROPERTY_IMPLEMENTATION:
 			configureClassSubstitutions(substitutions, owlClass);
 			configurePropertySubstitutions(substitutions, owlProperty);
 	        propertyDeclarations.get(owlClass, owlProperty).configureSubstitutions(substitutions);
