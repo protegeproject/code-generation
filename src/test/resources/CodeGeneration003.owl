@@ -74,6 +74,29 @@
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://protege.org/codegeneration/test#a -->
+
+    <owl:DatatypeProperty rdf:about="http://protege.org/codegeneration/test#a"/>
+    
+
+
+    <!-- http://protege.org/codegeneration/test#b -->
+
+    <owl:DatatypeProperty rdf:about="http://protege.org/codegeneration/test#b"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
     // Classes
     //
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -94,8 +117,8 @@
         <rdfs:subClassOf rdf:resource="http://protege.org/codegeneration/test#A"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://protege.org/codegeneration/test#r"/>
-                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+                <owl:onProperty rdf:resource="http://protege.org/codegeneration/test#b"/>
+                <owl:allValuesFrom rdf:resource="&xsd;dateTime"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
@@ -108,6 +131,18 @@
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://protege.org/codegeneration/test#q"/>
                 <owl:someValuesFrom rdf:resource="http://protege.org/codegeneration/test#A"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://protege.org/codegeneration/test#r"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://protege.org/codegeneration/test#a"/>
+                <owl:allValuesFrom rdf:resource="&xsd;anyURI"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>

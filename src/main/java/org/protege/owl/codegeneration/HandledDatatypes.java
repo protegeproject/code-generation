@@ -1,5 +1,9 @@
 package org.protege.owl.codegeneration;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDatatype;
@@ -91,6 +95,50 @@ public enum HandledDatatypes {
 		@Override
 		public boolean isMatch(OWLDatatype dt) {
 			return dt.getIRI().equals(XSDVocabulary.LONG.getIRI());
+		}
+	},
+	URI(XSDVocabulary.ANY_URI.getIRI(), "URI", "URI") {
+
+		public Object getObject(OWLLiteral literal) {
+			return java.net.URI.create(literal.getLiteral());
+		}
+
+		public OWLLiteral getLiteral(OWLDataFactory factory, Object o) {
+			if (o instanceof java.net.URI) {
+				return factory.getOWLLiteral(o.toString(), OWL2Datatype.XSD_ANY_URI);
+			}
+			else {
+				return null;
+			}
+		}
+
+		@Override
+		public boolean isMatch(OWLDatatype dt) {
+			return dt.getIRI().equals(XSDVocabulary.ANY_URI.getIRI());
+		}
+	},
+	DATE_TIME(XSDVocabulary.DATE_TIME.getIRI(), "XMLGregorianCalendar", "XMLGregorianCalendar") {
+
+		public Object getObject(OWLLiteral literal) {
+			try {
+				return DatatypeFactory.newInstance().newXMLGregorianCalendar(literal.getLiteral());
+			} catch (DatatypeConfigurationException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		public OWLLiteral getLiteral(OWLDataFactory factory, Object o) {
+			if (o instanceof XMLGregorianCalendar) {
+				return factory.getOWLLiteral(o.toString(), OWL2Datatype.XSD_DATE_TIME);
+			}
+			else {
+				return null;
+			}
+		}
+
+		@Override
+		public boolean isMatch(OWLDatatype dt) {
+			return dt.getIRI().equals(XSDVocabulary.DATE_TIME.getIRI());
 		}
 	}
 	;
