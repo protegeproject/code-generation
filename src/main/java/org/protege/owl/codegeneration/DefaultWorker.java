@@ -74,16 +74,29 @@ public class DefaultWorker implements Worker {
 		return owlOntology;
 	}
     
+    @Override
+    public CodeGenerationInference getInference() {
+    	return inference;
+    }
+    
     public Collection<OWLClass> getOwlClasses() {
     	return new TreeSet<OWLClass>(inference.getOwlClasses());
     }
     
     public Collection<OWLObjectProperty> getOwlObjectProperties() {
-    	return new TreeSet<OWLObjectProperty>(owlOntology.getObjectPropertiesInSignature(true));
+    	return Utilities.filterIgnored(owlOntology.getObjectPropertiesInSignature(true), owlOntology);
     }
     
     public Collection<OWLDataProperty> getOwlDataProperties() {
-    	return new TreeSet<OWLDataProperty>(owlOntology.getDataPropertiesInSignature(true));
+    	return Utilities.filterIgnored(owlOntology.getDataPropertiesInSignature(true), owlOntology);
+    }
+    
+    public Collection<OWLObjectProperty> getObjectPropertiesForClass(OWLClass owlClass) {
+    	return Utilities.filterIgnored(propertyDeclarations.getObjectPropertiesForClass(owlClass), owlOntology);
+    }
+    
+    public Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass owlClass) {
+    	return Utilities.filterIgnored(propertyDeclarations.getDataPropertiesForClass(owlClass), owlOntology);
     }
 
     public void initialize() {
@@ -102,14 +115,6 @@ public class DefaultWorker implements Worker {
             File file = folder == null ? new File("impl") : new File(folder, "impl");
             file.mkdirs();
         }
-    }
-    
-    public Collection<OWLObjectProperty> getObjectPropertiesForClass(OWLClass owlClass) {
-    	return propertyDeclarations.getObjectPropertiesForClass(owlClass);
-    }
-    
-    public Collection<OWLDataProperty> getDataPropertiesForClass(OWLClass owlClass) {
-    	return propertyDeclarations.getDataPropertiesForClass(owlClass);
     }
     
     public File getInterfaceFile(OWLClass owlClass) {
@@ -182,14 +187,24 @@ public class DefaultWorker implements Worker {
 			configureClassSubstitutions(substitutions, owlClass);
 			break;
 		case CREATE_DATA_PROPERTY_INTERFACE:
+		case CREATE_FUNCTIONAL_DATA_PROPERTY_INTERFACE:
 		case CREATE_DATA_PROPERTY_IMPLEMENTATION:
+		case CREATE_FUNCTIONAL_DATA_PROPERTY_IMPLEMENTATION:
 		case CREATE_OBJECT_PROPERTY_INTERFACE:
+		case CREATE_FUNCTIONAL_OBJECT_PROPERTY_INTERFACE:
 		case CREATE_OBJECT_PROPERTY_IMPLEMENTATION:
+		case CREATE_FUNCTIONAL_OBJECT_PROPERTY_IMPLEMENTATION:
 			configureClassSubstitutions(substitutions, owlClass);
 			configurePropertySubstitutions(substitutions, owlProperty);
 	        propertyDeclarations.get(owlClass, owlProperty).configureSubstitutions(substitutions);
 			break;
-			
+		case CREATE_FACTORY_TAIL:
+		case CREATE_IMPLEMENTATION_TAIL:
+		case CREATE_INTERFACE_TAIL:
+		case CREATE_VOCABULARY_TAIL:
+			break;
+		default:
+			break;
 		}
 		
 	}

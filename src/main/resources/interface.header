@@ -1,6 +1,8 @@
 package ${package};
 
+import java.net.URI;
 import java.util.Collection;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.protege.owl.codegeneration.WrappedIndividual;
 

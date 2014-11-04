@@ -9,12 +9,10 @@ import org.semanticweb.owlapi.util.ShortFormProvider;
 import org.semanticweb.owlapi.util.SimpleShortFormProvider;
 
 public class IriNames extends AbstractCodeGenerationNames {
-	private OWLOntology ontology;
 	private ShortFormProvider provider;
 
 	public IriNames(OWLOntology ontology, CodeGenerationOptions options) {
 		super(options);
-		this.ontology = ontology;
 		provider = new SimpleShortFormProvider();
 	}
 	

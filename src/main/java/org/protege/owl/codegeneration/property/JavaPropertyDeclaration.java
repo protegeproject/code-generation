@@ -26,11 +26,11 @@ import org.semanticweb.owlapi.model.OWLEntity;
  * @author tredmond
  *
  */
-public interface JavaPropertyDeclarations {
+public interface JavaPropertyDeclaration {
 
 	OWLEntity getOwlProperty();
 	
-	JavaPropertyDeclarations specializeTo(OWLClass subclass);
+	JavaPropertyDeclaration specializeTo(OWLClass subclass);
 	
-	void configureSubstitutions(Map<SubstitutionVariable, String> substitutions);
+	void configureSubstitutions(Map<SubstitutionVariable, String> substitutions);	
 }

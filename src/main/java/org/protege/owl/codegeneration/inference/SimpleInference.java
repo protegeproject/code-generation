@@ -10,10 +10,11 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.protege.owl.codegeneration.names.CodeGenerationNames;
-import org.protege.owl.codegeneration.property.JavaDataPropertyDeclarations;
-import org.protege.owl.codegeneration.property.JavaObjectPropertyDeclarations;
-import org.protege.owl.codegeneration.property.JavaPropertyDeclarations;
+import org.protege.owl.codegeneration.property.JavaDataPropertyDeclaration;
+import org.protege.owl.codegeneration.property.JavaObjectPropertyDeclaration;
+import org.protege.owl.codegeneration.property.JavaPropertyDeclaration;
 import org.semanticweb.owlapi.model.AxiomType;
+import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
@@ -139,25 +140,32 @@ public class SimpleInference implements CodeGenerationInference {
         return results;
 	}
 	
-	public Set<JavaPropertyDeclarations> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names) {
+	public Set<JavaPropertyDeclaration> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names) {
 		if (domainMap == null) {
 			initializeDomainMap();
 		}
-		Set<JavaPropertyDeclarations> declarations = new HashSet<JavaPropertyDeclarations>();
+		Set<JavaPropertyDeclaration> declarations = new HashSet<JavaPropertyDeclaration>();
 		Set<OWLEntity> domains = domainMap.get(cls);
 		if (domains != null) {
 			for (OWLEntity property : domains) {
 				if (property instanceof OWLObjectProperty) {
-					declarations.add(new JavaObjectPropertyDeclarations(this, names, (OWLObjectProperty) property));
+					declarations.add(new JavaObjectPropertyDeclaration(this, names, (OWLObjectProperty) property));
 				}
 				else {
-					declarations.add(new JavaDataPropertyDeclarations(this, cls, (OWLDataProperty) property));
+					declarations.add(new JavaDataPropertyDeclaration(this, cls, (OWLDataProperty) property));
 				}
 			}
 		}
 		return declarations;
 	}
 	
+	@Override
+	public boolean isFunctional(OWLObjectProperty p) {
+		OWLAxiom functionalAxiom = factory.getOWLFunctionalObjectPropertyAxiom(p);
+		return ontology.containsAxiomIgnoreAnnotations(functionalAxiom);
+	}
+	
+	@Override
 	public OWLClass getRange(OWLObjectProperty p) {
 		if (objectRangeMap == null) {
 			intializeObjectRangeMap();
@@ -165,10 +173,17 @@ public class SimpleInference implements CodeGenerationInference {
 		return objectRangeMap.get(p);
 	}
 	
+	@Override
 	public OWLClass getRange(OWLClass owlClass, OWLObjectProperty p) {
 		return getRange(p);
 	}
 	
+	@Override
+	public boolean isFunctional(OWLDataProperty p) {
+		OWLAxiom functionalAxiom = factory.getOWLFunctionalDataPropertyAxiom(p);
+		return ontology.containsAxiomIgnoreAnnotations(functionalAxiom);		
+	}
+
 	public OWLDatatype getRange(OWLDataProperty p) {
 		if (dataRangeMap == null) {
 			intializeDataRangeMap();

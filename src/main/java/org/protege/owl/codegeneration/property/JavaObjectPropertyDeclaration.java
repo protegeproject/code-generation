@@ -24,12 +24,12 @@ import org.semanticweb.owlapi.model.OWLObjectProperty;
  * <p/>
  * @author tredmond
  */
-public class JavaObjectPropertyDeclarations implements JavaPropertyDeclarations {
+public class JavaObjectPropertyDeclaration implements JavaPropertyDeclaration {
 	private CodeGenerationInference inference;
 	private CodeGenerationNames names;
 	private OWLObjectProperty property;
 	
-	public JavaObjectPropertyDeclarations(CodeGenerationInference inference, CodeGenerationNames names, 
+	public JavaObjectPropertyDeclaration(CodeGenerationInference inference, CodeGenerationNames names, 
 			                              OWLObjectProperty property) {
 		this.inference = inference;
 		this.names     = names;
@@ -40,7 +40,7 @@ public class JavaObjectPropertyDeclarations implements JavaPropertyDeclarations 
 		return property;
 	}
 
-	public JavaPropertyDeclarations specializeTo(OWLClass subclass) {
+	public JavaPropertyDeclaration specializeTo(OWLClass subclass) {
 		return this; // no specialization is done...
 	}
 

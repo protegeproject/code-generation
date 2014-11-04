@@ -10,9 +10,9 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.protege.owl.codegeneration.HandledDatatypes;
 import org.protege.owl.codegeneration.names.CodeGenerationNames;
-import org.protege.owl.codegeneration.property.JavaDataPropertyDeclarations;
-import org.protege.owl.codegeneration.property.JavaObjectPropertyDeclarations;
-import org.protege.owl.codegeneration.property.JavaPropertyDeclarations;
+import org.protege.owl.codegeneration.property.JavaDataPropertyDeclaration;
+import org.protege.owl.codegeneration.property.JavaObjectPropertyDeclaration;
+import org.protege.owl.codegeneration.property.JavaPropertyDeclaration;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
@@ -80,25 +80,31 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 	}
 	
     @Override
-	public Set<JavaPropertyDeclarations> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names) {
+	public Set<JavaPropertyDeclaration> getJavaPropertyDeclarations(OWLClass cls, CodeGenerationNames names) {
 		if (domainMap == null) {
 			initializeDomainMap();
 		}
-		Set<JavaPropertyDeclarations> declarations = new HashSet<JavaPropertyDeclarations>();
+		Set<JavaPropertyDeclaration> declarations = new HashSet<JavaPropertyDeclaration>();
 		if (domainMap.get(cls) != null) {
 			for (OWLEntity p : domainMap.get(cls)) {
 				if (p instanceof OWLObjectProperty) {
-					declarations.add(new JavaObjectPropertyDeclarations(this, names, (OWLObjectProperty) p));
+					declarations.add(new JavaObjectPropertyDeclaration(this, names, (OWLObjectProperty) p));
 				}
 				else if (p instanceof OWLDataProperty) {
-					declarations.add(new JavaDataPropertyDeclarations(this, cls, (OWLDataProperty) p));
+					declarations.add(new JavaDataPropertyDeclaration(this, cls, (OWLDataProperty) p));
 				}
 			}
 		}
 		return declarations;
 	}
-	
-    @Override
+    
+	@Override
+	public boolean isFunctional(OWLObjectProperty p) {
+		OWLClassExpression moreThanTwoValues = factory.getOWLObjectMinCardinality(2, p);
+		return !reasoner.isSatisfiable(moreThanTwoValues);
+	}
+
+	@Override
 	public OWLClass getRange(OWLObjectProperty p) {
 		return getRange(factory.getOWLThing(), p);
 	}
@@ -128,6 +134,12 @@ public class ReasonerBasedInference implements CodeGenerationInference {
 	}
 	
     @Override
+	public boolean isFunctional(OWLDataProperty p) {
+		 OWLClassExpression moreThanTwoValues = factory.getOWLDataMinCardinality(2, p);
+		 return !reasoner.isSatisfiable(moreThanTwoValues);
+	}
+
+	@Override
 	public OWLDatatype getRange(OWLDataProperty p) {
 		return getRange(factory.getOWLThing(), p);
 	}

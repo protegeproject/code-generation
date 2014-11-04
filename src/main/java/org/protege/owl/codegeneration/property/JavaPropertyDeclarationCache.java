@@ -33,8 +33,8 @@ import org.semanticweb.owlapi.model.OWLObjectProperty;
 public class JavaPropertyDeclarationCache {
 	private CodeGenerationInference inference;
 	private CodeGenerationNames names;;
-	private Map<OWLClass, Map<OWLEntity, JavaPropertyDeclarations>> class2Property2DeclarationMap
-				= new HashMap<OWLClass, Map<OWLEntity, JavaPropertyDeclarations>>();
+	private Map<OWLClass, Map<OWLEntity, JavaPropertyDeclaration>> class2Property2DeclarationMap
+				= new HashMap<OWLClass, Map<OWLEntity, JavaPropertyDeclaration>>();
 	
 	public JavaPropertyDeclarationCache(CodeGenerationInference inference, CodeGenerationNames names) {
 		this.inference = inference;
@@ -46,7 +46,7 @@ public class JavaPropertyDeclarationCache {
 		OWLDataFactory factory = inference.getOWLOntology().getOWLOntologyManager().getOWLDataFactory();
 		Set<OWLClass> explored = new HashSet<OWLClass>();
 		OWLClass thing = factory.getOWLThing();
-		for (JavaPropertyDeclarations declarations : inference.getJavaPropertyDeclarations(thing, names)) {
+		for (JavaPropertyDeclaration declarations : inference.getJavaPropertyDeclarations(thing, names)) {
 			add(thing, declarations.getOwlProperty(), declarations);
 		}
 		explored.add(thing);
@@ -54,7 +54,7 @@ public class JavaPropertyDeclarationCache {
 	}
 	
 	private void generateChildren(OWLClass parent, Set<OWLClass> explored) {
-		Map<OWLEntity, JavaPropertyDeclarations> parentProperty2DeclarationMap = class2Property2DeclarationMap.get(parent);
+		Map<OWLEntity, JavaPropertyDeclaration> parentProperty2DeclarationMap = class2Property2DeclarationMap.get(parent);
 		if (parentProperty2DeclarationMap == null) {
 			parentProperty2DeclarationMap = Collections.emptyMap();
 		}
@@ -69,15 +69,15 @@ public class JavaPropertyDeclarationCache {
 		
 	}
 	
-	private void copyDeclarations(Map<OWLEntity, JavaPropertyDeclarations> parentProperty2DeclarationMap, 
+	private void copyDeclarations(Map<OWLEntity, JavaPropertyDeclaration> parentProperty2DeclarationMap, 
 								  OWLClass parent,
 								  OWLClass child) {
-		for (Entry<OWLEntity, JavaPropertyDeclarations> entry : parentProperty2DeclarationMap.entrySet()) {
+		for (Entry<OWLEntity, JavaPropertyDeclaration> entry : parentProperty2DeclarationMap.entrySet()) {
 			OWLEntity property = entry.getKey();
-			JavaPropertyDeclarations declarations = entry.getValue();
+			JavaPropertyDeclaration declarations = entry.getValue();
 			add(child, property,  declarations.specializeTo(child));
 		}
-		for (JavaPropertyDeclarations childDeclarations : inference.getJavaPropertyDeclarations(child, names)) {
+		for (JavaPropertyDeclaration childDeclarations : inference.getJavaPropertyDeclarations(child, names)) {
 			OWLEntity property = childDeclarations.getOwlProperty();
 			if (!parentProperty2DeclarationMap.containsKey(property)) {
 				add(child, property, childDeclarations);
@@ -85,19 +85,19 @@ public class JavaPropertyDeclarationCache {
 		}
 	}
 	
-	private void add(OWLClass owlClass, OWLEntity property, JavaPropertyDeclarations declarations) {
-		Map<OWLEntity, JavaPropertyDeclarations> property2DeclarationsMap = class2Property2DeclarationMap.get(owlClass);
+	private void add(OWLClass owlClass, OWLEntity property, JavaPropertyDeclaration declarations) {
+		Map<OWLEntity, JavaPropertyDeclaration> property2DeclarationsMap = class2Property2DeclarationMap.get(owlClass);
 		if (property2DeclarationsMap == null) {
-			property2DeclarationsMap = new HashMap<OWLEntity, JavaPropertyDeclarations>();
+			property2DeclarationsMap = new HashMap<OWLEntity, JavaPropertyDeclaration>();
 			class2Property2DeclarationMap.put(owlClass, property2DeclarationsMap);
 		}
 		property2DeclarationsMap.put(property, declarations);
 	}
 	
 	
-	public JavaPropertyDeclarations get(OWLClass clazz, OWLEntity property) {
-		Map<OWLEntity, JavaPropertyDeclarations> property2DeclarationMap = class2Property2DeclarationMap.get(clazz);
-		JavaPropertyDeclarations decls = null;
+	public JavaPropertyDeclaration get(OWLClass clazz, OWLEntity property) {
+		Map<OWLEntity, JavaPropertyDeclaration> property2DeclarationMap = class2Property2DeclarationMap.get(clazz);
+		JavaPropertyDeclaration decls = null;
 		if (property2DeclarationMap != null) {
 			decls = property2DeclarationMap.get(property);
 		}
@@ -113,7 +113,7 @@ public class JavaPropertyDeclarationCache {
 	}
 	
 	private <X extends Comparable<OWLObject>> Set<X> getPropertiesForClass(OWLClass owlClass, Class<? extends X> javaClass) {
-		Map<OWLEntity, JavaPropertyDeclarations> property2DeclarationMap = class2Property2DeclarationMap.get(owlClass);
+		Map<OWLEntity, JavaPropertyDeclaration> property2DeclarationMap = class2Property2DeclarationMap.get(owlClass);
 		if (property2DeclarationMap == null) {
 			return Collections.emptySet();
 		}
