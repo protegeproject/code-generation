@@ -1,6 +1,7 @@
 package ${package}.impl;
 
 import ${package}.*;
+${implementationExtraImport}
 
 import java.net.URI;
 import java.util.Collection;

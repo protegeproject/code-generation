@@ -5,10 +5,10 @@
     <test name="Code Generation Tests">
         <classes>
             <class name="org.protege.owl.codegeneration.TestAs"/>
+            <class name="org.protege.owl.codegeneration.TestCustomNames"/>
             <class name="org.protege.owl.codegeneration.TestDateAndURI"/>
             <class name="org.protege.owl.codegeneration.TestIgnore"/>
             <class name="org.protege.owl.codegeneration.TestInferredCodeGeneration"/>
-            <class name="org.protege.owl.codegeneration.TestInferredPropertyValues"/>
             <class name="org.protege.owl.codegeneration.TestInferredPropertyValues"/>
             <class name="org.protege.owl.codegeneration.TestListener"/>
             <class name="org.protege.owl.codegeneration.TestSimpleInference"/>

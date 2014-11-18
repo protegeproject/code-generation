@@ -4,6 +4,9 @@ import static org.protege.owl.codegeneration.SubstitutionVariable.CAPITALIZED_PR
 import static org.protege.owl.codegeneration.SubstitutionVariable.CLASS_IRI;
 import static org.protege.owl.codegeneration.SubstitutionVariable.DATE;
 import static org.protege.owl.codegeneration.SubstitutionVariable.FACTORY_CLASS_NAME;
+import static org.protege.owl.codegeneration.SubstitutionVariable.FACTORY_EXTRA_IMPORT;
+import static org.protege.owl.codegeneration.SubstitutionVariable.FACTORY_PACKAGE;
+import static org.protege.owl.codegeneration.SubstitutionVariable.IMPLEMENTATION_EXTRA_IMPORT;
 import static org.protege.owl.codegeneration.SubstitutionVariable.IMPLEMENTATION_NAME;
 import static org.protege.owl.codegeneration.SubstitutionVariable.INTERFACE_LIST;
 import static org.protege.owl.codegeneration.SubstitutionVariable.INTERFACE_NAME;
@@ -104,17 +107,21 @@ public class DefaultWorker implements Worker {
         if (folder != null && !folder.exists()) {
             folder.mkdirs();
         }
+        File packageFile;
         String pack = options.getPackage();
         if (pack != null) {
-            pack = pack.replace('.', '/');
-            File file = folder == null ? new File(pack) : new File(folder, pack);
-            file.mkdirs();
-            File f = new File(file, "impl");
-            f.mkdirs();
+            String packPath = pack.replace('.', '/');
+            packageFile = folder == null ? new File(packPath) : new File(folder, packPath);
+            packageFile.mkdirs();
         } else {
-            File file = folder == null ? new File("impl") : new File(folder, "impl");
-            file.mkdirs();
+        	packageFile= new File("");
         }
+        File implFile = new File(packageFile, "impl");
+        implFile.mkdirs();
+        String subPackage = options.getFactorySubPackage();
+        String subPackagePath = subPackage.replace('.', '/');
+        File factoryDirectory = new File(packageFile, subPackagePath);
+        factoryDirectory.mkdirs();
     }
     
     public File getInterfaceFile(OWLClass owlClass) {
@@ -128,11 +135,13 @@ public class DefaultWorker implements Worker {
     }
     
     public File getVocabularyFile() {
-    	return getInterfaceFile(Constants.VOCABULARY_CLASS_NAME);
+    	return new File(options.getOutputFolder(),
+    			options.getVocabularyFqn().replace('.', '/') +".java");
     }
     
     public File getFactoryFile() {
-    	return getInterfaceFile(options.getFactoryClassName());
+    	return new File(options.getOutputFolder(),
+    			options.getFactoryFqn().replace('.', '/')+".java");
     }
 
 
@@ -216,6 +225,9 @@ public class DefaultWorker implements Worker {
         substitutions.put(DATE, new Date().toString());
         substitutions.put(USER, System.getProperty("user.name"));
         substitutions.put(FACTORY_CLASS_NAME, options.getFactoryClassName());
+        substitutions.put(FACTORY_PACKAGE, options.getFactoryPackage());
+        substitutions.put(FACTORY_EXTRA_IMPORT, options.getExtraFactoryImport());
+        substitutions.put(IMPLEMENTATION_EXTRA_IMPORT, options.getExtraImplementationImport());
     }
 
 	private void configureClassSubstitutions(Map<SubstitutionVariable, String> substitutions, 

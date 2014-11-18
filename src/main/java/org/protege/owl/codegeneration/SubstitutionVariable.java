@@ -4,8 +4,11 @@ package org.protege.owl.codegeneration;
 public enum SubstitutionVariable {
 	PACKAGE("package"),
 	FACTORY_CLASS_NAME("factoryClass"),
+	FACTORY_EXTRA_IMPORT("factoryExtraImport"),
+	FACTORY_PACKAGE("factoryPackage"),
     INTERFACE_LIST("superInterfaces"),
 	INTERFACE_NAME("interfaceName"),
+	IMPLEMENTATION_EXTRA_IMPORT("implementationExtraImport"),
 	IMPLEMENTATION_NAME("implementationName"),
 	CLASS_IRI("classIri"),
     PROPERTY_IRI("propertyIri"),

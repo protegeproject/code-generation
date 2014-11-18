@@ -56,6 +56,7 @@ public class GenerateTestCode {
 		generateSimpleJavaCode("CodeGeneration003.owl", "inferred.generate03", "InferredGenerate03Factory",true, outputFolder);
 		generateSimpleJavaCode("pizza.owl", "inferred.pizza", "MyInferredPizzaFactory", true, outputFolder);
 		generateSimpleJavaCode(GenerateTestCode.FEB_TBOX_ONTOLOGY, "inferred.febissue", "FebIssueFactory", true, outputFolder);
+		generateCustomJavaCode();
 	}
 	
 	private static File getOutputFolder() {
@@ -98,6 +99,25 @@ public class GenerateTestCode {
         DefaultWorker.generateCode(owlOntology, options, new IriNames(owlOntology, options), inference);
 		LOGGER.info("Generating source code for ontology " + ontologyLocation 
 				+ " (" + (useInference ? "inferred - " : "asserted -") + (System.currentTimeMillis() - startTime) + "ms).");
+	}
+	
+	public static void generateCustomJavaCode() throws IOException, OWLOntologyCreationException {
+		long startTime = System.currentTimeMillis();
+		File outputFolder = getOutputFolder();
+		String fullPackageName = "org.protege.owl.codegeneration.custom.names";
+		OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+		OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(new File(GenerateTestCode.ONTOLOGY_ROOT, "CustomNames.owl"));
+		CodeGenerationOptions options = new CodeGenerationOptions();
+		options.setPackage(fullPackageName);
+		options.setFactorySubPackage("test.factory.path");
+		options.setFactoryClassName("CustomFactory");
+		
+		options.setOutputFolder(outputFolder);
+        CodeGenerationInference inference = new SimpleInference(owlOntology);
+        
+        DefaultWorker.generateCode(owlOntology, options, new IriNames(owlOntology, options), inference);
+		LOGGER.info("Generating source code for ontology using customized options " 
+				+ (System.currentTimeMillis() - startTime) + "ms).");
 	}
 
 	public static void addIRIMappers(OWLOntologyManager manager) {
