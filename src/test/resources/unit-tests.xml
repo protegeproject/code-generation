@@ -11,6 +11,7 @@
             <class name="org.protege.owl.codegeneration.TestInferredCodeGeneration"/>
             <class name="org.protege.owl.codegeneration.TestInferredPropertyValues"/>
             <class name="org.protege.owl.codegeneration.TestListener"/>
+            <class name="org.protege.owl.codegeneration.TestMultipleInheritance"/>
             <class name="org.protege.owl.codegeneration.TestSimpleInference"/>
             <class name="org.protege.owl.codegeneration.TestStdCodeGeneration"/>
             <class name="org.protege.owl.codegeneration.email_20130214.TestIssue"/>

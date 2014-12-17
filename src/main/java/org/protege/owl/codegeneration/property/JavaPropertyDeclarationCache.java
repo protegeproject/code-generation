@@ -3,6 +3,7 @@ package org.protege.owl.codegeneration.property;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -49,24 +50,22 @@ public class JavaPropertyDeclarationCache {
 		for (JavaPropertyDeclaration declarations : inference.getJavaPropertyDeclarations(thing, names)) {
 			add(thing, declarations.getOwlProperty(), declarations);
 		}
-		explored.add(thing);
 		generateChildren(thing, explored);
 	}
 	
 	private void generateChildren(OWLClass parent, Set<OWLClass> explored) {
+		if (explored.contains(parent)) {
+			return;
+		}
+		explored.add(parent);
 		Map<OWLEntity, JavaPropertyDeclaration> parentProperty2DeclarationMap = class2Property2DeclarationMap.get(parent);
 		if (parentProperty2DeclarationMap == null) {
 			parentProperty2DeclarationMap = Collections.emptyMap();
 		}
 		for (OWLClass child : inference.getSubClasses(parent)) {
-			if (explored.contains(child)) {
-				continue;
-			}
 			copyDeclarations(parentProperty2DeclarationMap, parent, child);
-			explored.add(child);
 			generateChildren(child, explored);
-		}
-		
+		}		
 	}
 	
 	private void copyDeclarations(Map<OWLEntity, JavaPropertyDeclaration> parentProperty2DeclarationMap, 
