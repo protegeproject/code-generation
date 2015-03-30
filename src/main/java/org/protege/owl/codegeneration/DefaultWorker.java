@@ -1,22 +1,6 @@
 package org.protege.owl.codegeneration;
 
-import static org.protege.owl.codegeneration.SubstitutionVariable.CAPITALIZED_PROPERTY;
-import static org.protege.owl.codegeneration.SubstitutionVariable.CLASS_IRI;
-import static org.protege.owl.codegeneration.SubstitutionVariable.DATE;
-import static org.protege.owl.codegeneration.SubstitutionVariable.FACTORY_CLASS_NAME;
-import static org.protege.owl.codegeneration.SubstitutionVariable.FACTORY_EXTRA_IMPORT;
-import static org.protege.owl.codegeneration.SubstitutionVariable.FACTORY_PACKAGE;
-import static org.protege.owl.codegeneration.SubstitutionVariable.IMPLEMENTATION_EXTRA_IMPORT;
-import static org.protege.owl.codegeneration.SubstitutionVariable.IMPLEMENTATION_NAME;
-import static org.protege.owl.codegeneration.SubstitutionVariable.INTERFACE_LIST;
-import static org.protege.owl.codegeneration.SubstitutionVariable.INTERFACE_NAME;
-import static org.protege.owl.codegeneration.SubstitutionVariable.JAVADOC;
-import static org.protege.owl.codegeneration.SubstitutionVariable.PACKAGE;
-import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY;
-import static org.protege.owl.codegeneration.SubstitutionVariable.PROPERTY_IRI;
-import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_CLASS;
-import static org.protege.owl.codegeneration.SubstitutionVariable.UPPERCASE_PROPERTY;
-import static org.protege.owl.codegeneration.SubstitutionVariable.USER;
+import static org.protege.owl.codegeneration.SubstitutionVariable.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +11,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
@@ -42,6 +25,7 @@ import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.search.EntitySearcher;
 
 public class DefaultWorker implements Worker {
 	private EnumMap<CodeGenerationPhase, String> templateMap = new EnumMap<CodeGenerationPhase, String>(CodeGenerationPhase.class);
@@ -325,7 +309,7 @@ public class DefaultWorker implements Worker {
 	
 	private String getJavadoc(OWLEntity e) {
 	    StringBuffer sb = new StringBuffer();
-	    Set<OWLAnnotation> annotations = e.getAnnotations(owlOntology, Constants.JAVADOC);
+	    Collection<OWLAnnotation> annotations = EntitySearcher.getAnnotations(e, owlOntology, Constants.JAVADOC);
 	    if (annotations.size() == 1) {
 	        OWLAnnotation javadocAnnotation = annotations.iterator().next();
 	        if (javadocAnnotation.getValue() instanceof OWLLiteral) {
