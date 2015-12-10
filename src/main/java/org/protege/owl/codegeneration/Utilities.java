@@ -2,7 +2,6 @@ package org.protege.owl.codegeneration;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Set;
 import java.util.TreeSet;
 
 import org.semanticweb.owlapi.model.OWLAnnotation;
@@ -10,6 +9,7 @@ import org.semanticweb.owlapi.model.OWLAnnotationValue;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.search.EntitySearcher;
 
 public class Utilities {
     private Utilities() { }
@@ -39,7 +39,7 @@ public class Utilities {
 	}
 
 	public static boolean ignore(OWLEntity en, OWLOntology ontology) {
-		Set<OWLAnnotation> annotations = en.getAnnotations(ontology);
+		Collection<OWLAnnotation> annotations = EntitySearcher.getAnnotations(en.getIRI(), ontology);
 		for (OWLAnnotation anno : annotations) {
 			if (!anno.getProperty().equals(Constants.IGNORE)) {
 				continue;
