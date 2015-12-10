@@ -30,7 +30,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
@@ -44,8 +43,6 @@ import org.semanticweb.owlapi.model.OWLObjectProperty;
  * 
  */
 public class JavaCodeGenerator {
-	public static final Logger LOGGER = Logger.getLogger(JavaCodeGenerator.class);
-
     private Worker worker;
     private CodeGenerationInference inference;
 

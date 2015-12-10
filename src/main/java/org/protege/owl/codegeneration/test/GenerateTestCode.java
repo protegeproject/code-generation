@@ -3,7 +3,8 @@ package org.protege.owl.codegeneration.test;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.protege.owl.codegeneration.CodeGenerationOptions;
 import org.protege.owl.codegeneration.DefaultWorker;
 import org.protege.owl.codegeneration.Utilities;
@@ -29,7 +30,7 @@ import org.semanticweb.owlapi.util.SimpleIRIMapper;
  *
  */
 public class GenerateTestCode {
-	public static Logger LOGGER = Logger.getLogger(GenerateTestCode.class);
+	public static Logger LOGGER = LoggerFactory.getLogger(GenerateTestCode.class);
 	
 	public final static File ONTOLOGY_ROOT;
 	static {

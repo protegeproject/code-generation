@@ -7,25 +7,27 @@
 		<artifactId>oss-parent</artifactId>
 		<version>7</version>
 	</parent>
-	
+
 	<groupId>edu.stanford.protege</groupId>
-	<artifactId>org.protege.editor.owl.codegeneration</artifactId>
-	<version>1.0.3-SNAPSHOT</version>
+	<artifactId>code-generation</artifactId>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 
 	<name>OWL Code Generation Plug-in</name>
     <description>Generate Java code from an OWL ontology in the Protege Desktop editing environment.</description>
     <url>http://protegewiki.stanford.edu/wiki/Protege-OWL_Code_Generator</url>
+
 	<organization>
 		<name>Stanford Center for Biomedical Informatics Research</name>
 		<url>http://bmir.stanford.edu/</url>
 	</organization>
+
 	<licenses>
 		<license>
 			<name>GNU Lesser General Public License</name>
 			<url>http://www.gnu.org/copyleft/lesser.html</url>
 		</license>
-	</licenses>    
+	</licenses>
 
 	<developers>
 		<developer>
@@ -33,17 +35,22 @@
 			<email>tredmond@stanford.edu</email>
 		</developer>
 	</developers>
-	
+
 	<scm>
 		<connection>scm:git:git@github.com:protegeproject/code-generation.git</connection>
 		<developerConnection>scm:git:git@github.com:protegeproject/code-generation.git</developerConnection>
 		<url>https://github.com/protegeproject/code-generation</url>
 	</scm>
-	
+
 	<issueManagement>
 		<system>GitHub Issues</system>
 		<url>https://github.com/protegeproject/code-generation/issues</url>
 	</issueManagement>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<protege.version>5.0.0-beta-19</protege.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -57,36 +64,36 @@
 			<artifactId>commons-cli</artifactId>
 			<version>1.2</version>
 		</dependency>
-          
+
         <dependency>
 			<groupId>edu.stanford.protege</groupId>
-			<artifactId>org.protege.common</artifactId>
-			<version>[4.3.0,6)</version>
+			<artifactId>protege-common</artifactId>
+			<version>${protege.version}</version>
         </dependency>
 
         <dependency>
 			<groupId>edu.stanford.protege</groupId>
-			<artifactId>org.protege.editor.core.application</artifactId>
-			<version>[4.3.0,6)</version>
+			<artifactId>protege-editor-core</artifactId>
+			<version>${protege.version}</version>
         </dependency>
 
         <dependency>
-          <groupId>edu.stanford.protege</groupId>
-          <artifactId>org.protege.editor.owl</artifactId>
-          <version>[4.3.0,6)</version>
+			<groupId>edu.stanford.protege</groupId>
+            <artifactId>protege-editor-owl</artifactId>
+			<version>${protege.version}</version>
         </dependency>
 
 		<dependency>
-			<groupId>com.hermit-reasoner</groupId>
+			<groupId>net.sourceforge.owlapi</groupId>
 			<artifactId>org.semanticweb.hermit</artifactId>
-			<version>1.3.8.5-SNAPSHOT</version>
+			<version>1.3.8.413</version>
 			<scope>test</scope>
 		</dependency>
 
         <dependency>
 			<groupId>net.sourceforge.owlapi</groupId>
 			<artifactId>jfact</artifactId>
-			<version>[4.0,4.1)</version>
+			<version>4.0.3</version>
 			<scope>test</scope>
         </dependency>
 
@@ -104,23 +111,53 @@
 		</dependency>
 	</dependencies>
 
-
 	<build>
 		<plugins>
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>
-              <version>3.0</version>
+              <version>3.3</version>
               <configuration>
-                <source>1.7</source>
-                <target>1.7</target>
+                <source>1.8</source>
+                <target>1.8</target>
               </configuration>
             </plugin>
-            
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<additionalparam>-Xdoclint:none</additionalparam>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
             <plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.5.3</version>
+				<version>3.0.1</version>
 				<extensions>true</extensions>
 					<configuration>
 					<instructions>
@@ -130,13 +167,12 @@
 						<Excluded-Import>org.protege.owl.codegeneration</Excluded-Import>
 						<Export-Package>
 							!org.protege.owl.codegeneration.test,
-							${project.artifactId}*;version=${project.version}, 
+							${project.artifactId}*;version=${project.version},
 							org.protege.owl.codegeneration.*;version=${project.version}
 						</Export-Package>
 						<Import-Package>
-							org.apache.log4j*;version="[1.2,2)",
-							org.protege.editor.core.*;version="4.3", <!-- equivalent to [4.3,infinity) -->
-                            org.protege.editor.owl.*;version="4.3",							
+							org.protege.editor.core.*;version="5.0", <!-- equivalent to [5.0,infinity) -->
+							org.protege.editor.owl.*;version="5.0",
 							*
 						</Import-Package>
 						<Include-Resource>plugin.xml, {maven-resources}</Include-Resource>
@@ -152,9 +188,9 @@
                     <execution>
                         <id>add-test-source</id>
                         <phase>generate-test-sources</phase>
-                        <goals>  
-                            <goal>add-test-source</goal>  
-                        </goals>  
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
                         <configuration>
                             <sources>
                                 <source>target/generated-sources</source>
@@ -163,34 +199,31 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            <plugin>  
-                <groupId>org.codehaus.mojo</groupId>  
-                <artifactId>exec-maven-plugin</artifactId>  
-                <version>1.2.1</version>  
-                <executions>  
-                    <execution>  
-                        <phase>generate-test-sources</phase>  
-                        <goals>  
-                            <goal>java</goal>  
-                        </goals>  
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
                         <configuration>
 							<classpathScope>test</classpathScope>
 							<mainClass>org.protege.owl.codegeneration.test.GenerateTestCode</mainClass>
-                        </configuration>  
-                    </execution>  
-                </executions>  
-            </plugin>  
-            
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.14</version>
 				<configuration>
 					<skip>true</skip>
-                    <systemPropertyVariables>
-                        <log4j.configuration>file:log4j.xml</log4j.configuration>
-                    </systemPropertyVariables>
 				</configuration>
 				<executions>
 					<execution>
@@ -204,17 +237,11 @@
 							<suiteXmlFiles>
 								<suiteXmlFile>src/test/resources/unit-tests.xml</suiteXmlFile>
 							</suiteXmlFiles>
-                            <systemProperties>
-                                <property>
-                                    <name>log4j.configuration</name>
-                                    <value>file:log4j.xml</value>
-                                </property>
-                            </systemProperties>
 				        </configuration>
 					</execution>
 				</executions>
 			</plugin>
-			
+
             <plugin>
               <artifactId>maven-eclipse-plugin</artifactId>
               <version>2.9</version>
@@ -222,8 +249,8 @@
                 <pde>true</pde>
               </configuration>
             </plugin>
-
 		</plugins>
+
 		<pluginManagement>
 			<plugins>
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->

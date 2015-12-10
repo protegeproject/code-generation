@@ -10,10 +10,11 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import org.apache.log4j.Logger;
-import org.protege.editor.core.ProtegeApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.protege.editor.core.prefs.Preferences;
 import org.protege.editor.core.prefs.PreferencesManager;
+import org.protege.editor.core.ui.error.ErrorLogPanel;
 import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
 import org.protege.owl.codegeneration.CodeGenerationOptions;
@@ -29,7 +30,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
  * 
  */
 public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implements GenerateCodeCallback {
-	public static final Logger LOGGER = Logger.getLogger(GenerateProtegeOwlJavaCodeAction.class);
+	public static final Logger LOGGER = LoggerFactory.getLogger(GenerateProtegeOwlJavaCodeAction.class);
 	public static final String CODE_GENERATION_PREFERENCES = "CODE_GENERATION_PREFERENCES";
 	public static final String PACKAGE_PREFS_KEY = "package";
 	public static final String FOLDER_PREFS_KEY = "folder";
@@ -127,7 +128,7 @@ public class GenerateProtegeOwlJavaCodeAction extends ProtegeOWLAction implement
                     JOptionPane.INFORMATION_MESSAGE);
             LOGGER.info("Java code successfully generated in folder " + options.getOutputFolder() + ".");
         } catch (IOException e) {
-        	ProtegeApplication.getErrorLog().logError(e);
+        	ErrorLogPanel.showErrorDialog(e);
         }
     }
 

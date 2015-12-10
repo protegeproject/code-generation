@@ -8,7 +8,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.protege.owl.codegeneration.CodeGenerationOptions;
 import org.protege.owl.codegeneration.DefaultWorker;
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
@@ -24,7 +25,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 
 public class GenerateSimpleJavaCode {
-	public static Logger LOGGER = Logger.getLogger(GenerateTestCode.class);
+	public static Logger LOGGER = LoggerFactory.getLogger(GenerateTestCode.class);
 	public static final String DELETE_OPT   = "d";
 	public static final String FACTORY_OPT  = "f";
 	public static final String OUTPUT_OPT   = "o";

@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
 import org.protege.owl.codegeneration.HandledDatatypes;
 import org.protege.owl.codegeneration.names.CodeGenerationNames;
 import org.protege.owl.codegeneration.property.JavaDataPropertyDeclaration;
@@ -28,8 +27,6 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.search.EntitySearcher;
 
 public class ReasonerBasedInference implements CodeGenerationInference {
-	public static final Logger LOGGER = Logger.getLogger(ReasonerBasedInference.class);
-	
 	private OWLOntology ontology;
 	private OWLReasoner reasoner;
 	private OWLDataFactory factory;

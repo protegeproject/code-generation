@@ -1,9 +1,11 @@
 .classpath
 .project
 .settings/
+.idea/
 build.properties
 classes.eclipse/
 META-INF/
 src/test/resources/catalog-v001.xml
 target/
 test-output/
+*.iml
